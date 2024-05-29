@@ -1,11 +1,13 @@
 package be.codewriter.melodymatrix.view
 
 import atlantafx.base.theme.PrimerLight
-
+import be.codewriter.melodymatrix.view.test.MidiSimulator
+import be.codewriter.melodymatrix.view.test.TestViewButtons
+import be.codewriter.melodymatrix.view.test.TestViewMusicSelection
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
-import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -14,6 +16,8 @@ import kotlin.system.exitProcess
 
 class TestView : Application() {
 
+    val midiSimulator = MidiSimulator()
+
     fun run() {
         launch()
     }
@@ -21,13 +25,15 @@ class TestView : Application() {
     override fun start(stage: Stage) {
         setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
 
+        var mainView = HBox(
+            TestViewMusicSelection(midiSimulator),
+            TestViewButtons(stage, midiSimulator)
+        ).apply {
+
+        }
+
         with(stage) {
-            scene = Scene(BorderPane().apply {
-                top = LogoBar()
-                left = MidiCard(midiHandler)
-                center = RecordingsCard(midiHandler)
-                right = ViewersCard(stage, midiHandler)
-            }, 1000.0, 800.0)
+            scene = Scene(mainView, 600.0, 400.0)
             title = "MIDI Viewer"
 
             setOnCloseRequest {

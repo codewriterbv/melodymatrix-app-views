@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view
 
-import be.codewriter.melodymatrix.app.midi.MidiDataReceivedListener
+import be.codewriter.melodymatrix.view.test.MidiDataReceivedListener
 import javafx.stage.Stage
 
 /**

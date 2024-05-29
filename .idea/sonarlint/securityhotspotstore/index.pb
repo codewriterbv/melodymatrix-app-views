@@ -1,0 +1,21 @@
+
+9
+	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+o
+?src/main/kotlin/be/codewriter/melodymatrix/view/TestLauncher.kt,b/a/baba198d349c042a04338da3d5fb0e3af8793a66
+@
+build.gradle.kts,d/b/dbcff70658daf80b53ce624f6adcaa529df5ed8d
+k
+;src/main/kotlin/be/codewriter/melodymatrix/view/TestView.kt,b/e/be866c01c053f0b8654e14e8c809147bce0338c8
+r
+Bsrc/main/kotlin/be/codewriter/melodymatrix/view/VisualizerStage.kt,5/9/59036c25e229178d8bd05eff61358f2595758467
+t
+Dsrc/main/kotlin/be/codewriter/melodymatrix/view/TestViewButtons.java,2/3/23a0ca284b6b2d110b056729312d2ef2f8df842e
+s
+Csrc/main/kotlin/be/codewriter/melodymatrix/view/scale/ScaleStage.kt,c/9/c9c9eaf8db7466e124f37095e537931f50bc92e6
+s
+Csrc/main/kotlin/be/codewriter/melodymatrix/view/piano/PianoStage.kt,3/7/3705cd94b8af5491038d0582fdf1e7212ac95029
+y
+Isrc/main/kotlin/be/codewriter/melodymatrix/view/TestViewMusicSelection.kt,8/1/81c9f539f609121aceaa281bd025cfbbacc8021e
+z
+Jsrc/main/kotlin/be/codewriter/melodymatrix/view/stage/chart/ChartsStage.kt,8/8/88be48ff3fc84c593c4939fbe526e5bebec0589b
