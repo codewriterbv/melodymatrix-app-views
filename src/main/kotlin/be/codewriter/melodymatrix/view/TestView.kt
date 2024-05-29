@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
 
 class TestView : Application() {
 
-    val midiSimulator = MidiSimulator()
+    private val midiSimulator = MidiSimulator()
 
     fun run() {
         launch()
@@ -25,11 +25,11 @@ class TestView : Application() {
     override fun start(stage: Stage) {
         setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
 
-        var mainView = HBox(
+        val mainView = HBox(
             TestViewMusicSelection(midiSimulator),
             TestViewButtons(stage, midiSimulator)
         ).apply {
-
+            spacing = 25.0
         }
 
         with(stage) {

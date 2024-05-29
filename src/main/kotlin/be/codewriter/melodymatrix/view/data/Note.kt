@@ -1,7 +1,5 @@
 package be.codewriter.melodymatrix.view.data
 
-import java.util.*
-
 enum class Note(
     val mainNote: MainNote,
     val parentNote: Note? = null,
@@ -163,7 +161,7 @@ enum class Note(
                 .filter { o -> o.mainNote != MainNote.UNDEFINED }
                 .map { it.mainNote }
                 .distinct()
-                .sorted(Comparator.comparingInt(MainNote::sorktingKey))
+                .sorted(Comparator.comparingInt(MainNote::sortingKey))
                 .toList()
         }
 

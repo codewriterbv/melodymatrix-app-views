@@ -67,13 +67,13 @@ class PianoStage : VisualizerStage() {
         Platform.runLater {
             logger.debug(
                 "Received note {} {}",
-                midiData.note(),
-                (if (midiData.isNoteOn()) "ON" else "OFF")
+                midiData.note,
+                (if (midiData.isNoteOn) "ON" else "OFF")
             )
 
             pianoGenerator.playNote(
-                midiData.note(),
-                midiData.isNoteOn(),
+                midiData.note,
+                midiData.isNoteOn,
                 pianoConfiguratorEffect.getPianoEffectSettings()
             )
         }

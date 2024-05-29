@@ -4,7 +4,7 @@ import javafx.scene.paint.Color
 
 
 enum class MainNote(
-    val sorktingKey: Int,
+    val sortingKey: Int,
     val pianoKeyType: PianoKeyType,
     val chartColor: Color,
     val labelColor: Color

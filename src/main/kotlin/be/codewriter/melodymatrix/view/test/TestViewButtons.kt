@@ -15,17 +15,18 @@ class TestViewButtons(val parentStage: Stage, val midiSimulator: MidiSimulator) 
         spacing = 10.0
 
         children.setAll(
-            createVisualizerButton("Piano") { PianoStage() },
-            createVisualizerButton("Charts") { ChartsStage() },
-            createVisualizerButton("Scale") { ScaleStage() }
+            createButton("Piano") { PianoStage() },
+            createButton("Charts") { ChartsStage() },
+            createButton("Scale") { ScaleStage() }
         )
     }
 
-    private fun createVisualizerButton(label: String, stageSupplier: () -> VisualizerStage): Node {
+    private fun createButton(label: String, stageSupplier: () -> VisualizerStage): Node {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->
                 val stage = stageSupplier()
+                midiSimulator.registerListener(stage)
 
                 val onClose = stage.onCloseRequest
                 stage.setOnCloseRequest {

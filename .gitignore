@@ -1,4 +1,6 @@
 .idea/
 .kotlin/
+.gradle/
+build/
 logs/
 system/

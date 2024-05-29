@@ -38,7 +38,7 @@ class ChartsStage : VisualizerStage() {
     }
 
     override fun onMidiDataReceived(midiData: MidiData) {
-        val note = midiData.note()
+        val note = midiData.note
         for (visualizer in charts.children) {
             if (visualizer is ChartVisualizer) {
                 visualizer.onNote(note)

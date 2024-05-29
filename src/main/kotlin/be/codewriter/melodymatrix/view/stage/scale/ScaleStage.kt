@@ -93,13 +93,13 @@ class ScaleStage : VisualizerStage() {
         Platform.runLater {
             logger.info(
                 "Received note {} {}",
-                midiData.note(),
-                (if (midiData.isNoteOn()) "ON" else "OFF")
+                midiData.note,
+                (if (midiData.isNoteOn) "ON" else "OFF")
             )
-            val note = midiData.note()
+            val note = midiData.note
             val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
             if (label != null) {
-                if (midiData.isNoteOn()) {
+                if (midiData.isNoteOn) {
                     if (note.mainNote.isSharp) {
                         label.style = "-fx-text-fill: blue;"
                     } else {
