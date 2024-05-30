@@ -3,6 +3,8 @@
 This project contains the Stage components that are used by the MelodyMatrix application to visualize music. It's a
 JavaFX/Kotlin/Gradle project as that is also what is used for the MelodyMatrix application itself.
 
+![](docs/melodymatrix.png)
+
 What this project contains:
 
 * Views
@@ -46,7 +48,9 @@ What this project doesn't contain:
 * The handling of the notes that are played, needs to be implemented in an override:
 
 ```java
-override fun onMidiDataReceived(midiData: MidiData) {
+override fun
+
+onMidiDataReceived(midiData:MidiData) {
     val note = midiData.note
     // Add your logic here
 }
