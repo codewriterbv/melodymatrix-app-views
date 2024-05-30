@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.data.Octave
 import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
 
@@ -14,10 +15,12 @@ class TestViewMusicSelection(val midiSimulator: MidiSimulator) : VBox() {
         spacing = 10.0
 
         children.setAll(
+            Label("Test music selection"),
             createDurationSlider(),
-            createButton("All Notes", Note.entries
-                .toList()
-                .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey }))
+            createButton(
+                "All Notes", Note.entries
+                    .toList()
+                    .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey }))
             ),
             createButton("Octave 5", Note.entries.stream()
                 .filter { n -> n.octave == Octave.OCTAVE_5 }

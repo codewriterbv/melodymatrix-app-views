@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.test.TestViewButtons
 import be.codewriter.melodymatrix.view.test.TestViewMusicSelection
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.layout.HBox
 import javafx.stage.Stage
@@ -30,11 +31,12 @@ class TestView : Application() {
             TestViewButtons(stage, midiSimulator)
         ).apply {
             spacing = 25.0
+            padding = Insets(25.0)
         }
 
         with(stage) {
             scene = Scene(mainView, 600.0, 400.0)
-            title = "MIDI Viewer"
+            title = "Test application for the MelodyMatrix Viewers"
 
             setOnCloseRequest {
                 logger.warn("Closing application...")

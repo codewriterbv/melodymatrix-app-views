@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.stage.scale.ScaleStage
 import javafx.scene.Node
 import javafx.scene.control.Button
+import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
@@ -15,6 +16,7 @@ class TestViewButtons(val parentStage: Stage, val midiSimulator: MidiSimulator) 
         spacing = 10.0
 
         children.setAll(
+            Label("Open one or more views"),
             createButton("Piano") { PianoStage() },
             createButton("Charts") { ChartsStage() },
             createButton("Scale") { ScaleStage() }
