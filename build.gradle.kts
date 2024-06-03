@@ -15,6 +15,10 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass.set("be.codewriter.melodymatrix.view.TestLauncher")
+}
+
 dependencies {
     implementation("com.github.almasb:fxgl:${Versions.fxgl}")
     implementation("eu.hansolo.fx:charts:${Versions.charts}")
@@ -30,8 +34,4 @@ dependencies {
 javafx {
     version = "21.0.2"
     modules("javafx.controls", "javafx.fxml", "javafx.media")
-}
-
-application {
-    mainClass.set("be.codewriter.melodymatrix.view.TestLauncher")
 }
