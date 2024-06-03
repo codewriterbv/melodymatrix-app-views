@@ -47,8 +47,7 @@ class CoxCombPlayedNotes : TitledPane(), ChartVisualizer {
 
         text = "Coxcomb"
         content = coxComb
-        maxWidth = 400.0
-        maxHeight = 400.0
+        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
     override fun onNote(note: Note) {

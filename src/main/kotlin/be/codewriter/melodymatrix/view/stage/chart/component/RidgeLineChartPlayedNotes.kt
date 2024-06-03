@@ -65,8 +65,7 @@ class RidgeLineChartPlayedNotes : TitledPane(), ChartVisualizer {
 
         text = "Ridge Line Chart"
         content = chartBox
-        maxWidth = 400.0
-        maxHeight = 400.0
+        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
     override fun onNote(note: Note) {

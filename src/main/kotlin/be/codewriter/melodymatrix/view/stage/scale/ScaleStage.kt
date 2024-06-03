@@ -101,9 +101,9 @@ class ScaleStage : VisualizerStage() {
             if (label != null) {
                 if (midiData.isNoteOn) {
                     if (note.mainNote.isSharp) {
-                        label.style = "-fx-text-fill: blue;"
+                        label.style = "-fx-text-fill: blue; -fx-background-color: green;"
                     } else {
-                        label.style = "-fx-text-fill: red;"
+                        label.style = "-fx-text-fill: red; -fx-background-color: yellow;"
                     }
                 } else {
                     label.style = ""
