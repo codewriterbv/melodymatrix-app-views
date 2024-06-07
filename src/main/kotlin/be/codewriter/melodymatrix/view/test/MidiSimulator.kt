@@ -43,7 +43,7 @@ class MidiSimulator {
         if (idx >= notes.size) {
             idx = 0
         }
-        notifyListeners(MidiData(notes[idx], true, 255))
+        notifyListeners(MidiData(byteArrayOf("10010000".toInt(2).toByte(), notes[idx].byteValue.toByte(), 40)))
         scheduler.schedule({ play() }, delay, TimeUnit.MILLISECONDS)
     }
 
@@ -51,7 +51,7 @@ class MidiSimulator {
         if (notes.isEmpty()) {
             return
         }
-        notifyListeners(MidiData(notes[idx], false, 0))
+        notifyListeners(MidiData(byteArrayOf("10000000".toInt(2).toByte(), notes[idx].byteValue.toByte(), 0)))
     }
 
     private fun notifyListeners(midiData: MidiData) {

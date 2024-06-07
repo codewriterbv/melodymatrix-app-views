@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
+import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.stage.scale.ScaleStage
 import javafx.scene.Node
@@ -17,6 +18,7 @@ class TestViewButtons(val parentStage: Stage, val midiSimulator: MidiSimulator) 
 
         children.setAll(
             Label("Open one or more views"),
+            createButton("Midi") { MidiStage() },
             createButton("Piano") { PianoStage() },
             createButton("Charts") { ChartsStage() },
             createButton("Scale") { ScaleStage() }

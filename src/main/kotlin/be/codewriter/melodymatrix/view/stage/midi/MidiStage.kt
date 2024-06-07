@@ -14,19 +14,22 @@ import org.apache.logging.log4j.Logger
 
 class MidiStage : VisualizerStage() {
 
-    var midiData: ObservableList<MidiData> = FXCollections.observableArrayList()
+    var midiDataList: ObservableList<MidiData> = FXCollections.observableArrayList()
 
     init {
         val table: TableView<MidiData> = TableView<MidiData>()
 
-        val firstNameCol: TableColumn<MidiData, String> = TableColumn<MidiData, String>("First Name")
-        firstNameCol.cellValueFactory = PropertyValueFactory<MidiData, String>("firstName")
+        val eventCol: TableColumn<MidiData, String> = TableColumn<MidiData, String>("Event")
+        eventCol.cellValueFactory = PropertyValueFactory("event")
 
-        val lastNameCol: TableColumn<MidiData, String> = TableColumn<MidiData, String>("Last Name")
-        lastNameCol.cellValueFactory = PropertyValueFactory<MidiData, String>("lastName")
+        val isNoteOnCol: TableColumn<MidiData, String> = TableColumn<MidiData, String>("On")
+        isNoteOnCol.cellValueFactory = PropertyValueFactory("isNoteOn")
 
-        table.items = midiData
-        table.columns.addAll(firstNameCol, lastNameCol)
+        val noteCol: TableColumn<MidiData, String> = TableColumn<MidiData, String>("Note")
+        noteCol.cellValueFactory = PropertyValueFactory("note")
+
+        table.items = midiDataList
+        table.columns.addAll(eventCol, isNoteOnCol, noteCol)
 
         title = "MIDI data received from the instrument"
         scene = Scene(table, 610.0, 200.0)
@@ -43,7 +46,7 @@ class MidiStage : VisualizerStage() {
                 midiData.note,
                 (if (midiData.isNoteOn) "ON" else "OFF")
             )
-
+            midiDataList.addFirst(midiData)
         }
     }
 
