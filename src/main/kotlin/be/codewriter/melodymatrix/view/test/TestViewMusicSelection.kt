@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.Note
 import be.codewriter.melodymatrix.view.data.Octave
 import javafx.beans.value.ObservableValue
@@ -15,17 +16,25 @@ class TestViewMusicSelection(val midiSimulator: MidiSimulator) : VBox() {
         spacing = 10.0
 
         children.setAll(
-            Label("Test music selection"),
+            Label("Midi events selection"),
             createDurationSlider(),
             createButton(
-                "All Notes", Note.entries
+                "Play all notes", Note.entries
                     .toList()
                     .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey }))
             ),
-            createButton("Octave 5", Note.entries.stream()
+            createButton("Play octave 5", Note.entries.stream()
                 .filter { n -> n.octave == Octave.OCTAVE_5 }
                 .toList()
-                .sortedBy { it.mainNote.sortingKey })
+                .sortedBy { it.mainNote.sortingKey }),
+            createButton(
+                "Set instrument 5",
+                MidiData(byteArrayOf("11000100".toInt(2).toByte(), 0x05, 0x00))
+            ),
+            createButton(
+                "Set instrument 9",
+                MidiData(byteArrayOf("11000100".toInt(2).toByte(), 0x09, 0x00))
+            )
         )
     }
 
@@ -48,6 +57,17 @@ class TestViewMusicSelection(val midiSimulator: MidiSimulator) : VBox() {
             minWidth = 200.0
             setOnMouseClicked { _ ->
                 midiSimulator.setNotes(notes)
+            }
+        }
+
+        return view
+    }
+
+    private fun createButton(label: String, midiData: MidiData): Node {
+        val view = Button(label).apply {
+            minWidth = 200.0
+            setOnMouseClicked { _ ->
+                midiSimulator.notifyListeners(midiData)
             }
         }
 

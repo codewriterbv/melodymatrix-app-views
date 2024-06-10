@@ -54,7 +54,7 @@ class MidiSimulator {
         notifyListeners(MidiData(byteArrayOf("10000000".toInt(2).toByte(), notes[idx].byteValue.toByte(), 0)))
     }
 
-    private fun notifyListeners(midiData: MidiData) {
+    fun notifyListeners(midiData: MidiData) {
         logger.info("Sending {}", midiData)
         for (listener in registeredListeners) {
             listener.onMidiDataReceived(midiData)

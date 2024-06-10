@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.MidiEvent
 import be.codewriter.melodymatrix.view.data.Note
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoSettingsEffect
@@ -218,9 +220,9 @@ class PianoGenerator(
         }
     }
 
-    fun playNote(note: Note, noteOn: Boolean, pianoSettingsEffect: PianoSettingsEffect) {
-        val keyView = keys[note] ?: return
-        keyView.update(noteOn)
+    fun playNote(midiData: MidiData, pianoSettingsEffect: PianoSettingsEffect) {
+        val keyView = keys[midiData.note] ?: return
+        keyView.update(midiData.event == MidiEvent.NOTE_ON)
         if (pianoSettingsEffect.showEffect) {
             initParticles(keyView.position().x, keyView.position().y, pianoSettingsEffect)
         }

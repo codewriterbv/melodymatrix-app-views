@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.stage.scale
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.MidiEvent
 import be.codewriter.melodymatrix.view.data.Note
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -94,12 +95,12 @@ class ScaleStage : VisualizerStage() {
             logger.info(
                 "Received note {} {}",
                 midiData.note,
-                (if (midiData.isNoteOn) "ON" else "OFF")
+                (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
             )
             val note = midiData.note
             val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
             if (label != null) {
-                if (midiData.isNoteOn) {
+                if (midiData.event == MidiEvent.NOTE_ON) {
                     if (note.mainNote.isSharp) {
                         label.style = "-fx-text-fill: blue; -fx-background-color: green;"
                     } else {

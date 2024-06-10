@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.stage.piano
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorBackground
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorEffect
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorKey
@@ -68,14 +69,10 @@ class PianoStage : VisualizerStage() {
             logger.debug(
                 "Received note {} {}",
                 midiData.note,
-                (if (midiData.isNoteOn) "ON" else "OFF")
+                (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
             )
 
-            pianoGenerator.playNote(
-                midiData.note,
-                midiData.isNoteOn,
-                pianoConfiguratorEffect.getPianoEffectSettings()
-            )
+            pianoGenerator.playNote(midiData, pianoConfiguratorEffect.getPianoEffectSettings())
         }
     }
 
