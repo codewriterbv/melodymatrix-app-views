@@ -47,6 +47,15 @@ class MidiSimulator {
         scheduler.schedule({ play() }, delay, TimeUnit.MILLISECONDS)
     }
 
+    fun stop() {
+        if (notes.isEmpty()) {
+            return
+        }
+        logger.info("Stopping playback of notes")
+        stopCurrent()
+        notes.clear()
+    }
+
     private fun stopCurrent() {
         if (notes.isEmpty()) {
             return
