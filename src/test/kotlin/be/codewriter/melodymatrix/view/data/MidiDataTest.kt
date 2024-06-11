@@ -10,15 +10,22 @@ class MidiDataTest {
     @Test
     fun `test midi not is on or off`() {
         val midi = MidiData(byteArrayOf("10010000".toInt(2).toByte(), 50, 48))
-        assertEquals(MidiEvent.NOTE, midi.event, "Should return controller")
-        assertTrue(midi.isNoteOn, "First test value should return note on")
+        assertEquals(MidiEvent.NOTE_ON, midi.event, "Should return controller")
 
         val midiDataOnAndOther = MidiData(byteArrayOf(0x91.toByte(), 0x00, 0x01))
-        assertTrue(midiDataOnAndOther.isNoteOn, "First test value with extra data should return note on")
+        assertEquals(
+            MidiEvent.NOTE_ON,
+            midiDataOnAndOther.event,
+            "First test value with extra data should return note on"
+        )
         val midiDataOff = MidiData(byteArrayOf(0x80.toByte(), 0x00, 0x00))
-        assertFalse(midiDataOff.isNoteOn, "Second test value should return not note on")
+        assertEquals(MidiEvent.NOTE_OFF, midiDataOff.event, "Second test value should return not note on")
         val midiDataOnNoVelocity = MidiData(byteArrayOf(0x91.toByte(), 0x00, 0x00))
-        assertFalse(midiDataOnNoVelocity.isNoteOn, "Second test value with no velocity should return not note on")
+        assertEquals(
+            MidiEvent.NOTE_OFF,
+            midiDataOnNoVelocity.event,
+            "Second test value with no velocity should return not note on"
+        )
     }
 
     @Test
@@ -37,9 +44,8 @@ class MidiDataTest {
         val data = byteArrayOf(0x99.toByte(), 0x23, 0x40)
         val midi = MidiData(data)
 
-        assertEquals(MidiEvent.NOTE, midi.event, "Should return controller")
+        assertEquals(MidiEvent.NOTE_ON, midi.event, "Should return note on")
         assertTrue(midi.isDrum, "Should return drum as true")
-        assertTrue(midi.isNoteOn, "Should return note on true")
     }
 
     @Test
@@ -47,9 +53,8 @@ class MidiDataTest {
         val data = byteArrayOf(0x89.toByte(), 0x23, 0x00)
         val midi = MidiData(data)
 
-        assertEquals(MidiEvent.NOTE, midi.event, "Should return controller")
+        assertEquals(MidiEvent.NOTE_OFF, midi.event, "Should return note off")
         assertTrue(midi.isDrum, "Should return drum as true")
-        assertFalse(midi.isNoteOn, "Should return note on as false")
     }
 
     @Test
