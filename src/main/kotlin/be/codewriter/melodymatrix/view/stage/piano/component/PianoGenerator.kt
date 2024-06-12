@@ -61,7 +61,7 @@ class PianoGenerator(
         vars.put(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name, Color.ORANGE)
         vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name, false)
         vars.put(PianoProperty.PIANO_BLACK_KEY_COLOR.name, Color.BLACK)
-        vars.put(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name, Color.ORANGE)
+        vars.put(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name, Color.CYAN)
         vars.put(PianoProperty.BACKGROUND_COLOR.name, Color.DARKGRAY)
         vars.put(PianoProperty.BACKGROUND_IMAGE.name, PianoBackgroundImage.NONE)
         vars.put(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name, 1.0)
@@ -87,7 +87,7 @@ class PianoGenerator(
     }
 
     enum class EntityType {
-        BACKGROUND, CENTER, DUKE, CLOUD, BULLET
+        BACKGROUND_COLOR, BACKGROUND_IMAGE, LOGO
     }
 
     override fun initGame() {
@@ -99,15 +99,15 @@ class PianoGenerator(
 
         FXGL.getGameWorld().addEntityFactory(this.gameFactory)
         FXGL.spawn(
-            "backgroundColor", SpawnData(0.0, 0.0)
+            EntityType.BACKGROUND_COLOR.name, SpawnData(0.0, 0.0)
                 .put("width", FXGL.getAppWidth())
                 .put("height", FXGL.getAppHeight())
         )
         FXGL.spawn(
-            "backgroundImage", SpawnData(0.0, 0.0)
+            EntityType.BACKGROUND_IMAGE.name, SpawnData(0.0, 0.0)
         )
         FXGL.spawn(
-            "logo", SpawnData(0.0, 0.0)
+            EntityType.LOGO.name, SpawnData(0.0, 0.0)
         )
 
         entityBuilder()
@@ -155,7 +155,7 @@ class PianoGenerator(
             BACKGROUND_COLOR, BACKGROUND_IMAGE, LOGO
         }
 
-        @Spawns("backgroundColor")
+        @Spawns("BACKGROUND_COLOR")
         fun spawnBackgroundColor(data: SpawnData): Entity {
             var rectangle = Rectangle(
                 data.get<Int>("width").toDouble(),
@@ -171,7 +171,7 @@ class PianoGenerator(
                 .build()
         }
 
-        @Spawns("backgroundImage")
+        @Spawns("BACKGROUND_IMAGE")
         fun spawnBackgroundImage(data: SpawnData): Entity {
             var imageView = ImageView().apply {
                 isVisible = false
@@ -193,7 +193,7 @@ class PianoGenerator(
                 .build()
         }
 
-        @Spawns("logo")
+        @Spawns("LOGO")
         fun spawnLogo(data: SpawnData): Entity {
             var imageView = ImageView().apply {
                 image = Image("logo/heavy-melodymatrix.png")

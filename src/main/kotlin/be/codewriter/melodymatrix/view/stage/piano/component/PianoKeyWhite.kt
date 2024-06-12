@@ -74,8 +74,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
                 .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name) as ObjectProperty<Color>)
         )
 
-        //keyShape.strokeWidth = 1.5
-        //keyShape.stroke = Color.BLACK
+        keyShape.strokeWidth = 0.5
+        keyShape.stroke = Color.BLACK
 
         noteName = Label(note.name).apply {
             prefWidth = PIANO_WHITE_KEY_WIDTH
