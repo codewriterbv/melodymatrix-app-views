@@ -4,7 +4,6 @@ import be.codewriter.melodymatrix.view.data.Note
 import javafx.geometry.Point2D
 
 interface PianoKey {
-
     fun note(): Note
 
     fun position(): Point2D

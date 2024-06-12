@@ -17,17 +17,13 @@ class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
     private val pressed = SimpleBooleanProperty(false)
 
     init {
-        val key = Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
+        children.add(Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
                     .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
                     .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name) as ObjectProperty<Color>)
             )
-            //strokeWidth = 1.5
-            //stroke = Color.BLACK
-        }
-
-        children.add(key)
+        })
     }
 
     override fun note(): Note {

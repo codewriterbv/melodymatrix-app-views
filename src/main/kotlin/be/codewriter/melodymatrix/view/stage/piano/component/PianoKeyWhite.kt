@@ -36,30 +36,31 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         val cutoutBlackWidth = PIANO_WHITE_KEY_WIDTH / 5
         val cutoutBlackHeight = PIANO_BLACK_KEY_HEIGHT
 
-        val key = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT)
+        val fullKey = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT)
 
-        val cutoutLeft = Rectangle(cutoutBlackWidth, cutoutBlackHeight)
-        cutoutLeft.translateX = 0.0
-        val cutoutRight = Rectangle(cutoutBlackWidth, cutoutBlackHeight)
-        cutoutRight.translateX = PIANO_WHITE_KEY_WIDTH - (cutoutBlackWidth)
+        val cutoutLeft = Rectangle(cutoutBlackWidth, cutoutBlackHeight).apply {
+            translateX = 0.0
+        }
+        val cutoutRight = Rectangle(cutoutBlackWidth, cutoutBlackHeight).apply {
+            translateX = PIANO_WHITE_KEY_WIDTH - (cutoutBlackWidth)
+        }
 
         // Cut out the pieces that are filled with a sharp key
         when (cutOutType) {
             PianoKeyType.LEFT -> {
-                keyShape = Shape.subtract(key, cutoutLeft)
+                keyShape = Shape.subtract(fullKey, cutoutLeft)
             }
 
             PianoKeyType.RIGHT -> {
-                keyShape = Shape.subtract(key, cutoutRight)
+                keyShape = Shape.subtract(fullKey, cutoutRight)
             }
 
             PianoKeyType.BOTH -> {
-                val intermediateShape = Shape.subtract(key, cutoutLeft)
-                keyShape = Shape.subtract(intermediateShape, cutoutRight)
+                keyShape = Shape.subtract(Shape.subtract(fullKey, cutoutLeft), cutoutRight)
             }
 
             PianoKeyType.NONE -> {
-                keyShape = Shape.union(key, key)
+                keyShape = Shape.union(fullKey, fullKey)
             }
 
             PianoKeyType.SHARP -> {
@@ -68,14 +69,15 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             }
         }
 
-        keyShape.fillProperty().bind(
-            Bindings.`when`(pressed)
-                .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
-                .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name) as ObjectProperty<Color>)
-        )
-
-        keyShape.strokeWidth = 0.5
-        keyShape.stroke = Color.BLACK
+        keyShape.apply {
+            fillProperty().bind(
+                Bindings.`when`(pressed)
+                    .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
+                    .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name) as ObjectProperty<Color>)
+            )
+            strokeWidth = 0.5
+            stroke = Color.BLACK
+        }
 
         noteName = Label(note.name).apply {
             prefWidth = PIANO_WHITE_KEY_WIDTH
@@ -87,8 +89,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             textAlignment = TextAlignment.CENTER
             translateY = PIANO_WHITE_KEY_HEIGHT - 20
             translateX = 0.0
+            visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
         }
-        noteName.visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
 
         children.addAll(keyShape, noteName)
     }
