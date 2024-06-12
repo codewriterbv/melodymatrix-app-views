@@ -57,9 +57,11 @@ class PianoGenerator(
     }
 
     override fun initGameVars(vars: MutableMap<String, Any>) {
-        vars.put(PianoProperty.PIANO_KEY_COLOR.name, Color.WHITE)
-        vars.put(PianoProperty.PIANO_KEY_ACTIVE_COLOR.name, Color.YELLOW)
-        vars.put(PianoProperty.PIANO_KEY_NAME_VISIBLE.name, false)
+        vars.put(PianoProperty.PIANO_WHITE_KEY_COLOR.name, Color.WHITE)
+        vars.put(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name, Color.ORANGE)
+        vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name, false)
+        vars.put(PianoProperty.PIANO_BLACK_KEY_COLOR.name, Color.BLACK)
+        vars.put(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name, Color.ORANGE)
         vars.put(PianoProperty.BACKGROUND_COLOR.name, Color.DARKGRAY)
         vars.put(PianoProperty.BACKGROUND_IMAGE.name, PianoBackgroundImage.NONE)
         vars.put(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name, 1.0)
@@ -70,9 +72,11 @@ class PianoGenerator(
     }
 
     enum class PianoProperty {
-        PIANO_KEY_COLOR,
-        PIANO_KEY_ACTIVE_COLOR,
-        PIANO_KEY_NAME_VISIBLE,
+        PIANO_WHITE_KEY_COLOR,
+        PIANO_WHITE_KEY_ACTIVE_COLOR,
+        PIANO_WHITE_KEY_NAME_VISIBLE,
+        PIANO_BLACK_KEY_COLOR,
+        PIANO_BLACK_KEY_ACTIVE_COLOR,
         BACKGROUND_COLOR,
         BACKGROUND_IMAGE,
         BACKGROUND_IMAGE_TRANSPARENCY,
@@ -115,27 +119,25 @@ class PianoGenerator(
             })
             .buildAndAttach()
 
-        var counterNonSharp = 0
+        var counterWhiteKeys = 0
+        var previousWhiteKeyX = 0.0
 
         Note.pianoKeys().forEach { note ->
             // logger.info("Adding piano key for note {}", note.name)
-
             if (note.mainNote.isSharp) {
-                /*val x = counterSharp + (counterSharp * widthKeyBlack)
+                val x = previousWhiteKeyX + PIANO_WHITE_KEY_WIDTH - (PIANO_BLACK_KEY_WIDTH / 2)
                 val y = PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT
-                val key = PianoKeyBlack(note, x, y, widthKeyBlack, PIANO_BLACK_KEY_HEIGHT)
-
+                val key = PianoKeyBlack(note, x, y)
                 keys[note] = key
                 addUINode(key, x, y)
-
-                counterSharp++*/
             } else {
-                val x = counterNonSharp * PIANO_WHITE_KEY_WIDTH
+                val x = counterWhiteKeys * PIANO_WHITE_KEY_WIDTH
                 val y = PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT
                 val key = PianoKeyWhite(note, x, y)
                 keys[note] = key
                 addUINode(key, x, y)
-                counterNonSharp++
+                counterWhiteKeys++
+                previousWhiteKeyX = x
             }
         }
 
@@ -304,6 +306,7 @@ class PianoGenerator(
         val PIANO_HEIGHT = 600
         val PIANO_WHITE_KEY_WIDTH = 13.56
         val PIANO_WHITE_KEY_HEIGHT = 120.0
+        val PIANO_BLACK_KEY_WIDTH = 5.0
         val PIANO_BLACK_KEY_HEIGHT = 80.0
     }
 }

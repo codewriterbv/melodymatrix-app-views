@@ -41,11 +41,16 @@ class PianoConfiguratorKey : VBox() {
      */
     fun createBindings() {
         Platform.runLater {
-            whiteKeyColor.valueProperty().bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_KEY_COLOR.name))
+            whiteKeyColor.valueProperty()
+                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             whiteKeyActiveColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_KEY_ACTIVE_COLOR.name))
+                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
             keyNameVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoGenerator.PianoProperty.PIANO_KEY_NAME_VISIBLE.name))
+                .bindBidirectional(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
+            blackKeyColor.valueProperty()
+                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+            blackKeyActiveColor.valueProperty()
+                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
         }
     }
 }

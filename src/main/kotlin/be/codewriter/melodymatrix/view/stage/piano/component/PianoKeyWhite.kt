@@ -36,16 +36,7 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         val cutoutBlackWidth = PIANO_WHITE_KEY_WIDTH / 5
         val cutoutBlackHeight = PIANO_BLACK_KEY_HEIGHT
 
-        val bg = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT).apply {
-            fill = Color.BLACK
-        }
-        children.add(bg)
-
-        val key = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT).apply {
-            fill = Color.WHITE
-            strokeWidth = 1.5
-            stroke = Color.BLACK
-        }
+        val key = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT)
 
         val cutoutLeft = Rectangle(cutoutBlackWidth, cutoutBlackHeight)
         cutoutLeft.translateX = 0.0
@@ -79,12 +70,12 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
 
         keyShape.fillProperty().bind(
             Bindings.`when`(pressed)
-                .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
-                .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_KEY_COLOR.name) as ObjectProperty<Color>)
+                .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
+                .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name) as ObjectProperty<Color>)
         )
 
-        keyShape.strokeWidth = 1.5
-        keyShape.stroke = Color.BLACK
+        //keyShape.strokeWidth = 1.5
+        //keyShape.stroke = Color.BLACK
 
         noteName = Label(note.name).apply {
             prefWidth = PIANO_WHITE_KEY_WIDTH
@@ -97,7 +88,7 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             translateY = PIANO_WHITE_KEY_HEIGHT - 20
             translateX = 0.0
         }
-        noteName.visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_KEY_NAME_VISIBLE.name))
+        noteName.visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
 
         children.addAll(keyShape, noteName)
     }
@@ -111,7 +102,7 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
     }
 
     override fun update(isPressed: Boolean) {
-        logger.info(
+        logger.debug(
             "Updating white key {}/{}, {}/{}, {}/{}",
             note,
             noteName.text,
@@ -120,23 +111,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             keyShape.layoutX,
             keyShape.layoutY
         )
+
         pressed.value = isPressed
-
-        // For testing...
-        val isTesting = false
-
-        if (isTesting) {
-            noteName.textFill = if (isPressed) Color.WHITE else Color.BLACK
-            noteName.translateY = if (isPressed) PIANO_WHITE_KEY_HEIGHT - 50.0 else PIANO_WHITE_KEY_HEIGHT - 20.0
-            val test = Rectangle(10.0, 40.0).apply {
-                fill = Color.GREEN
-                strokeWidth = 1.5
-                stroke = Color.BLACK
-                layoutX = 0.0
-                layoutY = -50.0
-            }
-            children.add(test)
-        }
     }
 
     companion object {

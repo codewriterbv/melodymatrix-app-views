@@ -2,25 +2,32 @@ package be.codewriter.melodymatrix.view.stage.piano.component
 
 import be.codewriter.melodymatrix.view.data.Note
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_WIDTH
+import com.almasb.fxgl.dsl.getop
+import javafx.beans.binding.Bindings
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Point2D
 import javafx.scene.Parent
-import javafx.scene.control.Label
+import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import javafx.scene.shape.Shape
 
-class PianoKeyBlack(val note: Note, val x: Double, val y: Double, width: Double, height: Double) : PianoKey, Parent() {
+class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Parent() {
 
-    var keyShape: Shape? = null
-    var noteName: Label? = null
+    private val pressed = SimpleBooleanProperty(false)
 
     init {
-        val alignment = note.mainNote.pianoKeyType
+        val key = Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
+            fillProperty().bind(
+                Bindings.`when`(pressed)
+                    .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
+                    .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name) as ObjectProperty<Color>)
+            )
+            //strokeWidth = 1.5
+            //stroke = Color.BLACK
+        }
 
-        val cutoutBlackWidth = width / 5
-        val cutoutBlackHeight = PIANO_BLACK_KEY_HEIGHT
-
-        val bg = Rectangle(cutoutBlackWidth, cutoutBlackHeight)
-        children.add(bg)
+        children.add(key)
     }
 
     override fun note(): Note {
@@ -32,6 +39,6 @@ class PianoKeyBlack(val note: Note, val x: Double, val y: Double, width: Double,
     }
 
     override fun update(isPressed: Boolean/*, pianoColors: PianoColors*/) {
-        //keyShape!!.fill = if (pressed) pianoColors.blackKeySelected else pianoColors.blackKey
+        pressed.value = isPressed
     }
 }
