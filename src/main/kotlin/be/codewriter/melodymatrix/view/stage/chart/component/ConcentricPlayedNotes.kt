@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
-import be.codewriter.melodymatrix.view.data.MainNote
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
 import eu.hansolo.fx.charts.ConcentricRingChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder

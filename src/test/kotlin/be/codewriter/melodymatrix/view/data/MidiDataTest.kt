@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.data
 
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

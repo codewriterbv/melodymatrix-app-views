@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
-import be.codewriter.melodymatrix.view.data.MainNote
-import be.codewriter.melodymatrix.view.data.Note
-import be.codewriter.melodymatrix.view.data.Octave
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.YChart

@@ -1,4 +1,4 @@
-package be.codewriter.melodymatrix.view.data
+package be.codewriter.melodymatrix.view.definition
 
 import javafx.scene.paint.Color
 import javafx.scene.paint.Stop

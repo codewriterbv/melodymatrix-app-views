@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.MidiEvent
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoSettingsEffect
 import com.almasb.fxgl.app.GameApplication

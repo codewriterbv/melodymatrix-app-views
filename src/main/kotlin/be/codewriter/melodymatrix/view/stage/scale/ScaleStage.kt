@@ -2,8 +2,8 @@ package be.codewriter.melodymatrix.view.stage.scale
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.MidiEvent
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene

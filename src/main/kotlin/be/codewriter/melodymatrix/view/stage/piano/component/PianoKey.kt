@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.Note
 import javafx.geometry.Point2D
 
 interface PianoKey {

@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
-import be.codewriter.melodymatrix.view.data.Note
-import be.codewriter.melodymatrix.view.data.PianoKeyType
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.PianoKeyType
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WHITE_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WHITE_KEY_WIDTH

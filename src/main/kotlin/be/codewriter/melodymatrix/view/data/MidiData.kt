@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.data
 
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -35,7 +37,7 @@ open class MidiData(val bytes: ByteArray) {
         if (bytes.size < 3) {
             throw Exception("MIDI data expects three bytes")
         }
-        
+
         if ((bytes[0].toInt() and 0xf0) == "10010000".toInt(2) || (bytes[0].toInt() and 0xf0) == "10000000".toInt(2)) {
             this.channel = (bytes[0].toInt() and 0x0f)
             this.note = Note.from(bytes[1])

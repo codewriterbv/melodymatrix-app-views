@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.Note
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors

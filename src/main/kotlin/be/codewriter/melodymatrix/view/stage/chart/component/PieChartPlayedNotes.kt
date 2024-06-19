@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
-import be.codewriter.melodymatrix.view.data.Note
+import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.scene.chart.PieChart

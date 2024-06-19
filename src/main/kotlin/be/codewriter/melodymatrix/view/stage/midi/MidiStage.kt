@@ -2,7 +2,7 @@ package be.codewriter.melodymatrix.view.stage.midi
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.MidiEvent
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty

@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.Note
-import be.codewriter.melodymatrix.view.data.Octave
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.Octave
 import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.control.Button

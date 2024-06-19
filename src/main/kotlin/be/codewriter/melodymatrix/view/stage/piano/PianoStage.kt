@@ -2,7 +2,7 @@ package be.codewriter.melodymatrix.view.stage.piano
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.MidiEvent
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorBackground
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorEffect
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorKey
