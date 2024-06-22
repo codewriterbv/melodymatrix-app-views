@@ -59,8 +59,9 @@ class PianoConfiguratorBackground : VBox() {
             majorTickUnit = 1.0
             maxProperty().bind(Bindings.subtract(PIANO_WIDTH, logoWidth.valueProperty()))
             maxProperty().addListener { _, _, newVal ->
-                logger.info("New max for left: {}", newVal)
-                value = newVal.toDouble()
+                if (value > newVal.toDouble()) {
+                    value = newVal.toDouble()
+                }
             }
         }
         logoTop.apply {
@@ -71,8 +72,9 @@ class PianoConfiguratorBackground : VBox() {
                 Bindings.subtract(PIANO_HEIGHT - 120, Bindings.multiply(logoWidth.valueProperty(), imageAspectRatio))
             )
             maxProperty().addListener { _, _, newVal ->
-                logger.info("New max for top: {}", newVal)
-                value = newVal.toDouble()
+                if (value > newVal.toDouble()) {
+                    value = newVal.toDouble()
+                }
             }
         }
         for (backgroundImage: PianoBackgroundImage in PianoBackgroundImage.entries) {
