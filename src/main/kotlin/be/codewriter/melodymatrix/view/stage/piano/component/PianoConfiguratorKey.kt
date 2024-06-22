@@ -5,6 +5,7 @@ import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
 import javafx.application.Platform
 import javafx.geometry.HorizontalDirection
+import javafx.geometry.Pos
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
@@ -17,6 +18,7 @@ class PianoConfiguratorKey : VBox() {
         private val blackKeyColor = ColorPicker()
         private val blackKeyActiveColor = ColorPicker()
         private val keyNameVisible = ToggleSwitch()
+        private val keyNameColor = ColorPicker()
     }
 
     init {
@@ -26,11 +28,20 @@ class PianoConfiguratorKey : VBox() {
         }
         children.addAll(
             Label("White key"),
-            HBox(whiteKeyColor, whiteKeyActiveColor),
+            HBox(whiteKeyColor, whiteKeyActiveColor).apply {
+                spacing = 5.0
+                alignment = Pos.CENTER_LEFT
+            },
+            Label("Key note name"),
+            HBox(keyNameColor, keyNameVisible).apply {
+                spacing = 5.0
+                alignment = Pos.CENTER_LEFT
+            },
             Label("Black key"),
-            HBox(blackKeyColor, blackKeyActiveColor),
-            Label("Show key note"),
-            keyNameVisible
+            HBox(blackKeyColor, blackKeyActiveColor).apply {
+                spacing = 5.0
+                alignment = Pos.CENTER_LEFT
+            }
         )
         spacing = 5.0
     }
@@ -45,6 +56,8 @@ class PianoConfiguratorKey : VBox() {
                 .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             whiteKeyActiveColor.valueProperty()
                 .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
+            keyNameColor.valueProperty()
+                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
             keyNameVisible.selectedProperty()
                 .bindBidirectional(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
             blackKeyColor.valueProperty()

@@ -24,7 +24,6 @@ import com.almasb.fxgl.entity.component.Component
 import com.almasb.fxgl.entity.components.IrremovableComponent
 import com.almasb.fxgl.particle.ParticleComponent
 import com.almasb.fxgl.particle.ParticleEmitters
-import javafx.beans.property.ObjectProperty
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
 import javafx.scene.canvas.Canvas
@@ -62,6 +61,7 @@ class PianoGenerator(
         vars.put(PianoProperty.PIANO_WHITE_KEY_COLOR.name, Color.WHITE)
         vars.put(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name, Color.ORANGE)
         vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name, false)
+        vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name, Color.BLACK)
         vars.put(PianoProperty.PIANO_BLACK_KEY_COLOR.name, Color.BLACK)
         vars.put(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name, Color.CYAN)
 
@@ -99,6 +99,7 @@ class PianoGenerator(
         LOGO_TOP,
         PIANO_WHITE_KEY_COLOR,
         PIANO_WHITE_KEY_ACTIVE_COLOR,
+        PIANO_WHITE_KEY_NAME_COLOR,
         PIANO_WHITE_KEY_NAME_VISIBLE,
         PIANO_BLACK_KEY_COLOR,
         PIANO_BLACK_KEY_ACTIVE_COLOR,
@@ -143,7 +144,6 @@ class PianoGenerator(
         var previousWhiteKeyX = 0.0
 
         Note.pianoKeys().forEach { note ->
-            // logger.info("Adding piano key for note {}", note.name)
             if (note.mainNote.isSharp) {
                 val x = previousWhiteKeyX + PIANO_WHITE_KEY_WIDTH - (PIANO_BLACK_KEY_WIDTH / 2)
                 val y = PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT
@@ -197,7 +197,7 @@ class PianoGenerator(
                 isVisible = false
                 opacityProperty().bind(getdp(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
             }
-            (getop<ObjectProperty<*>>(PianoProperty.BACKGROUND_IMAGE.name) as ObjectProperty<PianoBackgroundImage>).addListener { _, _, newValue ->
+            (getop<PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).addListener { _, _, newValue ->
                 if (newValue == PianoBackgroundImage.NONE) {
                     imageView.isVisible = false
                 } else {

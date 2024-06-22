@@ -6,6 +6,7 @@ import com.almasb.fxgl.dsl.FXGL.Companion.getop
 import com.almasb.fxgl.dsl.getbp
 import javafx.application.Platform
 import javafx.geometry.HorizontalDirection
+import javafx.geometry.Pos
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
@@ -62,7 +63,10 @@ class PianoConfiguratorEffect : VBox() {
             Label("Particle size"),
             particleSize,
             Label("Colors"),
-            HBox(colorStart, colorEnd)
+            HBox(colorStart, colorEnd).apply {
+                spacing = 5.0
+                alignment = Pos.CENTER_LEFT
+            }
         )
         spacing = 5.0
     }

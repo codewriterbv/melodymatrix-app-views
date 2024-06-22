@@ -5,7 +5,6 @@ import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Comp
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_WIDTH
 import com.almasb.fxgl.dsl.getop
 import javafx.beans.binding.Bindings
-import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Point2D
 import javafx.scene.Parent
@@ -20,8 +19,8 @@ class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         children.add(Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
-                    .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name) as ObjectProperty<Color>)
+                    .then(getop<Color>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             )
         })
     }

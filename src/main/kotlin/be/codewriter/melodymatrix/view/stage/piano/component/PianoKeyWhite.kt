@@ -8,7 +8,6 @@ import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Comp
 import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.getop
 import javafx.beans.binding.Bindings
-import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Point2D
 import javafx.geometry.Pos
@@ -72,8 +71,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         keyShape.apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name) as ObjectProperty<Color>)
-                    .otherwise(getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name) as ObjectProperty<Color>)
+                    .then(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             )
             strokeWidth = 0.5
             stroke = Color.BLACK
@@ -84,12 +83,12 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             minWidth = PIANO_WHITE_KEY_WIDTH
             maxWidth = PIANO_WHITE_KEY_WIDTH
             font = Font.font(8.0)
-            textFill = Color.BLACK
             alignment = Pos.CENTER
             textAlignment = TextAlignment.CENTER
             translateY = PIANO_WHITE_KEY_HEIGHT - 20
             translateX = 0.0
             visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
+            textFillProperty().bind(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
         }
 
         children.addAll(keyShape, noteName)

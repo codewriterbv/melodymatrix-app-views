@@ -7,7 +7,6 @@ import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
-import javafx.beans.property.ObjectProperty
 import javafx.geometry.Insets
 import javafx.scene.Cursor
 import javafx.scene.Node
@@ -18,12 +17,9 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 
 class PianoConfiguratorBackground : VBox() {
     companion object {
-        private val logger: Logger = LogManager.getLogger(PianoConfiguratorBackground::class.java.name)
         private val backgroundColor = ColorPicker()
         private val imageSelectionPane = FlowPane()
         private val imageTransparency = Slider()
@@ -95,7 +91,7 @@ class PianoConfiguratorBackground : VBox() {
             }
             StackPane.setMargin(imageView, Insets(2.0))
             imageView.setOnMouseClicked {
-                (getop<ObjectProperty<*>>(PianoGenerator.PianoProperty.BACKGROUND_IMAGE.name) as ObjectProperty<PianoBackgroundImage>).set(
+                (getop<PianoBackgroundImage>(PianoGenerator.PianoProperty.BACKGROUND_IMAGE.name)).set(
                     backgroundImage
                 )
                 removeSelectedImage()
