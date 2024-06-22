@@ -21,9 +21,10 @@ import org.apache.logging.log4j.Logger
 
 class PianoStage : VisualizerStage() {
     private val pianoConfiguratorBackground = PianoConfiguratorBackground()
-    private val pianoConfiguratorKey = PianoConfiguratorKey()
     private val pianoConfiguratorEffect = PianoConfiguratorEffect()
-    private val pianoGenerator: PianoGenerator = PianoGenerator(pianoConfiguratorBackground, pianoConfiguratorKey)
+    private val pianoConfiguratorKey = PianoConfiguratorKey()
+    private val pianoGenerator: PianoGenerator =
+        PianoGenerator(pianoConfiguratorBackground, pianoConfiguratorEffect, pianoConfiguratorKey)
 
     init {
         val holder = BorderPane().apply {
@@ -72,7 +73,7 @@ class PianoStage : VisualizerStage() {
                 (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
             )
 
-            pianoGenerator.playNote(midiData, pianoConfiguratorEffect.getPianoEffectSettings())
+            pianoGenerator.playNote(midiData)
         }
     }
 
