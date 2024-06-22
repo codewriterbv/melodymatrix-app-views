@@ -70,9 +70,9 @@ class PianoGenerator(
         vars.put(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name, 1.0)
 
         vars.put(PianoProperty.LOGO_TRANSPARENCY.name, 1.0)
-        vars.put(PianoProperty.LOGO_WIDTH.name, 800.0)
-        vars.put(PianoProperty.LOGO_LEFT.name, 0.0)
-        vars.put(PianoProperty.LOGO_TOP.name, 0.0)
+        vars.put(PianoProperty.LOGO_WIDTH.name, PIANO_WIDTH - 100.0)
+        vars.put(PianoProperty.LOGO_LEFT.name, 50.0)
+        vars.put(PianoProperty.LOGO_TOP.name, (PIANO_HEIGHT - 120.0 - 150.0) / 2)
 
         vars.put(PianoProperty.EXPLOSION_ENABLED.name, true)
         vars.put(PianoProperty.EXPLOSION_COLOR_END.name, Color.YELLOW)

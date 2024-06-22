@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
+import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
@@ -39,27 +41,23 @@ class PianoConfiguratorBackground : VBox() {
         imageTransparency.apply {
             min = 0.1
             max = 1.0
-            value = 1.0
             majorTickUnit = 0.1
             isDisable = true
         }
         logoTransparency.apply {
             min = 0.2
             max = 1.0
-            value = 1.0
             majorTickUnit = 0.1
         }
         logoWidth.apply {
-            min = 50.0
-            max = 800.0
-            value = 800.0
+            min = 100.0
+            max = PIANO_WIDTH - 100.0
             majorTickUnit = 1.0
         }
         logoLeft.apply {
             min = 0.0
-            value = 0.0
             majorTickUnit = 1.0
-            maxProperty().bind(Bindings.subtract(900, logoWidth.valueProperty()).divide(2))
+            maxProperty().bind(Bindings.subtract(PIANO_WIDTH, logoWidth.valueProperty()))
             maxProperty().addListener { _, _, newVal ->
                 logger.info("New max for left: {}", newVal)
                 value = newVal.toDouble()
@@ -67,10 +65,10 @@ class PianoConfiguratorBackground : VBox() {
         }
         logoTop.apply {
             min = 0.0
-            value = 0.0
             majorTickUnit = 1.0
+            val imageAspectRatio = 151.0 / 796.0
             maxProperty().bind(
-                Bindings.subtract(600, Bindings.divide(logoWidth.valueProperty(), 800).multiply(600)).divide(2)
+                Bindings.subtract(PIANO_HEIGHT - 120, Bindings.multiply(logoWidth.valueProperty(), imageAspectRatio))
             )
             maxProperty().addListener { _, _, newVal ->
                 logger.info("New max for top: {}", newVal)
