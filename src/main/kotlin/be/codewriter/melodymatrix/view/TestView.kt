@@ -1,9 +1,11 @@
 package be.codewriter.melodymatrix.view
 
 import atlantafx.base.theme.PrimerLight
+import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.test.MidiSimulator
-import be.codewriter.melodymatrix.view.test.TestViewButtons
-import be.codewriter.melodymatrix.view.test.TestViewMusicSelection
+import be.codewriter.melodymatrix.view.test.TestViewLicense
+import be.codewriter.melodymatrix.view.test.TestViewMidiEvents
+import be.codewriter.melodymatrix.view.test.TestViewStages
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -25,17 +27,18 @@ class TestView : Application() {
 
     override fun start(stage: Stage) {
         setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
-
+        val licenseStatus = LicenseStatus()
         val mainView = HBox(
-            TestViewMusicSelection(midiSimulator),
-            TestViewButtons(stage, midiSimulator)
+            TestViewMidiEvents(midiSimulator),
+            TestViewStages(stage, midiSimulator, licenseStatus),
+            TestViewLicense(licenseStatus)
         ).apply {
             spacing = 25.0
             padding = Insets(25.0)
         }
 
         with(stage) {
-            scene = Scene(mainView, 600.0, 400.0)
+            scene = Scene(mainView, 800.0, 600.0)
             title = "Test application for the MelodyMatrix Viewers"
 
             setOnCloseRequest {

@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano
 
 import be.codewriter.melodymatrix.view.VisualizerStage
+import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorBackground
@@ -19,8 +20,8 @@ import javafx.scene.layout.BorderPane
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class PianoStage : VisualizerStage() {
-    private val pianoConfiguratorBackground = PianoConfiguratorBackground()
+class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
+    private val pianoConfiguratorBackground = PianoConfiguratorBackground(licenseStatus)
     private val pianoConfiguratorEffect = PianoConfiguratorEffect()
     private val pianoConfiguratorKey = PianoConfiguratorKey()
     private val pianoGenerator: PianoGenerator =

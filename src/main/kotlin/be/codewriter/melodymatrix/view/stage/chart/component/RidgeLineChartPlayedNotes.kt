@@ -9,7 +9,10 @@ import eu.hansolo.fx.charts.data.XYChartItem
 import eu.hansolo.fx.charts.series.XYSeries
 import eu.hansolo.fx.charts.series.XYSeriesBuilder
 import javafx.application.Platform
+import javafx.geometry.Pos
+import javafx.scene.control.Label
 import javafx.scene.control.TitledPane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
@@ -55,12 +58,15 @@ class RidgeLineChartPlayedNotes : TitledPane(), ChartVisualizer {
                 .fill(gradient)
                 .stroke(Color.BLACK)
                 .strokeWidth(1.0)
-                .symbolsVisible(false)
                 .build()
-            val ridgeLineChart = XYPane(xySeries)
-            ridgeLineChart.setPrefSize(400.0, 400.0 / chords.size)
-            ridgeLineChart.upperBoundX = xySeries.items.size.toDouble()
-            chartBox.children.add(ridgeLineChart)
+            val ridgeLineChart = XYPane(xySeries).apply {
+                setPrefSize(400.0, 400.0 / chords.size)
+                upperBoundX = xySeries.items.size.toDouble()
+            }
+            chartBox.children.add(HBox().apply {
+                alignment = Pos.CENTER_LEFT
+                children.addAll(Label(chord.key.octave.toString()), ridgeLineChart)
+            })
         }
 
         text = "Ridge Line Chart"

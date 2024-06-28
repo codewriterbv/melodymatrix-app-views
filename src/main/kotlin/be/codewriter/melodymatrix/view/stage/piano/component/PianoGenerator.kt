@@ -69,6 +69,7 @@ class PianoGenerator(
         vars.put(PianoProperty.BACKGROUND_IMAGE.name, PianoBackgroundImage.NONE)
         vars.put(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name, 1.0)
 
+        vars.put(PianoProperty.LOGO_VISIBLE.name, true)
         vars.put(PianoProperty.LOGO_TRANSPARENCY.name, 1.0)
         vars.put(PianoProperty.LOGO_WIDTH.name, PIANO_WIDTH - 100.0)
         vars.put(PianoProperty.LOGO_LEFT.name, 50.0)
@@ -94,16 +95,17 @@ class PianoGenerator(
         EXPLOSION_BLENDMODE,
         EXPLOSION_NUMBER_OF_PARTICLES,
         EXPLOSION_PARTICLE_SIZE,
-        LOGO_WIDTH,
         LOGO_LEFT,
         LOGO_TOP,
+        LOGO_TRANSPARENCY,
+        LOGO_VISIBLE,
+        LOGO_WIDTH,
         PIANO_WHITE_KEY_COLOR,
         PIANO_WHITE_KEY_ACTIVE_COLOR,
         PIANO_WHITE_KEY_NAME_COLOR,
         PIANO_WHITE_KEY_NAME_VISIBLE,
         PIANO_BLACK_KEY_COLOR,
-        PIANO_BLACK_KEY_ACTIVE_COLOR,
-        LOGO_TRANSPARENCY
+        PIANO_BLACK_KEY_ACTIVE_COLOR
     }
 
     enum class EntityType {
@@ -220,6 +222,7 @@ class PianoGenerator(
                 isPreserveRatio = true
                 opacityProperty().bind(getdp(PianoProperty.LOGO_TRANSPARENCY.name))
                 fitWidthProperty().bind(getdp(PianoProperty.LOGO_WIDTH.name))
+                visibleProperty().bind(getbp(PianoProperty.LOGO_VISIBLE.name))
                 xProperty().bind(getdp(PianoProperty.LOGO_LEFT.name))
                 yProperty().bind(getdp(PianoProperty.LOGO_TOP.name))
             }

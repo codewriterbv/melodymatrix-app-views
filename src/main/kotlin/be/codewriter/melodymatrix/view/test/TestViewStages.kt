@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.VisualizerStage
+import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
 import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
@@ -11,7 +12,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
-class TestViewButtons(val parentStage: Stage, val midiSimulator: MidiSimulator) : VBox() {
+class TestViewStages(val parentStage: Stage, val midiSimulator: MidiSimulator, licenseStatus: LicenseStatus) : VBox() {
 
     init {
         spacing = 10.0
@@ -19,7 +20,7 @@ class TestViewButtons(val parentStage: Stage, val midiSimulator: MidiSimulator) 
         children.setAll(
             Label("Open one or more views"),
             createButton("Midi") { MidiStage() },
-            createButton("Piano") { PianoStage() },
+            createButton("Piano") { PianoStage(licenseStatus) },
             createButton("Charts") { ChartsStage() },
             createButton("Scale") { ScaleStage() }
         )

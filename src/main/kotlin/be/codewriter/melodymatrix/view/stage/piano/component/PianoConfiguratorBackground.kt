@@ -1,8 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
+import atlantafx.base.controls.Spacer
+import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
+import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
 import javafx.application.Platform
@@ -18,11 +22,12 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
-class PianoConfiguratorBackground : VBox() {
+class PianoConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
     companion object {
         private val backgroundColor = ColorPicker()
         private val imageSelectionPane = FlowPane()
         private val imageTransparency = Slider()
+        private val logoVisible = ToggleSwitch()
         private val logoTransparency = Slider()
         private val logoWidth = Slider()
         private val logoLeft = Slider()
@@ -39,6 +44,9 @@ class PianoConfiguratorBackground : VBox() {
             max = 1.0
             majorTickUnit = 0.1
             isDisable = true
+        }
+        logoVisible.apply {
+            disableProperty().bind(Bindings.not(licenseStatus.isValid))
         }
         logoTransparency.apply {
             min = 0.2
@@ -101,12 +109,21 @@ class PianoConfiguratorBackground : VBox() {
             imageSelectionPane.children.add(stackPane)
         }
         children.addAll(
-            Label("Background color"),
+            Label("Background color").apply {
+                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
+            },
             backgroundColor,
-            Label("Background image"),
+            Spacer(20.0),
+            Label("Background image").apply {
+                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
+            },
             imageSelectionPane,
             getLabeledHolder("Transparency", imageTransparency),
-            Label("MelodyMatrix logo"),
+            Spacer(20.0),
+            Label("MelodyMatrix logo").apply {
+                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
+            },
+            getLabeledHolder("Visible", logoVisible),
             getLabeledHolder("Transparency", logoTransparency),
             getLabeledHolder("Size", logoWidth),
             getLabeledHolder("Left", logoLeft),
@@ -144,6 +161,8 @@ class PianoConfiguratorBackground : VBox() {
             backgroundColor.valueProperty().bindBidirectional(getop(PianoGenerator.PianoProperty.BACKGROUND_COLOR.name))
             imageTransparency.valueProperty()
                 .bindBidirectional(getdp(PianoGenerator.PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
+            logoVisible.selectedProperty()
+                .bindBidirectional(getbp(PianoGenerator.PianoProperty.LOGO_VISIBLE.name))
             logoTransparency.valueProperty()
                 .bindBidirectional(getdp(PianoGenerator.PianoProperty.LOGO_TRANSPARENCY.name))
             logoWidth.valueProperty()

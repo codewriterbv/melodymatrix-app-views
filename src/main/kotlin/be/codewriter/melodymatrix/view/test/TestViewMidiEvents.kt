@@ -10,7 +10,7 @@ import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
 
-class TestViewMusicSelection(val midiSimulator: MidiSimulator) : VBox() {
+class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
     init {
         spacing = 10.0
@@ -45,7 +45,7 @@ class TestViewMusicSelection(val midiSimulator: MidiSimulator) : VBox() {
 
     private fun createDurationSlider(): Slider {
         return Slider().apply {
-            min = 150.0
+            min = 250.0
             max = 2000.0
             value = 500.0
             blockIncrement = 5.0

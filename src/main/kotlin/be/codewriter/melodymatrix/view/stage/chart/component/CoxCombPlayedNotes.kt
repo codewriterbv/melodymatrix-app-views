@@ -19,7 +19,7 @@ class CoxCombPlayedNotes : TitledPane(), ChartVisualizer {
                 run {
                     chartItems.add(
                         ChartItemBuilder.create()
-                            .name(mn.name)
+                            .name(mn.label)
                             .value(0.0)
                             .fill(mn.chartColor)
                             .textFill(mn.labelColor)
@@ -53,7 +53,7 @@ class CoxCombPlayedNotes : TitledPane(), ChartVisualizer {
     override fun onNote(note: Note) {
         Platform.runLater {
             chartItems.forEach { data ->
-                if (data.name == note.mainNote.name) {
+                if (data.name == note.mainNote.label) {
                     data.value++
                 }
             }
