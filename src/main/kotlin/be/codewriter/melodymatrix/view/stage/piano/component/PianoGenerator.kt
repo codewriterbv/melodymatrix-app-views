@@ -8,29 +8,24 @@ import com.almasb.fxgl.app.GameApplication
 import com.almasb.fxgl.app.GameSettings
 import com.almasb.fxgl.core.math.FXGLMath
 import com.almasb.fxgl.core.math.Vec2
-import com.almasb.fxgl.dsl.FXGL
+import com.almasb.fxgl.dsl.*
 import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
-import com.almasb.fxgl.dsl.addUINode
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent
-import com.almasb.fxgl.dsl.entityBuilder
-import com.almasb.fxgl.dsl.getGameScene
 import com.almasb.fxgl.entity.Entity
 import com.almasb.fxgl.entity.EntityFactory
 import com.almasb.fxgl.entity.SpawnData
 import com.almasb.fxgl.entity.Spawns
-import com.almasb.fxgl.entity.component.Component
 import com.almasb.fxgl.entity.components.IrremovableComponent
 import com.almasb.fxgl.particle.ParticleComponent
 import com.almasb.fxgl.particle.ParticleEmitters
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
-import javafx.scene.canvas.Canvas
-import javafx.scene.canvas.GraphicsContext
 import javafx.scene.effect.BlendMode
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.input.KeyCode
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.util.Duration
@@ -45,11 +40,6 @@ class PianoGenerator(
 ) : GameApplication() {
 
     var gameFactory: GameFactory = GameFactory()
-
-    init {
-        canvas = Canvas(PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
-        g = canvas.getGraphicsContext2D()
-    }
 
     override fun initSettings(settings: GameSettings) {
         settings.width = PIANO_WIDTH
@@ -133,14 +123,16 @@ class PianoGenerator(
             EntityType.LOGO.name, SpawnData(0.0, 0.0)
         )
 
-        entityBuilder()
+        /*entityBuilder()
             .view(canvas)
-            .with(object : Component() {
-                override fun onUpdate(tpf: Double) {
-                    g.clearRect(0.0, 0.0, PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
+            .with(object : AccumulatedUpdateComponent(3) {
+                // Accumulated number can be adjusted to make more or less performant
+                // TODO make this value bindable from settings
+                override fun onAccumulatedUpdate(tpfSum: Double) {
+                    //g.clearRect(0.0, 0.0, PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
                 }
             })
-            .buildAndAttach()
+            .buildAndAttach()*/
 
         var counterWhiteKeys = 0
         var previousWhiteKeyX = 0.0
@@ -162,11 +154,6 @@ class PianoGenerator(
                 previousWhiteKeyX = x
             }
         }
-
-        entityBuilder()
-            .at(-50.0, PIANO_HEIGHT - 170.0)
-            .zIndex(1000)
-            .buildAndAttach()
     }
 
     class GameFactory : EntityFactory {
@@ -181,8 +168,7 @@ class PianoGenerator(
         fun spawnBackgroundColor(data: SpawnData): Entity {
             var rectangle = Rectangle(
                 data.get<Int>("width").toDouble(),
-                data.get<Int>("height").toDouble(),
-                Color.YELLOWGREEN
+                data.get<Int>("height").toDouble()
             )
             rectangle.fillProperty().bindBidirectional(getop(PianoProperty.BACKGROUND_COLOR.name))
             return FXGL.entityBuilder(data)
@@ -245,35 +231,70 @@ class PianoGenerator(
         }
     }
 
-    fun playNote(midiData: MidiData) {
-        val keyView = keys[midiData.note] ?: return
-        keyView.update(midiData.event == MidiEvent.NOTE_ON)
-        if (getbp(PianoProperty.EXPLOSION_ENABLED.name).value) {
-            initParticles(keyView.position().x, keyView.position().y)
+    override fun initInput() {
+        onKeyDown(KeyCode.F) {
+            initFallingBlock(200.0)
         }
     }
 
-    private fun initParticles(xx: Double, yy: Double) {
-        logger.debug("Initializing particles on {}/{}", xx, yy)
+    fun playNote(midiData: MidiData) {
+        val keyView = keys[midiData.note] ?: return
+        keyView.update(midiData.event == MidiEvent.NOTE_ON)
+        if (getb(PianoProperty.EXPLOSION_ENABLED.name) && midiData.event == MidiEvent.NOTE_ON) {
+            initParticles(keyView.position().x, keyView.position().y, midiData.velocity)
+        }
+        if (midiData.event == MidiEvent.NOTE_ON) {
+            //initFallingBlock(keyView.position().x)
+        }
+    }
+
+    private fun initFallingBlock(x: Double) {
+        val speed = 50.0
+        val height = 50.0 // Needs to be calculated based on the duration of the note
+        val block = entityBuilder()
+            .at(x, 0.0 - height)
+            .viewWithBBox(Rectangle(PIANO_WHITE_KEY_WIDTH, height, Color.RED))
+            //.with(ProjectileComponent(Point2D(0.0, 1.0), speed).allowRotation(false))
+            //.with(OffscreenCleanComponent())
+            .buildAndAttach()
+
+        animationBuilder()
+            .duration(Duration.seconds(3.0))
+            .onFinished {
+                // called when the animation is finished
+                // how to remove block from screen
+                // block.removeFromWorld()
+            }
+            .translate(block)
+            .to(Point2D(x, PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT))
+            .buildAndPlay()
+    }
+
+    private fun initParticles(xx: Double, yy: Double, keyVelocity: Int) {
+        //logger.debug("Initializing particles on {}/{}", xx, yy)
         val emitter = ParticleEmitters.newExplosionEmitter(getdp(PianoProperty.EXPLOSION_RADIUS.name).intValue())
         emitter.maxEmissions = Int.MAX_VALUE
-        emitter.blendMode = getop<BlendMode>(PianoProperty.EXPLOSION_BLENDMODE.name).value
+        emitter.blendMode = BlendMode.SRC_OVER // getop<BlendMode>(PianoProperty.EXPLOSION_BLENDMODE.name).value
         emitter.numParticles = getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
-        emitter.emissionRate = 0.86
+        emitter.emissionRate =
+            0.86 // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
         emitter.maxEmissions = 1
-        emitter.setSize(1.0, getdp(PianoProperty.EXPLOSION_PARTICLE_SIZE.name).value)
+        emitter.setSize(1.0, getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
         emitter.setScaleFunction { _ -> FXGLMath.randomPoint2D().multiply(0.01) }
-        emitter.setExpireFunction { _ -> Duration.seconds(FXGLMath.random(0.25, 3.5)) }
+        emitter.setExpireFunction { _ -> Duration.seconds(FXGLMath.random(0.25, 3.5)) } // make bindable for end time
         emitter.setAccelerationFunction { Point2D.ZERO }
-        emitter.setVelocityFunction { _ -> Point2D.ZERO }
         emitter.setVelocityFunction { _ ->
             FXGLMath.randomPoint2D().multiply(FXGLMath.random(1.0, 45.0)).multiply(0.0003)
         }
+        emitter.startColor = geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name)
+        emitter.endColor = geto<Color>(PianoProperty.EXPLOSION_COLOR_END.name)
 
-        emitter.setColor(getop<Color>(PianoProperty.EXPLOSION_COLOR_START.name).value)
+        //emitter.setSourceImage() // improvement idea --> image as particle
+        //emitter.isAllowParticleRotation = true
 
-        emitter.isAllowParticleRotation = true
+        val particleSize = 2 * getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
 
+        // The animation of each particle of the explosion
         emitter.setControl { p ->
             val x = p.position.x
             val y = p.position.y
@@ -291,23 +312,25 @@ class PianoGenerator(
             val vx = p.velocity.x * 0.8f + v.x * 0.2f
             val vy = p.velocity.y * 0.8f + v.y * 0.2f
 
-            p.velocity.x = vx * 0.8f + 0.2f
-            p.velocity.y = Math.abs(vy) * -1.1f
+            p.velocity.x = vx * 0.8f + 0.2f // How wide does the particle move
+            // Maps MIDI velocity between 1 and 127 (7 bits) to a range to define the upwards speed
+            val vyMult = FXGLMath.map(keyVelocity.toDouble(), 1.0, 127.0, 0.5, 1.5) * -1
+
+            p.velocity.y =
+                Math.abs(vy) * vyMult.toFloat() // How fast they move up, bindable to how hard a key is pressed?
 
             // Lighting
-            g.fill = getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
+            //g.fill = getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
 
-            var layer = 1
-            while (layer <= 2) {
-                g.globalAlpha = 2.0 / layer * p.life
-                g.fillOval(
-                    (x - layer).toDouble(),
-                    (y - layer).toDouble(),
-                    (layer * getdp(PianoProperty.EXPLOSION_PARTICLE_SIZE.name).value),
-                    (layer * getdp(PianoProperty.EXPLOSION_PARTICLE_SIZE.name).value)
-                )
-                layer += 1
-            }
+            //g.globalAlpha = 2.0 / layer * p.life // defines transparency
+
+            // draw extra particles using JavaFX canvas
+//            g.fillOval(
+//                (x - 2).toDouble(),
+//                (y - 2).toDouble(),
+//                particleSize,
+//                particleSize
+//            )
         }
 
         val comp = ParticleComponent(emitter)
@@ -322,8 +345,6 @@ class PianoGenerator(
 
     companion object {
         private val logger: Logger = LogManager.getLogger(PianoGenerator::class.java.name)
-        private lateinit var canvas: Canvas
-        private lateinit var g: GraphicsContext
         val keys: MutableMap<Note, PianoKey> = mutableMapOf()
         val PIANO_WIDTH = 800
         val PIANO_HEIGHT = 600

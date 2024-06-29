@@ -6,8 +6,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 /**
- * To understand the MIDI data format, read:
+ * MIDI data is the "raw" data sent between music instruments and the computer. It contains notes that are being
+ * played (or stopped), but also control info like changing instruments, channel info, etc.
  *
+ * To understand the MIDI data format, read:
  * https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
  * https://www.songstuff.com/recording/article/midi-message-format/
  *

@@ -46,7 +46,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private fun createDurationSlider(): Slider {
         return Slider().apply {
             min = 250.0
-            max = 2000.0
+            max = 1000.0
             value = 500.0
             blockIncrement = 5.0
             isShowTickMarks = true

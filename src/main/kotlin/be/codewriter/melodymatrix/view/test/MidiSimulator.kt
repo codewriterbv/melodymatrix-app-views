@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.Note
+import com.almasb.fxgl.dsl.random
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
@@ -37,13 +38,20 @@ class MidiSimulator {
         if (notes.isEmpty()) {
             return
         }
-        logger.info("Playing {} of {} notes", idx, notes.size)
         stopCurrent()
         idx++
         if (idx >= notes.size) {
             idx = 0
         }
-        notifyListeners(MidiData(byteArrayOf("10010000".toInt(2).toByte(), notes[idx].byteValue.toByte(), 40)))
+        notifyListeners(
+            MidiData(
+                byteArrayOf(
+                    "10010000".toInt(2).toByte(),
+                    notes[idx].byteValue.toByte(),
+                    random(40, 127).toByte()
+                )
+            )
+        )
         scheduler.schedule({ play() }, delay, TimeUnit.MILLISECONDS)
     }
 
@@ -64,14 +72,12 @@ class MidiSimulator {
     }
 
     fun notifyListeners(midiData: MidiData) {
-        logger.info("Sending {}", midiData)
         for (listener in registeredListeners) {
             listener.onMidiDataReceived(midiData)
         }
     }
 
     fun setNotes(notes: List<Note>) {
-        logger.info("Setting {} notes", notes.size)
         stopCurrent()
         this.notes.clear()
         this.notes.addAll(notes)
