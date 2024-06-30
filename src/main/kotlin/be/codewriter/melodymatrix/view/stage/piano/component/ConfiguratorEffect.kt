@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 
-class PianoConfiguratorEffect : VBox() {
+class ConfiguratorEffect : VBox() {
     companion object {
         private val explosionVisible = ToggleSwitch()
 
@@ -24,6 +24,7 @@ class PianoConfiguratorEffect : VBox() {
         private val particleSize = Slider()
         private val colorStart = ColorPicker()
         private val colorEnd = ColorPicker()
+        private val tailNumParticles = Slider()
     }
 
     init {
@@ -37,12 +38,16 @@ class PianoConfiguratorEffect : VBox() {
             max = 400.0
         }
         numParticles.apply {
-            min = 1.0
-            max = 20.0
+            min = 10.0
+            max = 50.0
         }
         particleSize.apply {
             min = 1.0
             max = 10.0
+        }
+        tailNumParticles.apply {
+            min = 0.0
+            max = 20.0
         }
         colorStart.value = Color.YELLOW
         colorEnd.value = Color.DARKRED
@@ -55,6 +60,8 @@ class PianoConfiguratorEffect : VBox() {
             numParticles,
             Label("Particle size"),
             particleSize,
+            Label("Number of tail particles"),
+            tailNumParticles,
             Label("Colors"),
             HBox(colorStart, colorEnd).apply {
                 spacing = 5.0
@@ -71,17 +78,19 @@ class PianoConfiguratorEffect : VBox() {
     fun createBindings() {
         Platform.runLater {
             explosionVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoGenerator.PianoProperty.EXPLOSION_ENABLED.name))
+                .bindBidirectional(getbp(PianoProperty.EXPLOSION_ENABLED.name))
             colorEnd.valueProperty()
-                .bindBidirectional(getop<Color>(PianoGenerator.PianoProperty.EXPLOSION_COLOR_END.name))
+                .bindBidirectional(getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name))
             colorStart.valueProperty()
-                .bindBidirectional(getop<Color>(PianoGenerator.PianoProperty.EXPLOSION_COLOR_START.name))
+                .bindBidirectional(getop<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
             explosionRadius.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.EXPLOSION_RADIUS.name))
+                .bindBidirectional(getdp(PianoProperty.EXPLOSION_RADIUS.name))
             numParticles.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name))
+                .bindBidirectional(getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name))
             particleSize.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
+                .bindBidirectional(getdp(PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
+            tailNumParticles.valueProperty()
+                .bindBidirectional(getdp(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name))
         }
     }
 }

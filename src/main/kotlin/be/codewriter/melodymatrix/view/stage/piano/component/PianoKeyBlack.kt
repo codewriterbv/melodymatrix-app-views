@@ -19,8 +19,8 @@ class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         children.add(Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<Color>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
-                    .otherwise(getop<Color>(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+                    .then(getop<Color>(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             )
         })
     }

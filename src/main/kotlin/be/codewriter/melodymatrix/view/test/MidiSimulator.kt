@@ -10,19 +10,19 @@ import java.util.concurrent.TimeUnit
 
 class MidiSimulator {
 
-    private val registeredListeners: MutableList<MidiDataReceivedListener> = ArrayList()
+    private val registeredListeners: MutableList<EventHandler> = ArrayList()
     private val notes: MutableList<Note> = mutableListOf()
     private var idx: Int = 0
     private var delay: Long = 500
 
     val scheduler = Executors.newScheduledThreadPool(1)
 
-    fun registerListener(listener: MidiDataReceivedListener) {
+    fun registerListener(listener: EventHandler) {
         logger.info("Adding listener {}", listener)
         registeredListeners.add(listener)
     }
 
-    fun removeListener(listener: MidiDataReceivedListener) {
+    fun removeListener(listener: EventHandler) {
         logger.info("Removing listener {}", listener)
         registeredListeners.remove(listener)
     }
@@ -73,7 +73,7 @@ class MidiSimulator {
 
     fun notifyListeners(midiData: MidiData) {
         for (listener in registeredListeners) {
-            listener.onMidiDataReceived(midiData)
+            listener.onMidiData(midiData)
         }
     }
 

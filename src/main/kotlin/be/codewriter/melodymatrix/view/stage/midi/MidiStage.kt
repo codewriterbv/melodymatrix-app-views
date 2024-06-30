@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.stage.midi
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
@@ -151,7 +152,7 @@ class MidiStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiDataReceived(midiData: MidiData) {
+    override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
             midiDataList.addFirst(midiData)
 
@@ -171,6 +172,10 @@ class MidiStage : VisualizerStage() {
                 controllerValueBits.set(byteToBitsString(midiData.bytes[2]))
             }
         }
+    }
+
+    override fun onPlayEvent(playEvent: PlayEvent) {
+        // Not needed here
     }
 
     fun byteToBitsString(byte: Byte): String {

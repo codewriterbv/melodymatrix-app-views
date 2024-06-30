@@ -12,6 +12,7 @@ import com.almasb.fxgl.dsl.*
 import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
+import com.almasb.fxgl.dsl.components.AccumulatedUpdateComponent
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent
 import com.almasb.fxgl.entity.Entity
 import com.almasb.fxgl.entity.EntityFactory
@@ -22,6 +23,8 @@ import com.almasb.fxgl.particle.ParticleComponent
 import com.almasb.fxgl.particle.ParticleEmitters
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
+import javafx.scene.canvas.Canvas
+import javafx.scene.canvas.GraphicsContext
 import javafx.scene.effect.BlendMode
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -34,12 +37,17 @@ import org.apache.logging.log4j.Logger
 import kotlin.collections.set
 
 class PianoGenerator(
-    val pianoConfiguratorBackground: PianoConfiguratorBackground,
-    val pianoConfiguratorEffect: PianoConfiguratorEffect,
-    val pianoConfiguratorKey: PianoConfiguratorKey
+    val configuratorBackground: ConfiguratorBackground,
+    val configuratorEffect: ConfiguratorEffect,
+    val configuratorKey: ConfiguratorKey
 ) : GameApplication() {
 
     var gameFactory: GameFactory = GameFactory()
+
+    init {
+        canvas = Canvas(PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
+        g = canvas.getGraphicsContext2D()
+    }
 
     override fun initSettings(settings: GameSettings) {
         settings.width = PIANO_WIDTH
@@ -48,54 +56,7 @@ class PianoGenerator(
     }
 
     override fun initGameVars(vars: MutableMap<String, Any>) {
-        vars.put(PianoProperty.PIANO_WHITE_KEY_COLOR.name, Color.WHITE)
-        vars.put(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name, Color.ORANGE)
-        vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name, false)
-        vars.put(PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name, Color.BLACK)
-        vars.put(PianoProperty.PIANO_BLACK_KEY_COLOR.name, Color.BLACK)
-        vars.put(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name, Color.CYAN)
-
-        vars.put(PianoProperty.BACKGROUND_COLOR.name, Color.DARKGRAY)
-        vars.put(PianoProperty.BACKGROUND_IMAGE.name, PianoBackgroundImage.NONE)
-        vars.put(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name, 1.0)
-
-        vars.put(PianoProperty.LOGO_VISIBLE.name, true)
-        vars.put(PianoProperty.LOGO_TRANSPARENCY.name, 1.0)
-        vars.put(PianoProperty.LOGO_WIDTH.name, PIANO_WIDTH - 100.0)
-        vars.put(PianoProperty.LOGO_LEFT.name, 50.0)
-        vars.put(PianoProperty.LOGO_TOP.name, (PIANO_HEIGHT - 120.0 - 150.0) / 2)
-
-        vars.put(PianoProperty.EXPLOSION_ENABLED.name, true)
-        vars.put(PianoProperty.EXPLOSION_COLOR_END.name, Color.YELLOW)
-        vars.put(PianoProperty.EXPLOSION_COLOR_START.name, Color.RED)
-        vars.put(PianoProperty.EXPLOSION_RADIUS.name, 100.0)
-        vars.put(PianoProperty.EXPLOSION_BLENDMODE.name, BlendMode.HARD_LIGHT)
-        vars.put(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name, 5.0)
-        vars.put(PianoProperty.EXPLOSION_PARTICLE_SIZE.name, 2.0)
-    }
-
-    enum class PianoProperty {
-        BACKGROUND_COLOR,
-        BACKGROUND_IMAGE,
-        BACKGROUND_IMAGE_TRANSPARENCY,
-        EXPLOSION_ENABLED,
-        EXPLOSION_COLOR_END,
-        EXPLOSION_COLOR_START,
-        EXPLOSION_RADIUS,
-        EXPLOSION_BLENDMODE,
-        EXPLOSION_NUMBER_OF_PARTICLES,
-        EXPLOSION_PARTICLE_SIZE,
-        LOGO_LEFT,
-        LOGO_TOP,
-        LOGO_TRANSPARENCY,
-        LOGO_VISIBLE,
-        LOGO_WIDTH,
-        PIANO_WHITE_KEY_COLOR,
-        PIANO_WHITE_KEY_ACTIVE_COLOR,
-        PIANO_WHITE_KEY_NAME_COLOR,
-        PIANO_WHITE_KEY_NAME_VISIBLE,
-        PIANO_BLACK_KEY_COLOR,
-        PIANO_BLACK_KEY_ACTIVE_COLOR
+        DefaultValues.setDefaults(vars)
     }
 
     enum class EntityType {
@@ -104,9 +65,9 @@ class PianoGenerator(
 
     override fun initGame() {
         // Bindings can only be created when FXGL has started, so we have a callback here
-        pianoConfiguratorBackground.createBindings()
-        pianoConfiguratorEffect.createBindings()
-        pianoConfiguratorKey.createBindings()
+        configuratorBackground.createBindings()
+        configuratorEffect.createBindings()
+        configuratorKey.createBindings()
 
         getGameScene().setCursor(Cursor.DEFAULT)
 
@@ -122,17 +83,16 @@ class PianoGenerator(
         FXGL.spawn(
             EntityType.LOGO.name, SpawnData(0.0, 0.0)
         )
-
-        /*entityBuilder()
+        entityBuilder()
             .view(canvas)
             .with(object : AccumulatedUpdateComponent(3) {
                 // Accumulated number can be adjusted to make more or less performant
                 // TODO make this value bindable from settings
                 override fun onAccumulatedUpdate(tpfSum: Double) {
-                    //g.clearRect(0.0, 0.0, PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
+                    g.clearRect(0.0, 0.0, PIANO_WIDTH.toDouble(), PIANO_HEIGHT.toDouble())
                 }
             })
-            .buildAndAttach()*/
+            .buildAndAttach()
 
         var counterWhiteKeys = 0
         var previousWhiteKeyX = 0.0
@@ -271,13 +231,12 @@ class PianoGenerator(
     }
 
     private fun initParticles(xx: Double, yy: Double, keyVelocity: Int) {
-        //logger.debug("Initializing particles on {}/{}", xx, yy)
         val emitter = ParticleEmitters.newExplosionEmitter(getdp(PianoProperty.EXPLOSION_RADIUS.name).intValue())
         emitter.maxEmissions = Int.MAX_VALUE
-        emitter.blendMode = BlendMode.SRC_OVER // getop<BlendMode>(PianoProperty.EXPLOSION_BLENDMODE.name).value
+        emitter.blendMode = BlendMode.SRC_OVER
         emitter.numParticles = getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
-        emitter.emissionRate =
-            0.86 // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
+        // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
+        emitter.emissionRate = 0.86
         emitter.maxEmissions = 1
         emitter.setSize(1.0, getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
         emitter.setScaleFunction { _ -> FXGLMath.randomPoint2D().multiply(0.01) }
@@ -286,11 +245,7 @@ class PianoGenerator(
         emitter.setVelocityFunction { _ ->
             FXGLMath.randomPoint2D().multiply(FXGLMath.random(1.0, 45.0)).multiply(0.0003)
         }
-        emitter.startColor = geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name)
-        emitter.endColor = geto<Color>(PianoProperty.EXPLOSION_COLOR_END.name)
-
-        //emitter.setSourceImage() // improvement idea --> image as particle
-        //emitter.isAllowParticleRotation = true
+        emitter.setColor(geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
 
         val particleSize = 2 * getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
 
@@ -309,28 +264,38 @@ class PianoGenerator(
                 .mulLocal(FXGLMath.random(1.0, 25.0))
                 .mulLocal(0.5)
 
-            val vx = p.velocity.x * 0.8f + v.x * 0.2f
-            val vy = p.velocity.y * 0.8f + v.y * 0.2f
-
+            // Move the particles (a bit) left-right
+            val vx = p.velocity.x * 0.4f + v.x * 0.2f
             p.velocity.x = vx * 0.8f + 0.2f // How wide does the particle move
-            // Maps MIDI velocity between 1 and 127 (7 bits) to a range to define the upwards speed
-            val vyMult = FXGLMath.map(keyVelocity.toDouble(), 1.0, 127.0, 0.5, 1.5) * -1
 
-            p.velocity.y =
-                Math.abs(vy) * vyMult.toFloat() // How fast they move up, bindable to how hard a key is pressed?
+            // Move the particles up, depending on how hard the key is pressed
+            // Maps MIDI velocity between 1 and 127 (7 bits) to a range to define the upwards speed
+            val vy = p.velocity.y * 0.8f + v.y * 0.2f
+            val vyMult = FXGLMath.map(keyVelocity.toDouble(), 1.0, 127.0, 0.5, 1.5) * -1
+            p.velocity.y = Math.abs(vy) * vyMult.toFloat()
 
             // Lighting
-            //g.fill = getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
+            g.fill = getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
 
-            //g.globalAlpha = 2.0 / layer * p.life // defines transparency
+            // Draw the particle using JavaFX canvas
+            g.fillOval(
+                (x - 2).toDouble(),
+                (y - 2).toDouble(),
+                particleSize,
+                particleSize
+            )
 
-            // draw extra particles using JavaFX canvas
-//            g.fillOval(
-//                (x - 2).toDouble(),
-//                (y - 2).toDouble(),
-//                particleSize,
-//                particleSize
-//            )
+            // Add a tail
+            if (getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt() > 0) {
+                for (i in 1..getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt()) {
+                    g.fillOval(
+                        (x - 2).toDouble() + (particleSize / 2) - 1 + FXGLMath.random(-2.0, 2.0),
+                        (y - 2).toDouble() + ((particleSize / 5.0) * (i * 2)),
+                        particleSize / 5.0,
+                        particleSize / 5.0
+                    )
+                }
+            }
         }
 
         val comp = ParticleComponent(emitter)
@@ -345,6 +310,8 @@ class PianoGenerator(
 
     companion object {
         private val logger: Logger = LogManager.getLogger(PianoGenerator::class.java.name)
+        private lateinit var canvas: Canvas
+        private lateinit var g: GraphicsContext
         val keys: MutableMap<Note, PianoKey> = mutableMapOf()
         val PIANO_WIDTH = 800
         val PIANO_HEIGHT = 600

@@ -3,10 +3,11 @@ package be.codewriter.melodymatrix.view.stage.piano
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorBackground
-import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorEffect
-import be.codewriter.melodymatrix.view.stage.piano.component.PianoConfiguratorKey
+import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorBackground
+import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorEffect
+import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorKey
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
@@ -21,11 +22,11 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
-    private val pianoConfiguratorBackground = PianoConfiguratorBackground(licenseStatus)
-    private val pianoConfiguratorEffect = PianoConfiguratorEffect()
-    private val pianoConfiguratorKey = PianoConfiguratorKey()
+    private val configuratorBackground = ConfiguratorBackground(licenseStatus)
+    private val configuratorEffect = ConfiguratorEffect()
+    private val configuratorKey = ConfiguratorKey()
     private val pianoGenerator: PianoGenerator =
-        PianoGenerator(pianoConfiguratorBackground, pianoConfiguratorEffect, pianoConfiguratorKey)
+        PianoGenerator(configuratorBackground, configuratorEffect, configuratorKey)
 
     init {
         val holder = BorderPane().apply {
@@ -51,22 +52,22 @@ class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
             panes.addAll(
                 TitledPane().apply {
                     text = "Background settings"
-                    content = pianoConfiguratorBackground
+                    content = configuratorBackground
                 },
                 TitledPane().apply {
                     text = "Piano key settings"
-                    content = pianoConfiguratorKey
+                    content = configuratorKey
                 },
                 TitledPane().apply {
                     text = "Particle effect"
-                    content = pianoConfiguratorEffect
+                    content = configuratorEffect
                 }
             )
             expandedPane = panes[0]
         }
     }
 
-    override fun onMidiDataReceived(midiData: MidiData) {
+    override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
             logger.debug(
                 "Received note {} {}",
@@ -76,6 +77,10 @@ class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
 
             pianoGenerator.playNote(midiData)
         }
+    }
+
+    override fun onPlayEvent(playEvent: PlayEvent) {
+        // Not needed here
     }
 
     companion object {

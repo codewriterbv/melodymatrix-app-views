@@ -11,7 +11,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
-class PianoConfiguratorKey : VBox() {
+class ConfiguratorKey : VBox() {
     companion object {
         private val whiteKeyColor = ColorPicker()
         private val whiteKeyActiveColor = ColorPicker()
@@ -53,17 +53,17 @@ class PianoConfiguratorKey : VBox() {
     fun createBindings() {
         Platform.runLater {
             whiteKeyColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             whiteKeyActiveColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
             keyNameColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
             keyNameVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
+                .bindBidirectional(getbp(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
             blackKeyColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             blackKeyActiveColor.valueProperty()
-                .bindBidirectional(getop(PianoGenerator.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
         }
     }
 }

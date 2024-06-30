@@ -22,7 +22,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
-class PianoConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
+class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
     companion object {
         private val backgroundColor = ColorPicker()
         private val imageSelectionPane = FlowPane()
@@ -99,7 +99,7 @@ class PianoConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
             }
             StackPane.setMargin(imageView, Insets(2.0))
             imageView.setOnMouseClicked {
-                (getop<PianoBackgroundImage>(PianoGenerator.PianoProperty.BACKGROUND_IMAGE.name)).set(
+                (getop<PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).set(
                     backgroundImage
                 )
                 removeSelectedImage()
@@ -158,19 +158,19 @@ class PianoConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
      */
     fun createBindings() {
         Platform.runLater {
-            backgroundColor.valueProperty().bindBidirectional(getop(PianoGenerator.PianoProperty.BACKGROUND_COLOR.name))
+            backgroundColor.valueProperty().bindBidirectional(getop(PianoProperty.BACKGROUND_COLOR.name))
             imageTransparency.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
+                .bindBidirectional(getdp(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
             logoVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoGenerator.PianoProperty.LOGO_VISIBLE.name))
+                .bindBidirectional(getbp(PianoProperty.LOGO_VISIBLE.name))
             logoTransparency.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.LOGO_TRANSPARENCY.name))
+                .bindBidirectional(getdp(PianoProperty.LOGO_TRANSPARENCY.name))
             logoWidth.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.LOGO_WIDTH.name))
+                .bindBidirectional(getdp(PianoProperty.LOGO_WIDTH.name))
             logoLeft.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.LOGO_LEFT.name))
+                .bindBidirectional(getdp(PianoProperty.LOGO_LEFT.name))
             logoTop.valueProperty()
-                .bindBidirectional(getdp(PianoGenerator.PianoProperty.LOGO_TOP.name))
+                .bindBidirectional(getdp(PianoProperty.LOGO_TOP.name))
         }
     }
 }

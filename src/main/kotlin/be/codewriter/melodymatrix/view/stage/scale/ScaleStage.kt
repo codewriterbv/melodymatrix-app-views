@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.stage.scale
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
@@ -90,7 +91,7 @@ class ScaleStage : VisualizerStage() {
         return label
     }
 
-    override fun onMidiDataReceived(midiData: MidiData) {
+    override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
             logger.info(
                 "Received note {} {}",
@@ -111,6 +112,10 @@ class ScaleStage : VisualizerStage() {
                 }
             }
         }
+    }
+
+    override fun onPlayEvent(playEvent: PlayEvent) {
+        // Not needed here
     }
 
     companion object {

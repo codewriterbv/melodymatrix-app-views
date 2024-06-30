@@ -3,6 +3,7 @@ package be.codewriter.melodymatrix.view.stage.chart
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -77,12 +78,16 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiDataReceived(midiData: MidiData) {
+    override fun onMidiData(midiData: MidiData) {
         val note = midiData.note
         for (visualizer in charts.children) {
             if (visualizer is ChartVisualizer) {
                 visualizer.onNote(note)
             }
         }
+    }
+
+    override fun onPlayEvent(playEvent: PlayEvent) {
+        // Not needed here
     }
 }

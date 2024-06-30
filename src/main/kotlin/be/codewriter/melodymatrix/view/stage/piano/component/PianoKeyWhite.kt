@@ -71,8 +71,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         keyShape.apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
-                    .otherwise(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
+                    .then(getop<Color>(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             )
             strokeWidth = 0.5
             stroke = Color.BLACK
@@ -87,8 +87,8 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
             textAlignment = TextAlignment.CENTER
             translateY = PIANO_WHITE_KEY_HEIGHT - 20
             translateX = 0.0
-            visibleProperty().bind(getbp(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
-            textFillProperty().bind(getop<Color>(PianoGenerator.PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
+            visibleProperty().bind(getbp(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
+            textFillProperty().bind(getop<Color>(PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
         }
 
         children.addAll(keyShape, noteName)
