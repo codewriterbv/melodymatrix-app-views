@@ -14,6 +14,7 @@ import javafx.scene.control.TitledPane
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
+import kotlin.random.Random
 
 class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
 
@@ -25,12 +26,12 @@ class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
             MainNote.entries.stream()
                 .forEach { mn ->
                     run {
-                        notes.add(ValueChartItem(0.0, mn.name))
+                        notes.add(ValueChartItem(0.0, mn.label))
                     }
                 }
             chords[octave] = YSeries<ValueChartItem>(
                 notes,
-                ChartType.SMOOTH_RADAR_POLYGON,
+                ChartType.RADAR_SECTOR,
                 RadialGradient(
                     0.0,
                     0.0,
@@ -47,10 +48,19 @@ class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
 
         val categories: MutableList<Category> = ArrayList()
         for (mainNote in Note.usedAndSortedMainNotes()) {
-            categories.add(Category(mainNote.name))
+            categories.add(Category(mainNote.label))
         }
 
-        val chart = YChart(YPane(categories, *chords.values.toTypedArray()))
+        val arr: Array<YSeries<ValueChartItem>> = chords.values.toTypedArray()
+        /*for (series in chords.values) {
+            arr.plus(series)
+        }*/
+
+        val data = YPane(categories, *arr)/*.apply {
+            lowerBoundY = 0.0
+            upperBoundY = 100.0
+        }*/
+        val chart = YChart(data)
 
         text = "Radar Chart"
         content = chart
@@ -59,12 +69,16 @@ class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
 
     override fun onNote(note: Note) {
         Platform.runLater {
-            val data = chords[note.octave]
-            if (data != null) {
-                for (item in data.items) {
-                    if (item.name.equals(note.mainNote.name)) {
-                        item.value++
+            val series = chords[note.octave]
+            if (series != null) {
+                for (item in series.items) {
+                    if (item.name == note.mainNote.label) {
+                        item.value = Random.nextInt(0, 100 + 1).toDouble()
+
                     }
+                }
+                series.addSeriesEventListener {
+                    println("test")
                 }
             }
         }
