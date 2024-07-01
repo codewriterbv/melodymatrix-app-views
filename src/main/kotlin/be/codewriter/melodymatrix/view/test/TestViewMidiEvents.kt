@@ -23,6 +23,11 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                     .toList()
                     .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey }))
             ),
+            createButton(
+                "Play all notes random", Note.entries
+                    .toList()
+                    .shuffled()
+            ),
             createButton("Play octave 5", Note.entries.stream()
                 .filter { n -> n.octave == Octave.OCTAVE_5 }
                 .toList()
