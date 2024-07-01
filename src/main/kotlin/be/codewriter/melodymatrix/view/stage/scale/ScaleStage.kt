@@ -93,11 +93,6 @@ class ScaleStage : VisualizerStage() {
 
     override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
-            logger.info(
-                "Received note {} {}",
-                midiData.note,
-                (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
-            )
             val note = midiData.note
             val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
             if (label != null) {
