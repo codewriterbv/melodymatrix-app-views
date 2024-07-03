@@ -4,10 +4,12 @@ import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.stage.chart.component.*
+import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 
@@ -18,16 +20,17 @@ class ChartsStage : VisualizerStage() {
     var stackPane = StackPane()
 
     init {
-        val buttons = VBox().apply {
+        val buttons = HBox().apply {
             spacing = 10.0
-            prefWidth = 200.0
-            minWidth = 200.0
-            maxWidth = 200.0
+            prefHeight = 150.0
+            minHeight = 200.0
+            maxHeight = 200.0
+            alignment = Pos.TOP_LEFT
             children.addAll(
                 Button("Reset").apply {
-                    prefWidth = 200.0
-                    minWidth = 200.0
-                    maxWidth = 200.0
+                    prefWidth = 150.0
+                    minWidth = 150.0
+                    maxWidth = 150.0
                     setOnAction {
                         charts.forEach { c -> c.reset() }
                     }
@@ -43,26 +46,39 @@ class ChartsStage : VisualizerStage() {
 
         title = "See your music in charts..."
         scene = Scene(BorderPane().apply {
-            left = buttons
-            right = stackPane
-        }, 800.0, 800.0)
+            top = buttons
+            center = stackPane
+        }, 1200.0, 800.0)
 
         setOnCloseRequest {
             // Nothing needed here, but must be defined or will cause a problem when closing the window
         }
     }
 
-
-    fun createButton(label: String, chart: ChartVisualizer): Button {
+    fun createButton(label: String, chart: ChartVisualizer): VBox {
         charts.add(chart)
         stackPane.children.add(chart as Node)
-        return Button(label).apply {
-            prefWidth = 200.0
-            minWidth = 200.0
-            maxWidth = 200.0
-            setOnAction {
-                chart.toFront()
-            }
+
+        val smallView = (chart as BorderPane).apply {
+            maxWidth = 150.0
+            maxHeight = 150.0
+        }
+
+        return VBox().apply {
+            prefWidth = 150.0
+            minWidth = 150.0
+            maxWidth = 150.0
+            children.addAll(
+                Button(label).apply {
+                    prefWidth = 150.0
+                    minWidth = 150.0
+                    maxWidth = 150.0
+                    setOnAction {
+                        chart.toFront()
+                    }
+                },
+                smallView
+            )
         }
     }
 

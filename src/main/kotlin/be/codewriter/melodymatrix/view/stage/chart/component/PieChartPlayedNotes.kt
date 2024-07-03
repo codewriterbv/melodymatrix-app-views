@@ -4,9 +4,9 @@ import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.scene.chart.PieChart
-import javafx.scene.control.TitledPane
+import javafx.scene.layout.BorderPane
 
-class PieChartPlayedNotes : TitledPane(), ChartVisualizer {
+class PieChartPlayedNotes : BorderPane(), ChartVisualizer {
 
     private val pieChartMainNotes: List<PieChart.Data> = FXCollections.emptyObservableList()
 
@@ -14,8 +14,7 @@ class PieChartPlayedNotes : TitledPane(), ChartVisualizer {
         val pieChart = PieChart()
         pieChart.data.addAll(pieChartMainNotes)
 
-        text = "Pie Chart"
-        content = pieChart
+        children.add(pieChart)
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 

@@ -6,10 +6,10 @@ import eu.hansolo.fx.charts.CoxcombChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import javafx.application.Platform
-import javafx.scene.control.TitledPane
+import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 
-class CoxCombPlayedNotes : TitledPane(), ChartVisualizer {
+class CoxCombPlayedNotes : BorderPane(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -45,8 +45,7 @@ class CoxCombPlayedNotes : TitledPane(), ChartVisualizer {
             //.selectedItemFill(Color.MAGENTA)
             .build()
 
-        text = "Coxcomb"
-        content = coxComb
+        children.add(coxComb)
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 

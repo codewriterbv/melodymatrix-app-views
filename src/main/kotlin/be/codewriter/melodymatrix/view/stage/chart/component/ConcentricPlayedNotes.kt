@@ -7,10 +7,10 @@ import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import eu.hansolo.fx.charts.tools.NumberFormat
 import javafx.application.Platform
-import javafx.scene.control.TitledPane
+import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 
-class ConcentricPlayedNotes : TitledPane(), ChartVisualizer {
+class ConcentricPlayedNotes : BorderPane(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -40,8 +40,7 @@ class ConcentricPlayedNotes : TitledPane(), ChartVisualizer {
             .itemLabelFill(Color.WHITE)
             .build()
 
-        text = "Concentric Ring"
-        content = concentric
+        children.add(concentric)
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 

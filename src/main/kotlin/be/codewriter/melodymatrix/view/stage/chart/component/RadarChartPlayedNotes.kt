@@ -10,13 +10,13 @@ import eu.hansolo.fx.charts.YPane
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
 import javafx.application.Platform
-import javafx.scene.control.TitledPane
+import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import kotlin.random.Random
 
-class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
+class RadarChartPlayedNotes : BorderPane(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
 
@@ -62,8 +62,7 @@ class RadarChartPlayedNotes : TitledPane(), ChartVisualizer {
         }*/
         val chart = YChart(data)
 
-        text = "Radar Chart"
-        content = chart
+        children.add(chart)
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
