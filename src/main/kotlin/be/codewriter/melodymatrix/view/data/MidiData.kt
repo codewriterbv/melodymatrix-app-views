@@ -68,7 +68,7 @@ open class MidiData(val bytes: ByteArray) {
             this.channel = (bytes[0].toInt() and 0x0f)
             this.pitch = 0 // TODO
         } else {
-            logger.warn("Don't know how to convert Midi data with status {}", bytes[0])
+            logger.warn("Don't know how to convert Midi data with status {}, {}", bytes[0], bytes[0].toString(2))
         }
     }
 }
