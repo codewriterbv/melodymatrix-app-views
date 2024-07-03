@@ -10,13 +10,13 @@ import eu.hansolo.fx.charts.YPane
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
 import javafx.application.Platform
-import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import kotlin.random.Random
 
-class RadarChartPlayedNotes : BorderPane(), ChartVisualizer {
+class RadarChartPlayedNotes : Pane(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
 
@@ -60,9 +60,7 @@ class RadarChartPlayedNotes : BorderPane(), ChartVisualizer {
             lowerBoundY = 0.0
             upperBoundY = 100.0
         }*/
-        val chart = YChart(data)
-
-        children.add(chart)
+        children.add(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 

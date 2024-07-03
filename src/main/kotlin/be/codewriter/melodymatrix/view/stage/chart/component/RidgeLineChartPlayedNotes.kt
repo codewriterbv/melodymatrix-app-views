@@ -11,18 +11,19 @@ import eu.hansolo.fx.charts.series.XYSeriesBuilder
 import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
-import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
-class RidgeLineChartPlayedNotes : BorderPane(), ChartVisualizer {
+class RidgeLineChartPlayedNotes : Pane(), ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
-        height = 400.0
+        height = Double.MAX_VALUE
+        width = Double.MAX_VALUE
     }
 
     private val gradient: LinearGradient = LinearGradient(

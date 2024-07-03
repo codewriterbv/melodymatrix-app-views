@@ -6,10 +6,10 @@ import eu.hansolo.fx.charts.CoxcombChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import javafx.application.Platform
-import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 
-class CoxCombPlayedNotes : BorderPane(), ChartVisualizer {
+class CoxCombPlayedNotes : Pane(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -28,24 +28,23 @@ class CoxCombPlayedNotes : BorderPane(), ChartVisualizer {
                     )
                 }
             }
-
-        val coxComb = CoxcombChartBuilder.create()
-            .prefSize(400.0, 400.0)
-            .items(chartItems)
-            .textColor(Color.WHITE)
-            .autoTextColor(false)
-            .useChartItemTextFill(false)
-            .equalSegmentAngles(true)
-            //.order(Order.ASCENDING)
-            //.onMousePressed(onPressedHandler)
-            //.onMouseMoved(onMoveHandler)
-            .showPopup(false)
-            .showItemName(true)
-            .formatString("%.2f")
-            //.selectedItemFill(Color.MAGENTA)
-            .build()
-
-        children.add(coxComb)
+        children.add(
+            CoxcombChartBuilder.create()
+                //.prefSize(Double.MAX_VALUE, Double.MAX_VALUE)
+                .items(chartItems)
+                .textColor(Color.WHITE)
+                .autoTextColor(false)
+                .useChartItemTextFill(false)
+                .equalSegmentAngles(true)
+                //.order(Order.ASCENDING)
+                //.onMousePressed(onPressedHandler)
+                //.onMouseMoved(onMoveHandler)
+                .showPopup(false)
+                .showItemName(true)
+                .formatString("%.2f")
+                //.selectedItemFill(Color.MAGENTA)
+                .build()
+        )
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 

@@ -7,10 +7,10 @@ import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import eu.hansolo.fx.charts.tools.NumberFormat
 import javafx.application.Platform
-import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 
-class ConcentricPlayedNotes : BorderPane(), ChartVisualizer {
+class ConcentricPlayedNotes : Pane(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -30,18 +30,17 @@ class ConcentricPlayedNotes : BorderPane(), ChartVisualizer {
                 }
             }
 
-        val concentric = ConcentricRingChartBuilder.create()
-            .prefSize(400.0, 400.0)
-            .items(chartItems)
-            .sorted(false)
-            //.order(Order.DESCENDING)
-            //.barBackgroundColor(Color.BLACK)
-            .numberFormat(NumberFormat.NUMBER)
-            .itemLabelFill(Color.WHITE)
-            .build()
-
-        children.add(concentric)
-        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
+        children.add(
+            ConcentricRingChartBuilder.create()
+                //.prefSize(Double.MAX_VALUE, Double.MAX_VALUE)
+                .items(chartItems)
+                .sorted(false)
+                //.order(Order.DESCENDING)
+                //.barBackgroundColor(Color.BLACK)
+                .numberFormat(NumberFormat.NUMBER)
+                .itemLabelFill(Color.WHITE)
+                .build()
+        )
     }
 
     override fun onNote(note: Note) {
