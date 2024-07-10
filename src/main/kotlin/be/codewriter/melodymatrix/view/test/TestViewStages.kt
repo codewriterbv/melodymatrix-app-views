@@ -3,6 +3,8 @@ package be.codewriter.melodymatrix.view.test
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
+import be.codewriter.melodymatrix.view.stage.drum.DrumStage
+import be.codewriter.melodymatrix.view.stage.ledstrip.LedStripStage
 import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.stage.scale.ScaleStage
@@ -22,7 +24,9 @@ class TestViewStages(val parentStage: Stage, val midiSimulator: MidiSimulator, l
             createButton("Midi") { MidiStage() },
             createButton("Piano") { PianoStage(licenseStatus) },
             createButton("Charts") { ChartsStage() },
-            createButton("Scale") { ScaleStage() }
+            createButton("Scale") { ScaleStage() },
+            createButton("Drum") { DrumStage() },
+            createButton("LED Strip") { LedStripStage() }
         )
     }
 

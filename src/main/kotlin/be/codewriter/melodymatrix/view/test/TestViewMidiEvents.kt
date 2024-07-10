@@ -9,6 +9,7 @@ import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
+import java.util.*
 
 class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
@@ -19,19 +20,21 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             Label("Midi events selection"),
             createDurationSlider(),
             createButton(
-                "Play all notes", Note.entries
+                "Play all notes (repeat)", Note.entries
                     .toList()
-                    .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey }))
+                    .sortedWith(compareBy({ it.octave }, { it.mainNote.sortingKey })), true
             ),
             createButton(
-                "Play all notes random", Note.entries
+                "Play all notes random (repeat)", Note.entries
                     .toList()
-                    .shuffled()
+                    .shuffled(), true
             ),
-            createButton("Play octave 5", Note.entries.stream()
+            createButton("Play C5 only (once)", Collections.singletonList(Note.C5), false),
+            createButton("Play all from octave 5 (repeat)", Note.entries.stream()
                 .filter { n -> n.octave == Octave.OCTAVE_5 }
                 .toList()
-                .sortedBy { it.mainNote.sortingKey }),
+                .sortedBy { it.mainNote.sortingKey }, true
+            ),
             createButton("Stop notes"),
             createButton(
                 "Set instrument 5",
@@ -62,11 +65,11 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         }
     }
 
-    private fun createButton(label: String, notes: List<Note>): Node {
+    private fun createButton(label: String, notes: List<Note>, repeat: Boolean): Node {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->
-                midiSimulator.setNotes(notes)
+                midiSimulator.setNotes(notes, repeat)
             }
         }
 

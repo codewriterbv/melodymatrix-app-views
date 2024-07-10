@@ -14,6 +14,7 @@ class MidiSimulator {
     private val notes: MutableList<Note> = mutableListOf()
     private var idx: Int = 0
     private var delay: Long = 500
+    private var repeat: Boolean = true
 
     val scheduler = Executors.newScheduledThreadPool(1)
 
@@ -42,6 +43,9 @@ class MidiSimulator {
         idx++
         if (idx >= notes.size) {
             idx = 0
+            if (!repeat) {
+                return
+            }
         }
         notifyListeners(
             MidiData(
@@ -77,11 +81,12 @@ class MidiSimulator {
         }
     }
 
-    fun setNotes(notes: List<Note>) {
+    fun setNotes(notes: List<Note>, repeat: Boolean) {
         stopCurrent()
         this.notes.clear()
         this.notes.addAll(notes)
         this.idx = 0
+        this.repeat = repeat
         play()
     }
 
