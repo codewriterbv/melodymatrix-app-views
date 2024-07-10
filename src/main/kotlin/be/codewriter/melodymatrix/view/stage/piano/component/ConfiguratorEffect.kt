@@ -18,7 +18,6 @@ class ConfiguratorEffect : VBox() {
     companion object {
         private val explosionVisible = ToggleSwitch()
 
-        //private val blendModeCombobox = ComboBox<BlendMode>()
         private val explosionRadius = Slider()
         private val numParticles = Slider()
         private val particleSize = Slider()

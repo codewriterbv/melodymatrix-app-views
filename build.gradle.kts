@@ -2,6 +2,7 @@ object Versions {
     const val atlantafx = "2.0.1"
     const val charts = "21.0.11"
     const val fxgl = "21.1"
+    const val jserial = "2.11.0"
     const val log4j = "2.23.1"
 }
 
@@ -24,6 +25,7 @@ dependencies {
     implementation("eu.hansolo.fx:charts:${Versions.charts}")
     implementation("io.github.mkpaz:atlantafx-base:${Versions.atlantafx}")
     implementation("org.apache.logging.log4j:log4j-core:${Versions.log4j}")
+    implementation("com.fazecast:jSerialComm:${Versions.jserial}")
 
     // Add Kotlin runtime dependency
     implementation("org.jetbrains.kotlin:kotlin-stdlib")

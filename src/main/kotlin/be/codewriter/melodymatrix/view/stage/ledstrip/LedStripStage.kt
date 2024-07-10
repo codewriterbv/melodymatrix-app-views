@@ -4,10 +4,14 @@ import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.ColorPicker
+import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.GridPane
@@ -55,6 +59,22 @@ class LedStripStage : VisualizerStage() {
     }
 
     fun getControls(): HBox {
+        colorNormal.value = Color.LIGHTBLUE
+        colorHighlighted.value = Color.RED
+        effectWidth.apply {
+            min = 1.0
+            max = 50.0
+            value = 10.0
+        }
+        effectSpeed.apply {
+            min = 10.0
+            max = 200.0
+            value = 20.0
+        }
+
+        serialPort.apply {
+            items = getSerialPorts()
+        }
         return HBox().apply {
             spacing = 10.0
             alignment = Pos.BASELINE_CENTER
@@ -66,9 +86,24 @@ class LedStripStage : VisualizerStage() {
                 Label("Effect width"),
                 effectWidth,
                 Label("Effect speed"),
-                effectSpeed
+                effectSpeed,
+                Label("Serial port"),
+                serialPort
             )
         }
+    }
+
+    private fun getSerialPorts(): ObservableList<SerialPort> {
+        var serialPorts = FXCollections.observableArrayList<SerialPort>()
+        try {
+            var ports = SerialPort.getCommPorts()
+            if (ports != null) {
+                serialPorts.addAll(ports)
+            }
+        } catch (e: Exception) {
+            logger.error("Could not get serial ports: {}", e.message)
+        }
+        return serialPorts
     }
 
     class BoxUpdater : Runnable {
@@ -162,9 +197,10 @@ class LedStripStage : VisualizerStage() {
         val BASE_COLOR = Color.LIGHTBLUE
         val HIGHLIGHT_COLOR = Color.RED
 
-        val colorNormal: ColorPicker = ColorPicker()
-        val colorHighlighted: ColorPicker = ColorPicker()
-        val effectWidth: Slider = Slider()
-        val effectSpeed: Slider = Slider()
+        val colorNormal = ColorPicker()
+        val colorHighlighted = ColorPicker()
+        val effectWidth = Slider()
+        val effectSpeed = Slider()
+        val serialPort = ComboBox<SerialPort>()
     }
 }
