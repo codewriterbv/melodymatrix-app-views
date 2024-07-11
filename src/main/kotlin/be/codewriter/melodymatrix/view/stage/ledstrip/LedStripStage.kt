@@ -8,6 +8,7 @@ import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.ColorPicker
@@ -41,12 +42,20 @@ class LedStripStage : VisualizerStage() {
 
         title = "Let's flash some lights..."
         scene = Scene(VBox().apply {
-            spacing = 25.0
+            spacing = 10.0
+            padding = Insets(10.0)
             children.addAll(
                 grid,
-                getControls()
+                Label("Color settings").apply {
+                    style = "-fx-font-size: 18px; -fx-font-weight: bold;"
+                },
+                getColorControls(),
+                Label("LED strip controller settings").apply {
+                    style = "-fx-font-size: 18px; -fx-font-weight: bold;"
+                },
+                getSerialControls()
             )
-        }, boxes.size * BOX_WIDTH, BOX_HEIGHT + 100)
+        }, (boxes.size * BOX_WIDTH) + 20, BOX_HEIGHT + 200)
 
         val factory = Thread.ofVirtual().name("led-highlighter-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
@@ -58,7 +67,7 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
-    fun getControls(): HBox {
+    fun getColorControls(): HBox {
         colorNormal.value = Color.LIGHTBLUE
         colorHighlighted.value = Color.RED
         effectWidth.apply {
@@ -71,13 +80,9 @@ class LedStripStage : VisualizerStage() {
             max = 200.0
             value = 20.0
         }
-
-        serialPort.apply {
-            items = getSerialPorts()
-        }
         return HBox().apply {
             spacing = 10.0
-            alignment = Pos.BASELINE_CENTER
+            alignment = Pos.CENTER_LEFT
             children.addAll(
                 Label("Normal"),
                 colorNormal,
@@ -85,8 +90,20 @@ class LedStripStage : VisualizerStage() {
                 colorHighlighted,
                 Label("Effect width"),
                 effectWidth,
-                Label("Effect speed"),
-                effectSpeed,
+                Label("Effect duration"),
+                effectSpeed
+            )
+        }
+    }
+
+    fun getSerialControls(): HBox {
+        serialPort.apply {
+            items = getSerialPorts()
+        }
+        return HBox().apply {
+            spacing = 10.0
+            alignment = Pos.CENTER_LEFT
+            children.addAll(
                 Label("Serial port"),
                 serialPort
             )
@@ -119,15 +136,14 @@ class LedStripStage : VisualizerStage() {
 
     private fun highlightBox(note: Note) {
         var idx = boxes.keys.indexOf(note)
-        var start = idx - 10
+        var start = idx - effectWidth.value.toInt()
         if (start < 0) {
             start = 0
         }
-        var end = idx + 10
+        var end = idx + effectWidth.value.toInt()
         if (end > boxes.size - 1) {
             end = boxes.size - 1
         }
-
         for (i in start until end) {
             val delay = abs(idx - i)
             boxes.values.elementAtOrNull(i)?.startFade(delay)
@@ -137,7 +153,7 @@ class LedStripStage : VisualizerStage() {
     class ColorBox(
         val counter: Int,
         val note: Note,
-        val box: Rectangle = Rectangle(BOX_WIDTH, BOX_HEIGHT, BASE_COLOR)
+        val box: Rectangle = Rectangle(BOX_WIDTH, BOX_HEIGHT, colorNormal.value)
     ) : Rectangle() {
         var distance: Int = 0
         var startTimestamp: Long = 0L
@@ -149,35 +165,33 @@ class LedStripStage : VisualizerStage() {
         }
 
         fun update() {
-            var startColor = HIGHLIGHT_COLOR.interpolate(BASE_COLOR, distance.toDouble() / 10)
+            Platform.runLater {
+                box.fill = getCurrentColor()
+            }
+        }
+
+        fun getCurrentColor(): Color {
+            var startColor =
+                colorHighlighted.value.interpolate(colorNormal.value, distance.toDouble() / effectWidth.value.toInt())
             if (startTimestamp != 0L && System.currentTimeMillis() >= startTimestamp) {
-                Platform.runLater {
-                    box.fill = startColor
-                }
                 startTimestamp = 0
                 step = 0
-                return
+                return startColor
             }
 
             if (step == -1) {
-                return
+                return colorNormal.value
             }
 
             step++
 
-            if (step > 20) {
+            if (step > effectSpeed.value) {
                 step = -1
-                return
+                return colorNormal.value
             }
 
-            var fadeColor = startColor.interpolate(BASE_COLOR, step.toDouble() / 20)
-            Platform.runLater {
-                box.fill = fadeColor
-            }
-
-            if (note == Note.C5) {
-                logger.info("Fading {} to {}", step, fadeColor)
-            }
+            var fadeColor = startColor.interpolate(colorNormal.value, step.toDouble() / effectSpeed.value)
+            return fadeColor
         }
     }
 
@@ -194,8 +208,6 @@ class LedStripStage : VisualizerStage() {
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_WIDTH = 10.0
         const val BOX_HEIGHT = 50.0
-        val BASE_COLOR = Color.LIGHTBLUE
-        val HIGHLIGHT_COLOR = Color.RED
 
         val colorNormal = ColorPicker()
         val colorHighlighted = ColorPicker()
