@@ -1,7 +1,8 @@
 # Viewer Components of the MelodyMatrix Application
 
 This project contains the Stage components that are used by the MelodyMatrix application to visualize music. It's a
-JavaFX/Kotlin/Gradle project as that is also what is used for the MelodyMatrix application itself.
+JavaFX/Kotlin/Gradle project as that is also what is used for the MelodyMatrix application itself. More information and
+a video are available on [https://melodymatrix.rocks/sources](https://melodymatrix.rocks/sources).
 
 ![](docs/melodymatrix.png)
 
