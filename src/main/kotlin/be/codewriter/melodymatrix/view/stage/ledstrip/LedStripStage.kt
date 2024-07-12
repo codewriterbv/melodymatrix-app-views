@@ -4,6 +4,7 @@ import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
 import javafx.collections.FXCollections
@@ -57,10 +58,12 @@ class LedStripStage : VisualizerStage() {
             )
         }, (boxes.size * BOX_WIDTH) + 20, BOX_HEIGHT + 200)
 
-        val factory = Thread.ofVirtual().name("led-highlighter-", 0).factory()
+        val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
-        var thread = Thread.startVirtualThread(BoxUpdater())
-        executor.submit(thread)
+        var threadUiUpdate = Thread.startVirtualThread(BoxUpdater())
+        executor.submit(threadUiUpdate)
+        var threadLedUpdate = Thread.startVirtualThread(LedStripSender())
+        executor.submit(threadLedUpdate)
 
         setOnCloseRequest {
             // Nothing needed here, but must be defined or will cause a problem when closing the window
@@ -134,6 +137,36 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    class LedStripSender : Runnable {
+        override fun run() {
+            while (!Thread.interrupted()) {
+                if (pixelblazeOutputExpanderHelper != null || serialPort.value != null) {
+                    updateLeds()
+                }
+                Thread.sleep(10)
+            }
+        }
+
+        fun updateLeds() {
+            var serialPort = serialPort.value
+            if (pixelblazeOutputExpanderHelper == null || pixelblazeOutputExpanderHelper!!.address != serialPort.systemPortName) {
+                if (pixelblazeOutputExpanderHelper != null) {
+                    pixelblazeOutputExpanderHelper!!.closePort()
+                }
+                pixelblazeOutputExpanderHelper = PixelblazeOutputExpanderHelper(serialPort.systemPortName)
+                pixelblazeOutputExpanderHelper!!.sendAllOff(0, boxes.size)
+                Thread.sleep(500)
+            }
+            val data = ByteArray(boxes.size * 3)
+            for (i in 0 until boxes.size) {
+                data[(i * 3) + 0] = boxes.values.elementAt(i).getGreen()
+                data[(i * 3) + 1] = boxes.values.elementAt(i).getRed()
+                data[(i * 3) + 2] = boxes.values.elementAt(i).getBlue()
+            }
+            pixelblazeOutputExpanderHelper!!.sendColors(0, data, false)
+        }
+    }
+
     private fun highlightBox(note: Note) {
         var idx = boxes.keys.indexOf(note)
         var start = idx - effectWidth.value.toInt()
@@ -193,6 +226,18 @@ class LedStripStage : VisualizerStage() {
             var fadeColor = startColor.interpolate(colorNormal.value, step.toDouble() / effectSpeed.value)
             return fadeColor
         }
+
+        fun getRed(): Byte {
+            return (box.fill as Color).red.toInt().toByte()
+        }
+
+        fun getGreen(): Byte {
+            return (box.fill as Color).green.toInt().toByte()
+        }
+
+        fun getBlue(): Byte {
+            return (box.fill as Color).blue.toInt().toByte()
+        }
     }
 
     override fun onMidiData(midiData: MidiData) {
@@ -214,5 +259,7 @@ class LedStripStage : VisualizerStage() {
         val effectWidth = Slider()
         val effectSpeed = Slider()
         val serialPort = ComboBox<SerialPort>()
+
+        var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
     }
 }
