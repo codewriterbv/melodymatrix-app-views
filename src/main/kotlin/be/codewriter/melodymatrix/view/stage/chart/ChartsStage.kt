@@ -8,7 +8,6 @@ import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.scene.Scene
 import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
-import javafx.scene.layout.Pane
 
 class ChartsStage : VisualizerStage() {
     var charts: MutableList<ChartVisualizer> = mutableListOf()
@@ -16,6 +15,7 @@ class ChartsStage : VisualizerStage() {
     init {
         title = "See your music in charts..."
         scene = Scene(TabPane().apply {
+            setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE)
             setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
             tabs.addAll(
                 createTab("Bar chart", BarChartPlayedNotes()),
@@ -33,7 +33,7 @@ class ChartsStage : VisualizerStage() {
 
     fun createTab(label: String, chart: ChartVisualizer): Tab {
         charts.add(chart)
-        return Tab(label, chart as Pane)
+        return Tab(label, chart as ChartBase)
     }
 
     override fun onMidiData(midiData: MidiData) {

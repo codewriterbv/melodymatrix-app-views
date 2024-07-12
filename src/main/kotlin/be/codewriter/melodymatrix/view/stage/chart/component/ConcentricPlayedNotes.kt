@@ -7,10 +7,9 @@ import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import eu.hansolo.fx.charts.tools.NumberFormat
 import javafx.application.Platform
-import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 
-class ConcentricPlayedNotes : Pane(), ChartVisualizer {
+class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -30,7 +29,7 @@ class ConcentricPlayedNotes : Pane(), ChartVisualizer {
                 }
             }
 
-        children.add(
+        addChart(
             ConcentricRingChartBuilder.create()
                 //.prefSize(Double.MAX_VALUE, Double.MAX_VALUE)
                 .items(chartItems)

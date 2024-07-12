@@ -6,10 +6,9 @@ import eu.hansolo.fx.charts.CoxcombChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import javafx.application.Platform
-import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 
-class CoxCombPlayedNotes : Pane(), ChartVisualizer {
+class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
@@ -28,7 +27,7 @@ class CoxCombPlayedNotes : Pane(), ChartVisualizer {
                     )
                 }
             }
-        children.add(
+        addChart(
             CoxcombChartBuilder.create()
                 //.prefSize(Double.MAX_VALUE, Double.MAX_VALUE)
                 .items(chartItems)

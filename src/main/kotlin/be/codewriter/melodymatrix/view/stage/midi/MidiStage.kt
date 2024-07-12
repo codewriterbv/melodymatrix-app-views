@@ -5,6 +5,8 @@ import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import javafx.application.Platform
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
@@ -12,6 +14,7 @@ import javafx.collections.ObservableList
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.scene.Scene
+import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
@@ -27,6 +30,8 @@ class MidiStage : VisualizerStage() {
     val lastInstrument: StringProperty = SimpleStringProperty("")
     val midiData0Value: StringProperty = SimpleStringProperty("")
     val midiData0Bits: StringProperty = SimpleStringProperty("")
+    val midiDataType: ObjectProperty<MidiEvent> = SimpleObjectProperty(MidiEvent.UNDEFINED)
+    val midiDataEvent: StringProperty = SimpleStringProperty("")
     val midiData1Value: StringProperty = SimpleStringProperty("")
     val midiData1Bits: StringProperty = SimpleStringProperty("")
     val midiData2Value: StringProperty = SimpleStringProperty("")
@@ -59,85 +64,106 @@ class MidiStage : VisualizerStage() {
             hgap = 5.0
             vgap = 5.0
             padding = Insets(25.0)
-            add(Label("Last MIDI data").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
+
+            add(Button("Clear table").apply {
+                setOnMouseClicked { _ ->
+                    midiDataList.clear()
+                }
             }, 0, 0, 3, 1)
 
-            add(Label("Midi Status"), 0, 1)
-            add(Label("Value").apply {
+            add(Label("Last MIDI data").apply {
+                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
+            }, 0, 2, 3, 1)
+
+            add(Label("Midi Status"), 0, 3)
+            add(Label().apply {
                 textProperty().bind(midiData0Value)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 1)
-            add(Label("Bits").apply {
-                textProperty().bind(midiData0Bits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 1)
-
-
-            add(Label("Midi Data 1"), 0, 2)
-            add(Label("Value").apply {
-                textProperty().bind(midiData1Value)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 2)
-            add(Label("Bits").apply {
-                textProperty().bind(midiData1Bits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 2)
-
-            add(Label("Midi Data 2"), 0, 3)
-            add(Label("Value").apply {
-                textProperty().bind(midiData2Value)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
             }, 1, 3)
-            add(Label("Bits").apply {
-                textProperty().bind(midiData2Bits)
+            add(Label().apply {
+                textProperty().bind(midiData0Bits)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
             }, 2, 3)
 
-            add(Label("Instrument change").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
-            }, 0, 4, 3, 1)
-
-            add(Label("Last selected instrument"), 0, 5)
-            add(Label().apply {
-                textProperty().bind(lastInstrument)
+            add(Label("Event"), 1, 4)
+            /*add(Label().apply {
+                textProperty().bind(midiDataEvent.name)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 5)
+            }, 2, 4)*/
 
-            add(Label("Last controller message").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
-            }, 0, 6, 3, 1)
+            add(Label("Channel"), 1, 5)
+            /*add(Label().apply {
+                textProperty().bind(midiDataChannel)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 2, 5)*/
 
-            add(Label("Controller number"), 0, 7)
+
+            add(Label("Midi Data 1"), 0, 7)
             add(Label("Value").apply {
-                textProperty().bind(controllerNumber)
+                textProperty().bind(midiData1Value)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
             }, 1, 7)
-            add(Label("Value").apply {
-                textProperty().bind(controllerNumberBits)
+            add(Label("Bits").apply {
+                textProperty().bind(midiData1Bits)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
             }, 2, 7)
 
-            add(Label("Controller value"), 0, 8)
+            add(Label("Midi Data 2"), 0, 8)
+            add(Label("Value").apply {
+                textProperty().bind(midiData2Value)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 1, 8)
+            add(Label("Bits").apply {
+                textProperty().bind(midiData2Bits)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 2, 8)
+
+            add(Label("Instrument change").apply {
+                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
+            }, 0, 9, 3, 1)
+
+            add(Label("Last selected instrument"), 0, 10)
+            add(Label().apply {
+                textProperty().bind(lastInstrument)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 1, 10)
+
+            add(Label("Last controller message").apply {
+                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
+            }, 0, 11, 3, 1)
+
+            add(Label("Controller number"), 0, 12)
+            add(Label("Value").apply {
+                textProperty().bind(controllerNumber)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 1, 12)
+            add(Label("Value").apply {
+                textProperty().bind(controllerNumberBits)
+                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
+                GridPane.setHalignment(this, HPos.RIGHT)
+            }, 2, 12)
+
+            add(Label("Controller value"), 0, 13)
             add(Label("Value").apply {
                 textProperty().bind(controllerValue)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 8)
+            }, 1, 13)
             add(Label("Value").apply {
                 textProperty().bind(controllerValueBits)
                 style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
                 GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 8)
+            }, 2, 13)
         }
 
         title = "MIDI data received from the instrument"
@@ -158,6 +184,8 @@ class MidiStage : VisualizerStage() {
 
             midiData0Value.set(midiData.bytes[0].toString())
             midiData0Bits.set(byteToBitsString(midiData.bytes[0]))
+            //midiDataEvent.set(midiData.event)
+            //midiDataChannel.set(midiData.channel)
             midiData1Value.set(midiData.bytes[1].toString())
             midiData1Bits.set(byteToBitsString(midiData.bytes[1]))
             midiData2Value.set(midiData.bytes[2].toString())

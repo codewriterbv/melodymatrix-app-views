@@ -6,9 +6,8 @@ import javafx.scene.chart.BarChart
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
-import javafx.scene.layout.Pane
 
-class BarChartPlayedNotes : Pane(), ChartVisualizer {
+class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val xyChartMainNotes: XYChart.Series<String, Number> = XYChart.Series()
 
@@ -23,12 +22,11 @@ class BarChartPlayedNotes : Pane(), ChartVisualizer {
         val xAxis = CategoryAxis()
         val yAxis = NumberAxis()
         yAxis.label = "Number of times"
-        children.add(BarChart(xAxis, yAxis).apply {
-            //title = "Played Notes"
+
+        addChart(BarChart(xAxis, yAxis).apply {
             isLegendVisible = false
             data.addAll(xyChartMainNotes)
         })
-        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
     override fun onNote(note: Note) {

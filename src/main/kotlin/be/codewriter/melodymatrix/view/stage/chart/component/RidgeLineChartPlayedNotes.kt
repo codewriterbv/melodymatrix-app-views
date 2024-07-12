@@ -12,14 +12,13 @@ import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
-import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
-class RidgeLineChartPlayedNotes : Pane(), ChartVisualizer {
+class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
         height = Double.MAX_VALUE
@@ -61,17 +60,18 @@ class RidgeLineChartPlayedNotes : Pane(), ChartVisualizer {
                 .strokeWidth(1.0)
                 .build()
             val ridgeLineChart = XYPane(xySeries).apply {
-                setPrefSize(400.0, 400.0 / chords.size)
+                //setPrefSize(400.0, 400.0 / chords.size)
                 upperBoundX = xySeries.items.size.toDouble()
+                width = Double.MAX_VALUE
             }
             chartBox.children.add(HBox().apply {
                 alignment = Pos.CENTER_LEFT
+                width = Double.MAX_VALUE
                 children.addAll(Label(chord.key.octave.toString()), ridgeLineChart)
             })
         }
 
-        children.add(chartBox)
-        setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
+        addChart(chartBox)
     }
 
     override fun onNote(note: Note) {
