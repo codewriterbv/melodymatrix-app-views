@@ -15,7 +15,7 @@ class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
         Note.usedAndSortedMainNotes().stream()
             .forEach { mn ->
                 run {
-                    xyChartMainNotes.data.add(XYChart.Data(mn.name, 0))
+                    xyChartMainNotes.data.add(XYChart.Data(mn.label, 0))
                 }
             }
 
@@ -32,7 +32,7 @@ class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
     override fun onNote(note: Note) {
         Platform.runLater {
             xyChartMainNotes.data.forEachIndexed { i, data ->
-                if (data.xValue == note.mainNote.name) {
+                if (data.xValue == note.mainNote.label) {
                     xyChartMainNotes.data[i].yValue = xyChartMainNotes.data[i].yValue.toInt() + 1
                 }
             }
