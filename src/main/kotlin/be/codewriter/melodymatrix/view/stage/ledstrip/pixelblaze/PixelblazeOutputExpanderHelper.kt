@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.CRC32
@@ -11,16 +13,17 @@ class PixelblazeOutputExpanderHelper(val address: String) {
     private var adapter: ExpanderDataWriteAdapter? = null
 
     init {
-        println("Initializing serial")
+        logger.info("Initializing serial")
         adapter = ExpanderDataWriteAdapter(address)
     }
 
     fun sendAllOff(channel: Int, numberOfLeds: Int) {
-        println("All off on channel $channel with $numberOfLeds")
+        logger.info("All off on channel {} with {}", channel, numberOfLeds)
         sendColors(channel, 3, 1, 0, 2, 0, ByteArray(numberOfLeds * 3), false)
     }
 
-    fun sendColors(channel: Int, rgbPerPixel: ByteArray?, debug: Boolean) {
+    fun sendColors(channel: Int, rgbPerPixel: ByteArray, debug: Boolean) {
+        logger.debug("Sending colors to {}, size {}", channel, (rgbPerPixel.size / 3))
         sendColors(channel, 3, rgbPerPixel, debug)
     }
 
@@ -33,19 +36,19 @@ class PixelblazeOutputExpanderHelper(val address: String) {
         rgbPerPixel: ByteArray?, debug: Boolean
     ) {
         if (debug) {
-            println("Sending colors on channel $channel")
+            logger.info("Sending colors on channel {}", channel)
         }
 
         if (bytesPerPixel != 3 && bytesPerPixel != 4) {
-            println("bytesPerPixel not within expected range")
+            logger.info("bytesPerPixel not within expected range")
             return
         }
         if (rIndex > 3 || gIndex > 3 || bIndex > 3 || wIndex > 3) {
-            println("one or more indexes not within expected range")
+            logger.info("one or more indexes not within expected range")
             return
         }
         if (rgbPerPixel == null) {
-            println("rgbPerPixel can not be null")
+            logger.info("rgbPerPixel can not be null")
             return
         }
 
@@ -126,5 +129,9 @@ class PixelblazeOutputExpanderHelper(val address: String) {
         buffer.put(channel)
         buffer.put(command)
         return buffer
+    }
+
+    companion object {
+        private val logger: Logger = LogManager.getLogger(PixelblazeOutputExpanderHelper::class.java.name)
     }
 }

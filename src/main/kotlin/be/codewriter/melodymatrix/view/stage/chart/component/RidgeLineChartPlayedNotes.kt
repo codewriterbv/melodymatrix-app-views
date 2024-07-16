@@ -60,7 +60,6 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                 .strokeWidth(1.0)
                 .build()
             val ridgeLineChart = XYPane(xySeries).apply {
-                //setPrefSize(400.0, 400.0 / chords.size)
                 upperBoundX = xySeries.items.size.toDouble()
                 width = Double.MAX_VALUE
             }

@@ -29,7 +29,7 @@ import kotlin.math.abs
 class LedStripStage : VisualizerStage() {
     init {
         val grid = GridPane().apply {
-            hgap = 0.0
+            hgap = 2.0
             vgap = 0.0
         }
 
@@ -143,7 +143,7 @@ class LedStripStage : VisualizerStage() {
                 if (pixelblazeOutputExpanderHelper != null || serialPort.value != null) {
                     updateLeds()
                 }
-                Thread.sleep(10)
+                Thread.sleep(20)
             }
         }
 
@@ -159,9 +159,10 @@ class LedStripStage : VisualizerStage() {
             }
             val data = ByteArray(boxes.size * 3)
             for (i in 0 until boxes.size) {
-                data[(i * 3) + 0] = boxes.values.elementAt(i).getGreen()
-                data[(i * 3) + 1] = boxes.values.elementAt(i).getRed()
-                data[(i * 3) + 2] = boxes.values.elementAt(i).getBlue()
+                var color = boxes.values.elementAt(i).getColor()
+                data[(i * 3) + 0] = (color.red * 255).toInt().toByte()
+                data[(i * 3) + 1] = (color.green * 255).toInt().toByte()
+                data[(i * 3) + 2] = (color.blue * 255).toInt().toByte()
             }
             pixelblazeOutputExpanderHelper!!.sendColors(0, data, false)
         }
@@ -227,16 +228,8 @@ class LedStripStage : VisualizerStage() {
             return fadeColor
         }
 
-        fun getRed(): Byte {
-            return (box.fill as Color).red.toInt().toByte()
-        }
-
-        fun getGreen(): Byte {
-            return (box.fill as Color).green.toInt().toByte()
-        }
-
-        fun getBlue(): Byte {
-            return (box.fill as Color).blue.toInt().toByte()
+        fun getColor(): Color {
+            return (box.fill as Color)
         }
     }
 
@@ -251,7 +244,7 @@ class LedStripStage : VisualizerStage() {
     companion object {
         private val logger: Logger = LogManager.getLogger(LedStripStage::class.java.name)
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
-        const val BOX_WIDTH = 10.0
+        const val BOX_WIDTH = 8.0
         const val BOX_HEIGHT = 50.0
 
         val colorNormal = ColorPicker()
