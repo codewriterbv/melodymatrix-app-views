@@ -50,15 +50,7 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             categories.add(Category(mainNote.label))
         }
 
-        val arr: Array<YSeries<ValueChartItem>> = chords.values.toTypedArray()
-        /*for (series in chords.values) {
-            arr.plus(series)
-        }*/
-
-        val data = YPane(categories, *arr)/*.apply {
-            lowerBoundY = 0.0
-            upperBoundY = 100.0
-        }*/
+        val data = YPane(categories, chords.values.stream().toList())
         addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
