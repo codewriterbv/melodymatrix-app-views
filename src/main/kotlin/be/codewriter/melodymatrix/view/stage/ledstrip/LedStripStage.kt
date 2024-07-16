@@ -1,8 +1,10 @@
 package be.codewriter.melodymatrix.view.stage.ledstrip
 
+import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
@@ -35,7 +37,7 @@ class LedStripStage : VisualizerStage() {
 
         var counter = 0
         Note.entries.forEach { note ->
-            var colorBox = ColorBox(counter, note)
+            val colorBox = ColorBox(note)
             boxes[note] = colorBox
             grid.add(colorBox.box, counter, 0)
             counter++
@@ -56,13 +58,13 @@ class LedStripStage : VisualizerStage() {
                 },
                 getSerialControls()
             )
-        }, (boxes.size * BOX_WIDTH) + 20, BOX_HEIGHT + 200)
+        }, (boxes.size * (BOX_WIDTH + 2)) + 20, BOX_HEIGHT + 200)
 
         val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
-        var threadUiUpdate = Thread.startVirtualThread(BoxUpdater())
+        val threadUiUpdate = Thread.startVirtualThread(BoxUpdater())
         executor.submit(threadUiUpdate)
-        var threadLedUpdate = Thread.startVirtualThread(LedStripSender())
+        val threadLedUpdate = Thread.startVirtualThread(LedStripSender())
         executor.submit(threadLedUpdate)
 
         setOnCloseRequest {
@@ -71,7 +73,7 @@ class LedStripStage : VisualizerStage() {
     }
 
     fun getColorControls(): HBox {
-        colorNormal.value = Color.LIGHTBLUE
+        colorNormal.value = Color.NAVY
         colorHighlighted.value = Color.RED
         effectWidth.apply {
             min = 1.0
@@ -108,15 +110,33 @@ class LedStripStage : VisualizerStage() {
             alignment = Pos.CENTER_LEFT
             children.addAll(
                 Label("Serial port"),
-                serialPort
+                serialPort.apply {
+                    maxWidth = 200.0
+                },
+                Label("Channels: 0"),
+                channel0,
+                Label("1"),
+                channel1,
+                Label("2"),
+                channel2,
+                Label("3"),
+                channel3,
+                Label("4"),
+                channel4,
+                Label("5"),
+                channel5,
+                Label("6"),
+                channel6,
+                Label("7"),
+                channel7
             )
         }
     }
 
     private fun getSerialPorts(): ObservableList<SerialPort> {
-        var serialPorts = FXCollections.observableArrayList<SerialPort>()
+        val serialPorts = FXCollections.observableArrayList<SerialPort>()
         try {
-            var ports = SerialPort.getCommPorts()
+            val ports = SerialPort.getCommPorts()
             if (ports != null) {
                 serialPorts.addAll(ports)
             }
@@ -148,7 +168,7 @@ class LedStripStage : VisualizerStage() {
         }
 
         fun updateLeds() {
-            var serialPort = serialPort.value
+            val serialPort = serialPort.value
             if (pixelblazeOutputExpanderHelper == null || pixelblazeOutputExpanderHelper!!.address != serialPort.systemPortName) {
                 if (pixelblazeOutputExpanderHelper != null) {
                     pixelblazeOutputExpanderHelper!!.closePort()
@@ -159,17 +179,40 @@ class LedStripStage : VisualizerStage() {
             }
             val data = ByteArray(boxes.size * 3)
             for (i in 0 until boxes.size) {
-                var color = boxes.values.elementAt(i).getColor()
+                val color = boxes.values.elementAt(i).getColor()
                 data[(i * 3) + 0] = (color.red * 255).toInt().toByte()
                 data[(i * 3) + 1] = (color.green * 255).toInt().toByte()
                 data[(i * 3) + 2] = (color.blue * 255).toInt().toByte()
             }
-            pixelblazeOutputExpanderHelper!!.sendColors(0, data, false)
+            if (channel0.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(0, data, false)
+            }
+            if (channel1.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(1, data, false)
+            }
+            if (channel2.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(2, data, false)
+            }
+            if (channel3.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(3, data, false)
+            }
+            if (channel4.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(4, data, false)
+            }
+            if (channel5.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(5, data, false)
+            }
+            if (channel6.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(6, data, false)
+            }
+            if (channel7.isSelected) {
+                pixelblazeOutputExpanderHelper!!.sendColors(7, data, false)
+            }
         }
     }
 
     private fun highlightBox(note: Note) {
-        var idx = boxes.keys.indexOf(note)
+        val idx = boxes.keys.indexOf(note)
         var start = idx - effectWidth.value.toInt()
         if (start < 0) {
             start = 0
@@ -185,7 +228,6 @@ class LedStripStage : VisualizerStage() {
     }
 
     class ColorBox(
-        val counter: Int,
         val note: Note,
         val box: Rectangle = Rectangle(BOX_WIDTH, BOX_HEIGHT, colorNormal.value)
     ) : Rectangle() {
@@ -205,7 +247,7 @@ class LedStripStage : VisualizerStage() {
         }
 
         fun getCurrentColor(): Color {
-            var startColor =
+            val startColor =
                 colorHighlighted.value.interpolate(colorNormal.value, distance.toDouble() / effectWidth.value.toInt())
             if (startTimestamp != 0L && System.currentTimeMillis() >= startTimestamp) {
                 startTimestamp = 0
@@ -218,14 +260,12 @@ class LedStripStage : VisualizerStage() {
             }
 
             step++
-
             if (step > effectSpeed.value) {
                 step = -1
                 return colorNormal.value
             }
 
-            var fadeColor = startColor.interpolate(colorNormal.value, step.toDouble() / effectSpeed.value)
-            return fadeColor
+            return startColor.interpolate(colorNormal.value, step.toDouble() / effectSpeed.value)
         }
 
         fun getColor(): Color {
@@ -234,11 +274,13 @@ class LedStripStage : VisualizerStage() {
     }
 
     override fun onMidiData(midiData: MidiData) {
-        highlightBox(midiData.note)
+        if (midiData.event == MidiEvent.NOTE_ON) {
+            highlightBox(midiData.note)
+        }
     }
 
     override fun onPlayEvent(playEvent: PlayEvent) {
-        TODO("Not yet implemented")
+        // Not need in this viewer
     }
 
     companion object {
@@ -252,7 +294,14 @@ class LedStripStage : VisualizerStage() {
         val effectWidth = Slider()
         val effectSpeed = Slider()
         val serialPort = ComboBox<SerialPort>()
-
+        val channel0 = ToggleSwitch()
+        val channel1 = ToggleSwitch()
+        val channel2 = ToggleSwitch()
+        val channel3 = ToggleSwitch()
+        val channel4 = ToggleSwitch()
+        val channel5 = ToggleSwitch()
+        val channel6 = ToggleSwitch()
+        val channel7 = ToggleSwitch()
         var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
     }
 }
