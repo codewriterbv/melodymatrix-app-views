@@ -19,7 +19,7 @@ class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
                 run {
                     chartItems.add(
                         ChartItemBuilder.create()
-                            .name(mn.name)
+                            .name(mn.label)
                             .value(0.0)
                             .fill(mn.chartColor)
                             .textFill(mn.labelColor)
@@ -36,6 +36,7 @@ class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
                 .sorted(false)
                 //.order(Order.DESCENDING)
                 //.barBackgroundColor(Color.BLACK)
+                .valueVisible(true)
                 .numberFormat(NumberFormat.NUMBER)
                 .itemLabelFill(Color.WHITE)
                 .build()

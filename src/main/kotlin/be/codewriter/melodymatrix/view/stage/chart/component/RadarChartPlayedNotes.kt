@@ -13,13 +13,13 @@ import javafx.application.Platform
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
-import kotlin.random.Random
 
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
 
     init {
+
         for (octave in Note.usedAndSortedOctaves()) {
             val notes: MutableList<ValueChartItem> = mutableListOf()
             MainNote.entries.stream()
@@ -50,7 +50,19 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             categories.add(Category(mainNote.label))
         }
 
-        val data = YPane(categories, chords.values.stream().toList())
+        val data = YPane(
+            categories,
+            chords[Octave.OCTAVE_0],
+            chords[Octave.OCTAVE_1],
+            chords[Octave.OCTAVE_2],
+            chords[Octave.OCTAVE_3],
+            chords[Octave.OCTAVE_4],
+            chords[Octave.OCTAVE_5],
+            chords[Octave.OCTAVE_6],
+            chords[Octave.OCTAVE_7],
+            chords[Octave.OCTAVE_8],
+            chords[Octave.OCTAVE_9]
+        )
         addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
@@ -61,12 +73,8 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             if (series != null) {
                 for (item in series.items) {
                     if (item.name == note.mainNote.label) {
-                        item.value = Random.nextInt(0, 100 + 1).toDouble()
-
+                        item.value++
                     }
-                }
-                series.addSeriesEventListener {
-                    println("test")
                 }
             }
         }
