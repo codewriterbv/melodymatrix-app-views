@@ -114,7 +114,9 @@ class LedStripStage : VisualizerStage() {
                     maxWidth = 200.0
                 },
                 Label("Channels: 0"),
-                channel0,
+                channel0.apply {
+                    isSelected = true
+                },
                 Label("1"),
                 channel1,
                 Label("2"),
