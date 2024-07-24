@@ -11,17 +11,22 @@ import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorKey
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.video.VideoRecorder
 import com.almasb.fxgl.app.GameApplication
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.Accordion
+import javafx.scene.control.Button
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
+class PianoStage(private val licenseStatus: LicenseStatus, private val videoRecorder: VideoRecorder) :
+    VisualizerStage() {
+    private val holder = BorderPane()
     private val configuratorBackground = ConfiguratorBackground(licenseStatus)
     private val configuratorEffect = ConfiguratorEffect()
     private val configuratorKey = ConfiguratorKey()
@@ -29,7 +34,7 @@ class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
         PianoGenerator(configuratorBackground, configuratorEffect, configuratorKey)
 
     init {
-        val holder = BorderPane().apply {
+        holder.apply {
             padding = Insets(10.0)
             center = GameApplication.embeddedLaunch(pianoGenerator)
             left = getPianoSettingsAccordion()
@@ -61,6 +66,26 @@ class PianoStage(licenseStatus: LicenseStatus) : VisualizerStage() {
                 TitledPane().apply {
                     text = "Particle effect"
                     content = configuratorEffect
+                },
+                TitledPane().apply {
+                    text = "Record"
+                    content = HBox().apply {
+                        spacing = 5.0
+                        children.addAll(
+                            Button("Record to video").apply {
+                                setOnMouseClicked { _ ->
+                                    videoRecorder.startRecording(holder.center, 800, 600)
+                                }
+                                disableProperty().bind(licenseStatus.isValid.not())
+                            },
+                            Button("Stop recording").apply {
+                                setOnMouseClicked { _ ->
+                                    videoRecorder.stopRecording()
+                                }
+                                disableProperty().bind(licenseStatus.isValid.not())
+                            }
+                        )
+                    }
                 }
             )
             expandedPane = panes[0]

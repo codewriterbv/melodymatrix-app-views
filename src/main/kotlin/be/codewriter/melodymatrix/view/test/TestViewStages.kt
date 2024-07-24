@@ -8,6 +8,7 @@ import be.codewriter.melodymatrix.view.stage.ledstrip.LedStripStage
 import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.stage.scale.ScaleStage
+import be.codewriter.melodymatrix.view.video.DummyVideoRecorder
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -22,7 +23,7 @@ class TestViewStages(val parentStage: Stage, val midiSimulator: MidiSimulator, l
         children.setAll(
             Label("Open one or more views"),
             createButton("Midi") { MidiStage() },
-            createButton("Piano") { PianoStage(licenseStatus) },
+            createButton("Piano") { PianoStage(licenseStatus, DummyVideoRecorder()) },
             createButton("Charts") { ChartsStage() },
             createButton("Scale") { ScaleStage() },
             createButton("Drum") { DrumStage() },
