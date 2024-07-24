@@ -15,4 +15,5 @@ enum class PianoBackgroundImage(val label: String, val file: String) {
     SUN_1("Sun 1", "piano/backgrounds/sun-1.png"),
     SUN_2("Sun 2", "piano/backgrounds/sun-2.png"),
     SUN_3("Sun 3", "piano/backgrounds/sun-3.png"),
+    TEST_COLORS("Sun 3", "piano/backgrounds/test-colors.png"),
 }

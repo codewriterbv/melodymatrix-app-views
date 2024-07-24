@@ -74,7 +74,7 @@ class PianoStage(private val licenseStatus: LicenseStatus, private val videoReco
                         children.addAll(
                             Button("Record to video").apply {
                                 setOnMouseClicked { _ ->
-                                    videoRecorder.startRecording(holder.center, 800, 600)
+                                    videoRecorder.startRecording(holder.center, PIANO_WIDTH, PIANO_HEIGHT)
                                 }
                                 disableProperty().bind(licenseStatus.isValid.not())
                             },
