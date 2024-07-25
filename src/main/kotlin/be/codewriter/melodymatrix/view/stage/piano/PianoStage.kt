@@ -5,10 +5,7 @@ import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorBackground
-import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorEffect
-import be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorKey
-import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator
+import be.codewriter.melodymatrix.view.stage.piano.component.*
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.video.VideoRecorder
@@ -17,10 +14,8 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
 import javafx.scene.control.Accordion
-import javafx.scene.control.Button
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -69,23 +64,7 @@ class PianoStage(private val licenseStatus: LicenseStatus, private val videoReco
                 },
                 TitledPane().apply {
                     text = "Record"
-                    content = HBox().apply {
-                        spacing = 5.0
-                        children.addAll(
-                            Button("Record to video").apply {
-                                setOnMouseClicked { _ ->
-                                    videoRecorder.startRecording(holder.center, PIANO_WIDTH, PIANO_HEIGHT)
-                                }
-                                disableProperty().bind(licenseStatus.isValid.not())
-                            },
-                            Button("Stop recording").apply {
-                                setOnMouseClicked { _ ->
-                                    videoRecorder.stopRecording()
-                                }
-                                disableProperty().bind(licenseStatus.isValid.not())
-                            }
-                        )
-                    }
+                    content = ConfiguratorRecording(licenseStatus, videoRecorder, holder.center)
                 }
             )
             expandedPane = panes[0]
