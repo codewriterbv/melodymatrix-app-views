@@ -21,15 +21,14 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21.0.2'
-          distribution: 'zulu'
+      - name: Checkout the sources
+        uses: actions/checkout@v4
 
       - name: Setup Maven Action
-        uses: s4u/setup-maven-action
+        uses: s4u/setup-maven-action@latest
+        with:
+          java-version: '21.0.2'
+          maven-version: '3.9.7'
 
       - name: Build with Maven, without compiling and running the tests
         run: mvn package -Dmaven.test.skip=true
