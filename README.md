@@ -60,13 +60,44 @@ override fun onMidiDataReceived(midiData:MidiData) {
 
 ## Run with Maven
 
-To make it easier to run and extend this project, it also includes a Maven configuration:
+To make it easier to run and extend this project, it also includes a Maven configuration, which can be used on e.g.
+Raspberry Pi
 
 ```shell
+# Install SDKMAN 
+$ curl -s "https://get.sdkman.io" | bash
+
+# Open new terminal or 
+$ source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Instal JDK with JFX and set as default
+$ sdk install java 22.0.1.fx-zulu
+$ sdk default java 22.0.1.fx-zulu
+
+# Install Maven
+$ sdk install maven
+
+# Check versions
+$ mvn -version
+Apache Maven 3.9.7 (8b094c9513efc1b9ce2d952b3b9c8eaedaf8cbf0)
+Maven home: /home/frank/.sdkman/candidates/maven/current
+Java version: 22.0.1, vendor: Azul Systems, Inc., runtime: /home/frank/.sdkman/candidates/java/22.0.1.fx-zulu
+Default locale: en_GB, platform encoding: UTF-8
+OS name: "linux", version: "6.6.31+rpt-rpi-2712", arch: "aarch64", family: "unix"
+
+$ java -version
+openjdk version "22.0.1" 2024-04-16
+OpenJDK Runtime Environment Zulu22.30+13-CA (build 22.0.1+8)
+OpenJDK 64-Bit Server VM Zulu22.30+13-CA (build 22.0.1+8, mixed mode, sharing)
+
+# Get the sources
+$ git clone https://github.com/codewriterbv/melodymatrix-app-views.git
+$ cd melodymatrix-app-views
+
 # Start as JavaFX application
-mvn javafx:run
+$ mvn javafx:run
 
 # Build without compiling and running the tests
-mvn package -Dmaven.test.skip=true
+$ mvn package -Dmaven.test.skip=true
 
 ```
