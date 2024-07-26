@@ -1,11 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.piano
 
-import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
-import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.stage.piano.component.*
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.video.VideoRecorder
@@ -19,14 +13,22 @@ import javafx.scene.layout.BorderPane
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class PianoStage(private val licenseStatus: LicenseStatus, private val videoRecorder: VideoRecorder) :
-    VisualizerStage() {
+class PianoStage(
+    private val licenseStatus: be.codewriter.melodymatrix.view.data.LicenseStatus,
+    private val videoRecorder: VideoRecorder
+) :
+    be.codewriter.melodymatrix.view.VisualizerStage() {
     private val holder = BorderPane()
-    private val configuratorBackground = ConfiguratorBackground(licenseStatus)
-    private val configuratorEffect = ConfiguratorEffect()
-    private val configuratorKey = ConfiguratorKey()
-    private val pianoGenerator: PianoGenerator =
-        PianoGenerator(configuratorBackground, configuratorEffect, configuratorKey)
+    private val configuratorBackground =
+        be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorBackground(licenseStatus)
+    private val configuratorEffect = be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorEffect()
+    private val configuratorKey = be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorKey()
+    private val pianoGenerator: be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator =
+        be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator(
+            configuratorBackground,
+            configuratorEffect,
+            configuratorKey
+        )
 
     init {
         holder.apply {
@@ -64,26 +66,30 @@ class PianoStage(private val licenseStatus: LicenseStatus, private val videoReco
                 },
                 TitledPane().apply {
                     text = "Record"
-                    content = ConfiguratorRecording(licenseStatus, videoRecorder, holder.center)
+                    content = be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorRecording(
+                        licenseStatus,
+                        videoRecorder,
+                        holder.center
+                    )
                 }
             )
             expandedPane = panes[0]
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
+    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
         Platform.runLater {
             logger.debug(
                 "Received note {} {}",
                 midiData.note,
-                (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
+                (if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) "ON" else "OFF")
             )
 
             pianoGenerator.playNote(midiData)
         }
     }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
+    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
         // Not needed here
     }
 

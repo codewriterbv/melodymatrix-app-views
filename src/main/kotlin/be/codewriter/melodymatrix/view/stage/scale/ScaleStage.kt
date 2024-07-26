@@ -1,10 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.scale
 
-import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
-import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -16,9 +11,9 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.InputStream
 
-class ScaleStage : VisualizerStage() {
+class ScaleStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
-    val notes: MutableMap<Note, Label> = mutableMapOf()
+    val notes: MutableMap<be.codewriter.melodymatrix.view.definition.Note, Label> = mutableMapOf()
 
     init {
         val inputStream: InputStream = javaClass.getResourceAsStream("/fonts/musiqwik/Musiqwik-rvL8.ttf")
@@ -30,19 +25,19 @@ class ScaleStage : VisualizerStage() {
             padding = Insets(0.0)
             children.addAll(
                 getLabel(font, "=&==========================", null),
-                getLabel(font, "r", Note.C4),
-                getLabel(font, "s", Note.D4),
-                getLabel(font, "t", Note.E4),
-                getLabel(font, "u", Note.F4),
-                getLabel(font, "v", Note.G4),
-                getLabel(font, "w", Note.A4),
-                getLabel(font, "x", Note.B4),
-                getLabel(font, "y", Note.C5),
-                getLabel(font, "z", Note.D5),
-                getLabel(font, "{", Note.E5),
-                getLabel(font, "|", Note.F5),
-                getLabel(font, "}", Note.G5),
-                getLabel(font, "~", Note.A5),
+                getLabel(font, "r", be.codewriter.melodymatrix.view.definition.Note.C4),
+                getLabel(font, "s", be.codewriter.melodymatrix.view.definition.Note.D4),
+                getLabel(font, "t", be.codewriter.melodymatrix.view.definition.Note.E4),
+                getLabel(font, "u", be.codewriter.melodymatrix.view.definition.Note.F4),
+                getLabel(font, "v", be.codewriter.melodymatrix.view.definition.Note.G4),
+                getLabel(font, "w", be.codewriter.melodymatrix.view.definition.Note.A4),
+                getLabel(font, "x", be.codewriter.melodymatrix.view.definition.Note.B4),
+                getLabel(font, "y", be.codewriter.melodymatrix.view.definition.Note.C5),
+                getLabel(font, "z", be.codewriter.melodymatrix.view.definition.Note.D5),
+                getLabel(font, "{", be.codewriter.melodymatrix.view.definition.Note.E5),
+                getLabel(font, "|", be.codewriter.melodymatrix.view.definition.Note.F5),
+                getLabel(font, "}", be.codewriter.melodymatrix.view.definition.Note.G5),
+                getLabel(font, "~", be.codewriter.melodymatrix.view.definition.Note.A5),
                 getLabel(font, "==", null)
             )
         }
@@ -53,18 +48,18 @@ class ScaleStage : VisualizerStage() {
             padding = Insets(0.0)
             children.addAll(
                 getLabel(font, "=¯==", null),
-                getLabel(font, "r", Note.E2),
-                getLabel(font, "s", Note.F2),
-                getLabel(font, "t", Note.G2),
-                getLabel(font, "u", Note.A2),
-                getLabel(font, "v", Note.B2),
-                getLabel(font, "w", Note.C3),
-                getLabel(font, "x", Note.D3),
-                getLabel(font, "y", Note.E3),
-                getLabel(font, "z", Note.F3),
-                getLabel(font, "{", Note.G3),
-                getLabel(font, "|", Note.A3),
-                getLabel(font, "}", Note.B3),
+                getLabel(font, "r", be.codewriter.melodymatrix.view.definition.Note.E2),
+                getLabel(font, "s", be.codewriter.melodymatrix.view.definition.Note.F2),
+                getLabel(font, "t", be.codewriter.melodymatrix.view.definition.Note.G2),
+                getLabel(font, "u", be.codewriter.melodymatrix.view.definition.Note.A2),
+                getLabel(font, "v", be.codewriter.melodymatrix.view.definition.Note.B2),
+                getLabel(font, "w", be.codewriter.melodymatrix.view.definition.Note.C3),
+                getLabel(font, "x", be.codewriter.melodymatrix.view.definition.Note.D3),
+                getLabel(font, "y", be.codewriter.melodymatrix.view.definition.Note.E3),
+                getLabel(font, "z", be.codewriter.melodymatrix.view.definition.Note.F3),
+                getLabel(font, "{", be.codewriter.melodymatrix.view.definition.Note.G3),
+                getLabel(font, "|", be.codewriter.melodymatrix.view.definition.Note.A3),
+                getLabel(font, "}", be.codewriter.melodymatrix.view.definition.Note.B3),
                 getLabel(font, "============================", null)
             )
         }
@@ -80,7 +75,11 @@ class ScaleStage : VisualizerStage() {
         }
     }
 
-    private fun getLabel(musicFont: Font?, content: String, note: Note?): Label {
+    private fun getLabel(
+        musicFont: Font?,
+        content: String,
+        note: be.codewriter.melodymatrix.view.definition.Note?
+    ): Label {
         var label = Label().apply {
             text = content
             font = musicFont
@@ -91,12 +90,12 @@ class ScaleStage : VisualizerStage() {
         return label
     }
 
-    override fun onMidiData(midiData: MidiData) {
+    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
         Platform.runLater {
             val note = midiData.note
             val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
             if (label != null) {
-                if (midiData.event == MidiEvent.NOTE_ON) {
+                if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) {
                     if (note.mainNote.isSharp) {
                         label.style = "-fx-text-fill: blue; -fx-background-color: green;"
                     } else {
@@ -109,7 +108,7 @@ class ScaleStage : VisualizerStage() {
         }
     }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
+    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
         // Not needed here
     }
 

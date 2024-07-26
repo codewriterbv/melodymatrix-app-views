@@ -2,10 +2,8 @@ package be.codewriter.melodymatrix.view.stage.piano.component
 
 import atlantafx.base.controls.Spacer
 import atlantafx.base.controls.ToggleSwitch
-import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
-import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
 import com.almasb.fxgl.dsl.FXGL.Companion.getop
@@ -22,7 +20,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 
-class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
+class ConfiguratorBackground(licenseStatus: be.codewriter.melodymatrix.view.data.LicenseStatus) : VBox() {
     companion object {
         private val backgroundColor = ColorPicker()
         private val imageSelectionPane = FlowPane()
@@ -81,7 +79,7 @@ class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
                 }
             }
         }
-        for (backgroundImage: PianoBackgroundImage in PianoBackgroundImage.entries) {
+        for (backgroundImage: be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage in be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage.entries) {
             val imageView: ImageView = ImageView().apply {
                 image = Image(backgroundImage.file)
                 cursor = Cursor.HAND
@@ -91,7 +89,7 @@ class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
             val stackPane = StackPane(imageView).apply {
                 background = Background(
                     BackgroundFill(
-                        if (backgroundImage == PianoBackgroundImage.NONE) Color.RED else Color.BLACK,
+                        if (backgroundImage == be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage.NONE) Color.RED else Color.BLACK,
                         CornerRadii.EMPTY,
                         Insets.EMPTY
                     )
@@ -99,12 +97,13 @@ class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
             }
             StackPane.setMargin(imageView, Insets(2.0))
             imageView.setOnMouseClicked {
-                (getop<PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).set(
+                (getop<be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_IMAGE.name)).set(
                     backgroundImage
                 )
                 removeSelectedImage()
                 stackPane.background = Background(BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY))
-                imageTransparency.isDisable = backgroundImage == PianoBackgroundImage.NONE
+                imageTransparency.isDisable =
+                    backgroundImage == be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage.NONE
             }
             imageSelectionPane.children.add(stackPane)
         }
@@ -158,19 +157,20 @@ class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
      */
     fun createBindings() {
         Platform.runLater {
-            backgroundColor.valueProperty().bindBidirectional(getop(PianoProperty.BACKGROUND_COLOR.name))
+            backgroundColor.valueProperty()
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_COLOR.name))
             imageTransparency.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
             logoVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoProperty.LOGO_VISIBLE.name))
+                .bindBidirectional(getbp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_VISIBLE.name))
             logoTransparency.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.LOGO_TRANSPARENCY.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_TRANSPARENCY.name))
             logoWidth.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.LOGO_WIDTH.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_WIDTH.name))
             logoLeft.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.LOGO_LEFT.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_LEFT.name))
             logoTop.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.LOGO_TOP.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_TOP.name))
         }
     }
 }

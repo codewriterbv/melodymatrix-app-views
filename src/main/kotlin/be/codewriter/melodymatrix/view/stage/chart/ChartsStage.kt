@@ -1,17 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.chart
 
-import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
-import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 
-class ChartsStage : VisualizerStage() {
+class ChartsStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
     init {
         title = "See your music in charts..."
@@ -19,11 +14,26 @@ class ChartsStage : VisualizerStage() {
         var buttons = HBox().apply {
             spacing = 10.0
             children.addAll(
-                createChartSelection("Bar chart", BarChartPlayedNotes()),
-                createChartSelection("Concentric chart", ConcentricPlayedNotes()),
-                createChartSelection("Cox Comb chart", CoxCombPlayedNotes()),
-                createChartSelection("Ridge Line chart", RidgeLineChartPlayedNotes()),
-                createChartSelection("Radar Chart chart", RadarChartPlayedNotes())
+                createChartSelection(
+                    "Bar chart",
+                    be.codewriter.melodymatrix.view.stage.chart.component.BarChartPlayedNotes()
+                ),
+                createChartSelection(
+                    "Concentric chart",
+                    be.codewriter.melodymatrix.view.stage.chart.component.ConcentricPlayedNotes()
+                ),
+                createChartSelection(
+                    "Cox Comb chart",
+                    be.codewriter.melodymatrix.view.stage.chart.component.CoxCombPlayedNotes()
+                ),
+                createChartSelection(
+                    "Ridge Line chart",
+                    be.codewriter.melodymatrix.view.stage.chart.component.RidgeLineChartPlayedNotes()
+                ),
+                createChartSelection(
+                    "Radar Chart chart",
+                    be.codewriter.melodymatrix.view.stage.chart.component.RadarChartPlayedNotes()
+                )
             )
         }
 
@@ -38,13 +48,19 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
-    fun createChartSelection(label: String, chart: ChartVisualizer): BorderPane {
+    fun createChartSelection(
+        label: String,
+        chart: be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer
+    ): BorderPane {
         var chartHolder = ChartHolder(label, chart)
         chartHolders.add(chartHolder)
         return chartHolder
     }
 
-    class ChartHolder(val label: String, val chart: ChartVisualizer) : BorderPane() {
+    class ChartHolder(
+        val label: String,
+        val chart: be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer
+    ) : BorderPane() {
         init {
             prefWidth = 200.0
             prefHeight = 230.0
@@ -70,15 +86,15 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        if (midiData.event != MidiEvent.NOTE_ON) {
+    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
+        if (midiData.event != be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) {
             return
         }
         val note = midiData.note
         chartHolders.stream().forEach { v -> v.chart.onNote(note) }
     }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
+    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
         // Not needed here
     }
 

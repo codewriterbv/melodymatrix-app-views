@@ -53,17 +53,17 @@ class ConfiguratorKey : VBox() {
     fun createBindings() {
         Platform.runLater {
             whiteKeyColor.valueProperty()
-                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_COLOR.name))
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_WHITE_KEY_COLOR.name))
             whiteKeyActiveColor.valueProperty()
-                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_WHITE_KEY_ACTIVE_COLOR.name))
             keyNameColor.valueProperty()
-                .bindBidirectional(getop(PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_WHITE_KEY_NAME_COLOR.name))
             keyNameVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
+                .bindBidirectional(getbp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_WHITE_KEY_NAME_VISIBLE.name))
             blackKeyColor.valueProperty()
-                .bindBidirectional(getop(PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             blackKeyActiveColor.valueProperty()
-                .bindBidirectional(getop(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
         }
     }
 }

@@ -77,19 +77,19 @@ class ConfiguratorEffect : VBox() {
     fun createBindings() {
         Platform.runLater {
             explosionVisible.selectedProperty()
-                .bindBidirectional(getbp(PianoProperty.EXPLOSION_ENABLED.name))
+                .bindBidirectional(getbp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_ENABLED.name))
             colorEnd.valueProperty()
-                .bindBidirectional(getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name))
+                .bindBidirectional(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_COLOR_END.name))
             colorStart.valueProperty()
-                .bindBidirectional(getop<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
+                .bindBidirectional(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_COLOR_START.name))
             explosionRadius.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.EXPLOSION_RADIUS.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_RADIUS.name))
             numParticles.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name))
             particleSize.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_PARTICLE_SIZE.name))
             tailNumParticles.valueProperty()
-                .bindBidirectional(getdp(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name))
+                .bindBidirectional(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name))
         }
     }
 }

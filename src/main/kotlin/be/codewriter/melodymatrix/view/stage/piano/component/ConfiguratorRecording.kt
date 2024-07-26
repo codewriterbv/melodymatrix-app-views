@@ -1,6 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
-import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.video.VideoRecorder
@@ -9,7 +8,11 @@ import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
-class ConfiguratorRecording(licenseStatus: LicenseStatus, videoRecorder: VideoRecorder, node: Node) : VBox() {
+class ConfiguratorRecording(
+    licenseStatus: be.codewriter.melodymatrix.view.data.LicenseStatus,
+    videoRecorder: VideoRecorder,
+    node: Node
+) : VBox() {
 
     init {
         spacing = 5.0

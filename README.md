@@ -29,7 +29,7 @@ What this project doesn't contain:
 * Clone the repository
 * Open the cloned directory in IntelliJIDEA
 * Import as Gradle project
-* Open `be.codewriter.melodymatrix.view.TestLauncher`
+* Open `be.codewriter.melodymatrix.view.TestJavaLauncher`
 * Hit 'Run' on the 'main' method
 
 ### Testing a viewer
@@ -57,3 +57,16 @@ override fun onMidiDataReceived(midiData:MidiData) {
 
 * Add a button to open the new view in `test.TestViewButtons.kt`
 * Run the application and test your new view
+
+## Run with Maven
+
+To make it easier to run and extend this project, it also includes a Maven configuration:
+
+```shell
+# Start as JavaFX application
+mvn javafx:run
+
+# Build without compiling and running the tests
+mvn package -Dmaven.test.skip=true
+
+```

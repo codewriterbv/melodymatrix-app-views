@@ -10,11 +10,11 @@ class PixelblazeOutputExpanderHelper(val address: String) {
     val CH_WS2812_DATA: Byte = 1
     val CH_DRAW_ALL: Byte = 2
 
-    private var adapter: ExpanderDataWriteAdapter? = null
+    private var adapter: be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.ExpanderDataWriteAdapter? = null
 
     init {
         logger.info("Initializing serial")
-        adapter = ExpanderDataWriteAdapter(address)
+        adapter = be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.ExpanderDataWriteAdapter(address)
     }
 
     fun sendAllOff(channel: Int, numberOfLeds: Int) {

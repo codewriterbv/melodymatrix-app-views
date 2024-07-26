@@ -1,9 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.drum
 
-import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
-import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -15,9 +11,9 @@ import javafx.scene.layout.VBox
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class DrumStage : VisualizerStage() {
+class DrumStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
-    val notes: MutableMap<Note, Label> = mutableMapOf()
+    val notes: MutableMap<be.codewriter.melodymatrix.view.definition.Note, Label> = mutableMapOf()
 
     init {
         var imageView = ImageView().apply {
@@ -41,13 +37,13 @@ class DrumStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
+    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
         Platform.runLater {
             // TODO
         }
     }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
+    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
         // Not needed here
     }
 

@@ -1,6 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
-import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Companion.PIANO_BLACK_KEY_WIDTH
 import com.almasb.fxgl.dsl.getop
@@ -11,7 +10,8 @@ import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
-class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Parent() {
+class PianoKeyBlack(val note: be.codewriter.melodymatrix.view.definition.Note, val x: Double, val y: Double) :
+    be.codewriter.melodymatrix.view.stage.piano.component.PianoKey, Parent() {
 
     private val pressed = SimpleBooleanProperty(false)
 
@@ -19,13 +19,13 @@ class PianoKeyBlack(val note: Note, val x: Double, val y: Double) : PianoKey, Pa
         children.add(Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<Color>(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
-                    .otherwise(getop<Color>(PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+                    .then(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             )
         })
     }
 
-    override fun note(): Note {
+    override fun note(): be.codewriter.melodymatrix.view.definition.Note {
         return note
     }
 

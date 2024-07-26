@@ -1,18 +1,18 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
-import be.codewriter.melodymatrix.view.definition.Note
 import javafx.application.Platform
 import javafx.scene.chart.BarChart
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 
-class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
+class BarChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
+    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
 
     private val xyChartMainNotes: XYChart.Series<String, Number> = XYChart.Series()
 
     init {
-        Note.usedAndSortedMainNotes().stream()
+        be.codewriter.melodymatrix.view.definition.Note.usedAndSortedMainNotes().stream()
             .forEach { mn ->
                 run {
                     xyChartMainNotes.data.add(XYChart.Data(mn.label, 0))
@@ -29,7 +29,7 @@ class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
         })
     }
 
-    override fun onNote(note: Note) {
+    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
         Platform.runLater {
             xyChartMainNotes.data.forEachIndexed { i, data ->
                 if (data.xValue == note.mainNote.label) {

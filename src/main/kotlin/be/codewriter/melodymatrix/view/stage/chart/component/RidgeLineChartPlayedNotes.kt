@@ -1,8 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
-import be.codewriter.melodymatrix.view.definition.MainNote
-import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.XYPane
 import eu.hansolo.fx.charts.data.XYChartItem
@@ -18,7 +15,8 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
-class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
+class RidgeLineChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
+    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
         height = Double.MAX_VALUE
@@ -34,14 +32,15 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
         Stop(1.00, Color.rgb(255, 255, 0, 0.5))
     )
 
-    private var chords: MutableMap<Octave, List<XYChartItem>> = mutableMapOf()
+    private var chords: MutableMap<be.codewriter.melodymatrix.view.definition.Octave, List<XYChartItem>> =
+        mutableMapOf()
 
     init {
 
-        for (octave in Note.usedAndSortedOctaves()) {
+        for (octave in be.codewriter.melodymatrix.view.definition.Note.usedAndSortedOctaves()) {
             val notes: MutableList<XYChartItem> = mutableListOf()
             var counter = 0.0
-            MainNote.entries.stream()
+            be.codewriter.melodymatrix.view.definition.MainNote.entries.stream()
                 .forEach { mn ->
                     run {
                         notes.add(XYChartItem(counter, 0.0, mn.name))
@@ -73,7 +72,7 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
         addChart(chartBox)
     }
 
-    override fun onNote(note: Note) {
+    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
         Platform.runLater {
             val data = chords[note.octave]
             if (data != null) {
