@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
 import eu.hansolo.fx.charts.ConcentricRingChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
@@ -7,13 +9,12 @@ import eu.hansolo.fx.charts.tools.NumberFormat
 import javafx.application.Platform
 import javafx.scene.paint.Color
 
-class ConcentricPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
-    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
+class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
     init {
-        be.codewriter.melodymatrix.view.definition.MainNote.entries.stream()
+        MainNote.entries.stream()
             .forEach { mn ->
                 run {
                     chartItems.add(
@@ -42,7 +43,7 @@ class ConcentricPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.compon
         )
     }
 
-    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
+    override fun onNote(note: Note) {
         Platform.runLater {
             chartItems.forEach { data ->
                 if (data.name == note.mainNote.name) {

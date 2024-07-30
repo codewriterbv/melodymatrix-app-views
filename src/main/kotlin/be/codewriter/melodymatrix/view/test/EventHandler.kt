@@ -1,7 +1,10 @@
 package be.codewriter.melodymatrix.view.test
 
-interface EventHandler {
-    fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData)
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
 
-    fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent)
+interface EventHandler {
+    fun onMidiData(midiData: MidiData)
+
+    fun onPlayEvent(playEvent: PlayEvent)
 }

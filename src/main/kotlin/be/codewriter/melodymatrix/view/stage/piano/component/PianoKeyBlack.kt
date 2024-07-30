@@ -11,7 +11,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
 class PianoKeyBlack(val note: be.codewriter.melodymatrix.view.definition.Note, val x: Double, val y: Double) :
-    be.codewriter.melodymatrix.view.stage.piano.component.PianoKey, Parent() {
+    PianoKey, Parent() {
 
     private val pressed = SimpleBooleanProperty(false)
 
@@ -19,8 +19,8 @@ class PianoKeyBlack(val note: be.codewriter.melodymatrix.view.definition.Note, v
         children.add(Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
             fillProperty().bind(
                 Bindings.`when`(pressed)
-                    .then(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
-                    .otherwise(getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.PIANO_BLACK_KEY_COLOR.name))
+                    .then(getop<Color>(PianoProperty.PIANO_BLACK_KEY_ACTIVE_COLOR.name))
+                    .otherwise(getop<Color>(PianoProperty.PIANO_BLACK_KEY_COLOR.name))
             )
         })
     }

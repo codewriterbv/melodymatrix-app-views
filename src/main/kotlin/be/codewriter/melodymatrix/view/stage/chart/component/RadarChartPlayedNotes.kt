@@ -1,5 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.YChart
@@ -11,17 +14,16 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 
-class RadarChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
-    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
+class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
-    private var chords: MutableMap<be.codewriter.melodymatrix.view.definition.Octave, YSeries<ValueChartItem>> =
+    private var chords: MutableMap<Octave, YSeries<ValueChartItem>> =
         mutableMapOf()
 
     init {
 
-        for (octave in be.codewriter.melodymatrix.view.definition.Note.usedAndSortedOctaves()) {
+        for (octave in Note.usedAndSortedOctaves()) {
             val notes: MutableList<ValueChartItem> = mutableListOf()
-            be.codewriter.melodymatrix.view.definition.MainNote.entries.stream()
+            MainNote.entries.stream()
                 .forEach { mn ->
                     run {
                         notes.add(ValueChartItem(0.0, mn.label))
@@ -45,28 +47,28 @@ class RadarChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.compon
         }
 
         val categories: MutableList<Category> = ArrayList()
-        for (mainNote in be.codewriter.melodymatrix.view.definition.Note.usedAndSortedMainNotes()) {
+        for (mainNote in Note.usedAndSortedMainNotes()) {
             categories.add(Category(mainNote.label))
         }
 
         val data = YPane(
             categories,
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_0],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8],
-            chords[be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9]
+            chords[Octave.OCTAVE_0],
+            chords[Octave.OCTAVE_1],
+            chords[Octave.OCTAVE_2],
+            chords[Octave.OCTAVE_3],
+            chords[Octave.OCTAVE_4],
+            chords[Octave.OCTAVE_5],
+            chords[Octave.OCTAVE_6],
+            chords[Octave.OCTAVE_7],
+            chords[Octave.OCTAVE_8],
+            chords[Octave.OCTAVE_9]
         )
         addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
-    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
+    override fun onNote(note: Note) {
         Platform.runLater {
             val series = chords[note.octave]
             if (series != null) {

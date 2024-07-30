@@ -1,5 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.midi
 
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import javafx.application.Platform
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -22,13 +25,12 @@ import org.apache.logging.log4j.Logger
 
 class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
-    val midiDataList: ObservableList<be.codewriter.melodymatrix.view.data.MidiData> =
+    val midiDataList: ObservableList<MidiData> =
         FXCollections.observableArrayList()
     val lastInstrument: StringProperty = SimpleStringProperty("")
     val midiData0Value: StringProperty = SimpleStringProperty("")
     val midiData0Bits: StringProperty = SimpleStringProperty("")
-    val midiDataType: ObjectProperty<be.codewriter.melodymatrix.view.definition.MidiEvent> =
-        SimpleObjectProperty(be.codewriter.melodymatrix.view.definition.MidiEvent.UNDEFINED)
+    val midiDataType: ObjectProperty<MidiEvent> = SimpleObjectProperty(MidiEvent.UNDEFINED)
     val midiDataEvent: StringProperty = SimpleStringProperty("")
     val midiData1Value: StringProperty = SimpleStringProperty("")
     val midiData1Bits: StringProperty = SimpleStringProperty("")
@@ -40,19 +42,19 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
     val controllerValueBits: StringProperty = SimpleStringProperty("")
 
     init {
-        val table: TableView<be.codewriter.melodymatrix.view.data.MidiData> =
-            TableView<be.codewriter.melodymatrix.view.data.MidiData>().apply {
+        val table: TableView<MidiData> =
+            TableView<MidiData>().apply {
                 items = midiDataList
                 columns.addAll(
-                    TableColumn<be.codewriter.melodymatrix.view.data.MidiData, String>("Event").apply {
+                    TableColumn<MidiData, String>("Event").apply {
                         cellValueFactory = PropertyValueFactory("event")
                         prefWidth = 200.0
                     },
-                    TableColumn<be.codewriter.melodymatrix.view.data.MidiData, String>("Note").apply {
+                    TableColumn<MidiData, String>("Note").apply {
                         cellValueFactory = PropertyValueFactory("note")
                         prefWidth = 150.0
                     },
-                    TableColumn<be.codewriter.melodymatrix.view.data.MidiData, String>("Velocity").apply {
+                    TableColumn<MidiData, String>("Velocity").apply {
                         cellValueFactory = PropertyValueFactory("velocity")
                         prefWidth = 100.0
                     }
@@ -177,7 +179,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
+    override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
             midiDataList.addFirst(midiData)
 
@@ -190,9 +192,9 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
             midiData2Value.set(midiData.bytes[2].toString())
             midiData2Bits.set(byteToBitsString(midiData.bytes[2]))
 
-            if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.SELECT_INSTRUMENT) {
+            if (midiData.event == MidiEvent.SELECT_INSTRUMENT) {
                 lastInstrument.set(midiData.instrument.toString())
-            } else if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.CONTROLLER) {
+            } else if (midiData.event == MidiEvent.CONTROLLER) {
                 controllerNumber.set(midiData.controllerNumber.toString())
                 controllerNumberBits.set(byteToBitsString(midiData.bytes[1]))
                 controllerValue.set(midiData.controllerValue.toString())
@@ -201,7 +203,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
+    override fun onPlayEvent(playEvent: PlayEvent) {
         // Not needed here
     }
 

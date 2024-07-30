@@ -1,6 +1,12 @@
-package be.codewriter.melodymatrix.view.stage.ledstrip
+package stage.ledstrip
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.VisualizerStage
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.PlayEvent
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
 import javafx.collections.FXCollections
@@ -22,7 +28,7 @@ import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
-class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
+class LedStripStage : VisualizerStage() {
     init {
         val grid = GridPane().apply {
             hgap = 2.0
@@ -30,7 +36,7 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
 
         var counter = 0
-        be.codewriter.melodymatrix.view.definition.Note.entries.forEach { note ->
+        Note.entries.forEach { note ->
             val colorBox = ColorBox(note)
             boxes[note] = colorBox
             grid.add(colorBox.box, counter, 0)
@@ -169,8 +175,7 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
                 if (pixelblazeOutputExpanderHelper != null) {
                     pixelblazeOutputExpanderHelper!!.closePort()
                 }
-                pixelblazeOutputExpanderHelper =
-                    be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper(serialPort.systemPortName)
+                pixelblazeOutputExpanderHelper = PixelblazeOutputExpanderHelper(serialPort.systemPortName)
                 pixelblazeOutputExpanderHelper!!.sendAllOff(0, boxes.size)
                 Thread.sleep(500)
             }
@@ -208,7 +213,7 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    private fun highlightBox(note: be.codewriter.melodymatrix.view.definition.Note) {
+    private fun highlightBox(note: Note) {
         val idx = boxes.keys.indexOf(note)
         var start = idx - effectWidth.value.toInt()
         if (start < 0) {
@@ -225,7 +230,7 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
     }
 
     class ColorBox(
-        val note: be.codewriter.melodymatrix.view.definition.Note,
+        val note: Note,
         val box: Rectangle = Rectangle(BOX_WIDTH, BOX_HEIGHT, colorNormal.value)
     ) : Rectangle() {
         var distance: Int = 0
@@ -270,19 +275,19 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
-        if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) {
+    override fun onMidiData(midiData: MidiData) {
+        if (midiData.event == MidiEvent.NOTE_ON) {
             highlightBox(midiData.note)
         }
     }
 
-    override fun onPlayEvent(playEvent: be.codewriter.melodymatrix.view.data.PlayEvent) {
+    override fun onPlayEvent(playEvent: PlayEvent) {
         // Not need in this viewer
     }
 
     companion object {
         private val logger: Logger = LogManager.getLogger(LedStripStage::class.java.name)
-        val boxes: MutableMap<be.codewriter.melodymatrix.view.definition.Note, ColorBox> = mutableMapOf()
+        val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_WIDTH = 8.0
         const val BOX_HEIGHT = 50.0
 
@@ -299,7 +304,6 @@ class LedStripStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         val channel5 = ToggleSwitch()
         val channel6 = ToggleSwitch()
         val channel7 = ToggleSwitch()
-        var pixelblazeOutputExpanderHelper: be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper? =
-            null
+        var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
     }
 }

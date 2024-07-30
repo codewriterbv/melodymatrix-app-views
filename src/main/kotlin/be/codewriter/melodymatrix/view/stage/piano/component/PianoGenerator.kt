@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import com.almasb.fxgl.app.GameApplication
 import com.almasb.fxgl.app.GameSettings
 import com.almasb.fxgl.core.math.FXGLMath
@@ -33,9 +35,9 @@ import org.apache.logging.log4j.Logger
 import kotlin.collections.set
 
 class PianoGenerator(
-    val configuratorBackground: be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorBackground,
-    val configuratorEffect: be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorEffect,
-    val configuratorKey: be.codewriter.melodymatrix.view.stage.piano.component.ConfiguratorKey
+    val configuratorBackground: ConfiguratorBackground,
+    val configuratorEffect: ConfiguratorEffect,
+    val configuratorKey: ConfiguratorKey
 ) : GameApplication() {
 
     var gameFactory: GameFactory = GameFactory()
@@ -52,7 +54,7 @@ class PianoGenerator(
     }
 
     override fun initGameVars(vars: MutableMap<String, Any>) {
-        be.codewriter.melodymatrix.view.stage.piano.component.DefaultValues.setDefaults(vars)
+        DefaultValues.setDefaults(vars)
     }
 
     enum class EntityType {
@@ -93,17 +95,17 @@ class PianoGenerator(
         var counterWhiteKeys = 0
         var previousWhiteKeyX = 0.0
 
-        be.codewriter.melodymatrix.view.definition.Note.pianoKeys().forEach { note ->
+        Note.pianoKeys().forEach { note ->
             if (note.mainNote.isSharp) {
                 val x = previousWhiteKeyX + PIANO_WHITE_KEY_WIDTH - (PIANO_BLACK_KEY_WIDTH / 2)
                 val y = PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT
-                val key = be.codewriter.melodymatrix.view.stage.piano.component.PianoKeyBlack(note, x, y)
+                val key = PianoKeyBlack(note, x, y)
                 keys[note] = key
                 addUINode(key, x, y)
             } else {
                 val x = counterWhiteKeys * PIANO_WHITE_KEY_WIDTH
                 val y = PIANO_HEIGHT - PIANO_WHITE_KEY_HEIGHT
-                val key = be.codewriter.melodymatrix.view.stage.piano.component.PianoKeyWhite(note, x, y)
+                val key = PianoKeyWhite(note, x, y)
                 keys[note] = key
                 addUINode(key, x, y)
                 counterWhiteKeys++
@@ -127,7 +129,7 @@ class PianoGenerator(
                 data.get<Int>("height").toDouble()
             )
             rectangle.fillProperty()
-                .bindBidirectional(getop(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_COLOR.name))
+                .bindBidirectional(getop(PianoProperty.BACKGROUND_COLOR.name))
             return FXGL.entityBuilder(data)
                 .type(EntityType.BACKGROUND_COLOR)
                 .view(rectangle)
@@ -140,9 +142,9 @@ class PianoGenerator(
         fun spawnBackgroundImage(data: SpawnData): Entity {
             var imageView = ImageView().apply {
                 isVisible = false
-                opacityProperty().bind(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
+                opacityProperty().bind(getdp(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
             }
-            (getop<be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.BACKGROUND_IMAGE.name)).addListener { _, _, newValue ->
+            (getop<be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).addListener { _, _, newValue ->
                 if (newValue == be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage.NONE) {
                     imageView.isVisible = false
                 } else {
@@ -163,11 +165,11 @@ class PianoGenerator(
             var imageView = ImageView().apply {
                 image = Image("logo/heavy-melodymatrix.png")
                 isPreserveRatio = true
-                opacityProperty().bind(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_TRANSPARENCY.name))
-                fitWidthProperty().bind(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_WIDTH.name))
-                visibleProperty().bind(getbp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_VISIBLE.name))
-                xProperty().bind(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_LEFT.name))
-                yProperty().bind(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.LOGO_TOP.name))
+                opacityProperty().bind(getdp(PianoProperty.LOGO_TRANSPARENCY.name))
+                fitWidthProperty().bind(getdp(PianoProperty.LOGO_WIDTH.name))
+                visibleProperty().bind(getbp(PianoProperty.LOGO_VISIBLE.name))
+                xProperty().bind(getdp(PianoProperty.LOGO_LEFT.name))
+                yProperty().bind(getdp(PianoProperty.LOGO_TOP.name))
             }
             return FXGL.entityBuilder(data)
                 .type(EntityType.BACKGROUND_IMAGE)
@@ -196,11 +198,11 @@ class PianoGenerator(
 
     fun playNote(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
         val keyView = keys[midiData.note] ?: return
-        keyView.update(midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON)
-        if (getb(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_ENABLED.name) && midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) {
+        keyView.update(midiData.event == MidiEvent.NOTE_ON)
+        if (getb(PianoProperty.EXPLOSION_ENABLED.name) && midiData.event == MidiEvent.NOTE_ON) {
             initParticles(keyView.position().x, keyView.position().y, midiData.velocity)
         }
-        if (midiData.event == be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON) {
+        if (midiData.event == MidiEvent.NOTE_ON) {
             //initFallingBlock(keyView.position().x)
         }
     }
@@ -229,17 +231,17 @@ class PianoGenerator(
 
     private fun initParticles(xx: Double, yy: Double, keyVelocity: Int) {
         val emitter =
-            ParticleEmitters.newExplosionEmitter(getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_RADIUS.name).intValue())
+            ParticleEmitters.newExplosionEmitter(getdp(PianoProperty.EXPLOSION_RADIUS.name).intValue())
         emitter.maxEmissions = Int.MAX_VALUE
         emitter.blendMode = BlendMode.SRC_OVER
         emitter.numParticles =
-            getdp(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
+            getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
         // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
         emitter.emissionRate = 0.86
         emitter.maxEmissions = 1
         emitter.setSize(
             1.0,
-            getd(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
+            getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
         )
         emitter.setScaleFunction { _ -> FXGLMath.randomPoint2D().multiply(0.01) }
         emitter.setExpireFunction { _ -> Duration.seconds(FXGLMath.random(0.25, 3.5)) } // make bindable for end time
@@ -247,10 +249,10 @@ class PianoGenerator(
         emitter.setVelocityFunction { _ ->
             FXGLMath.randomPoint2D().multiply(FXGLMath.random(1.0, 45.0)).multiply(0.0003)
         }
-        emitter.setColor(geto<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_COLOR_START.name))
+        emitter.setColor(geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
 
         val particleSize =
-            2 * getd(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
+            2 * getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
 
         // The animation of each particle of the explosion
         emitter.setControl { p ->
@@ -279,7 +281,7 @@ class PianoGenerator(
 
             // Lighting
             g.fill =
-                getop<Color>(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_COLOR_END.name).value
+                getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
 
             // Draw the particle using JavaFX canvas
             g.fillOval(
@@ -290,8 +292,8 @@ class PianoGenerator(
             )
 
             // Add a tail
-            if (getd(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt() > 0) {
-                for (i in 1..getd(be.codewriter.melodymatrix.view.stage.piano.component.PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt()) {
+            if (getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt() > 0) {
+                for (i in 1..getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt()) {
                     g.fillOval(
                         (x - 2).toDouble() + (particleSize / 2) - 1 + FXGLMath.random(-2.0, 2.0),
                         (y - 2).toDouble() + ((particleSize / 5.0) * (i * 2)),
@@ -316,7 +318,7 @@ class PianoGenerator(
         private val logger: Logger = LogManager.getLogger(PianoGenerator::class.java.name)
         private lateinit var canvas: Canvas
         private lateinit var g: GraphicsContext
-        val keys: MutableMap<be.codewriter.melodymatrix.view.definition.Note, be.codewriter.melodymatrix.view.stage.piano.component.PianoKey> =
+        val keys: MutableMap<Note, PianoKey> =
             mutableMapOf()
         val PIANO_WIDTH = 800
         val PIANO_HEIGHT = 600

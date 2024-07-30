@@ -1,18 +1,19 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
 import eu.hansolo.fx.charts.CoxcombChartBuilder
 import eu.hansolo.fx.charts.data.ChartItem
 import eu.hansolo.fx.charts.data.ChartItemBuilder
 import javafx.application.Platform
 import javafx.scene.paint.Color
 
-class CoxCombPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
-    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
+class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
 
     init {
-        be.codewriter.melodymatrix.view.definition.MainNote.entries.stream()
+        MainNote.entries.stream()
             .forEach { mn ->
                 run {
                     chartItems.add(
@@ -46,7 +47,7 @@ class CoxCombPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
-    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
+    override fun onNote(note: Note) {
         Platform.runLater {
             chartItems.forEach { data ->
                 if (data.name == note.mainNote.label) {

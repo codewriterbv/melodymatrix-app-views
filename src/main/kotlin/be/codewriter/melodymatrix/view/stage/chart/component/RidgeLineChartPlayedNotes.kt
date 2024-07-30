@@ -1,5 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.chart.component
 
+import be.codewriter.melodymatrix.view.definition.MainNote
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.XYPane
 import eu.hansolo.fx.charts.data.XYChartItem
@@ -15,8 +18,7 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
-class RidgeLineChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.component.ChartBase(),
-    be.codewriter.melodymatrix.view.stage.chart.component.ChartVisualizer {
+class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
         height = Double.MAX_VALUE
@@ -32,15 +34,15 @@ class RidgeLineChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.co
         Stop(1.00, Color.rgb(255, 255, 0, 0.5))
     )
 
-    private var chords: MutableMap<be.codewriter.melodymatrix.view.definition.Octave, List<XYChartItem>> =
+    private var chords: MutableMap<Octave, List<XYChartItem>> =
         mutableMapOf()
 
     init {
 
-        for (octave in be.codewriter.melodymatrix.view.definition.Note.usedAndSortedOctaves()) {
+        for (octave in Note.usedAndSortedOctaves()) {
             val notes: MutableList<XYChartItem> = mutableListOf()
             var counter = 0.0
-            be.codewriter.melodymatrix.view.definition.MainNote.entries.stream()
+            MainNote.entries.stream()
                 .forEach { mn ->
                     run {
                         notes.add(XYChartItem(counter, 0.0, mn.name))
@@ -72,7 +74,7 @@ class RidgeLineChartPlayedNotes : be.codewriter.melodymatrix.view.stage.chart.co
         addChart(chartBox)
     }
 
-    override fun onNote(note: be.codewriter.melodymatrix.view.definition.Note) {
+    override fun onNote(note: Note) {
         Platform.runLater {
             val data = chords[note.octave]
             if (data != null) {

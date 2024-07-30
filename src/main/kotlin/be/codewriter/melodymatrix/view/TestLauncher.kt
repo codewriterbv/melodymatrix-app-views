@@ -6,7 +6,7 @@ package be.codewriter.melodymatrix.view
 object TestLauncher {
     @JvmStatic
     fun main(args: Array<String>) {
-        val app = be.codewriter.melodymatrix.view.TestApp()
+        val app = TestApp()
         app.run()
     }
 }

@@ -1,12 +1,13 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.data.LicenseStatus
 import javafx.beans.binding.Bindings
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 
-class TestViewLicense(licenseStatus: be.codewriter.melodymatrix.view.data.LicenseStatus) : VBox() {
+class TestViewLicense(licenseStatus: LicenseStatus) : VBox() {
 
     init {
         spacing = 10.0
@@ -27,7 +28,7 @@ class TestViewLicense(licenseStatus: be.codewriter.melodymatrix.view.data.Licens
         )
     }
 
-    private fun createButton(label: String, licenseStatus: be.codewriter.melodymatrix.view.data.LicenseStatus): Node {
+    private fun createButton(label: String, licenseStatus: LicenseStatus): Node {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->

@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.definition.Note
 import com.almasb.fxgl.dsl.random
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -8,20 +9,20 @@ import java.util.concurrent.TimeUnit
 
 class MidiSimulator {
 
-    private val registeredListeners: MutableList<be.codewriter.melodymatrix.view.test.EventHandler> = ArrayList()
-    private val notes: MutableList<be.codewriter.melodymatrix.view.definition.Note> = mutableListOf()
+    private val registeredListeners: MutableList<EventHandler> = ArrayList()
+    private val notes: MutableList<Note> = mutableListOf()
     private var idx: Int = 0
     private var delay: Long = 500
     private var repeat: Boolean = true
 
     val scheduler = Executors.newScheduledThreadPool(1)
 
-    fun registerListener(listener: be.codewriter.melodymatrix.view.test.EventHandler) {
+    fun registerListener(listener: EventHandler) {
         logger.info("Adding listener {}", listener)
         registeredListeners.add(listener)
     }
 
-    fun removeListener(listener: be.codewriter.melodymatrix.view.test.EventHandler) {
+    fun removeListener(listener: EventHandler) {
         logger.info("Removing listener {}", listener)
         registeredListeners.remove(listener)
     }
@@ -87,7 +88,7 @@ class MidiSimulator {
         }
     }
 
-    fun setNotes(notes: List<be.codewriter.melodymatrix.view.definition.Note>, repeat: Boolean) {
+    fun setNotes(notes: List<Note>, repeat: Boolean) {
         stopCurrent()
         this.notes.clear()
         this.notes.addAll(notes)
