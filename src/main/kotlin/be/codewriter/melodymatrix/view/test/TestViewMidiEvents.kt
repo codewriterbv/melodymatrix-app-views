@@ -53,6 +53,10 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             createButton(
                 "Send controller message",
                 MidiData(byteArrayOf("10110000".toInt(2).toByte(), 0x21, 0x34))
+            ),
+            createButton(
+                "Send pitch bend message",
+                MidiData(byteArrayOf("11100000".toInt(2).toByte(), 0x00, 0x60))
             )
         )
     }

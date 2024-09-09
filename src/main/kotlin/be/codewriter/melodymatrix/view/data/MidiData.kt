@@ -66,7 +66,9 @@ open class MidiData(val bytes: ByteArray) {
         } else if ((bytes[0].toInt() and 0xf0) == "11100000".toInt(2)) {
             this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.PITCH_BEND
             this.channel = (bytes[0].toInt() and 0x0f)
-            this.pitch = 0 // TODO
+            // Data byte 1 : 0LLL LLLL = LSB
+            // Data byte 2 : 0MMM MMMM = MSB
+            this.pitch = ((bytes[2].toInt() and "01111111".toInt(2)) shl 7) + (bytes[1].toInt() and "01111111".toInt(2))
         } else {
             logger.warn("Don't know how to convert Midi data with status {}, {}", bytes[0], bytes[0].toString(2))
         }
