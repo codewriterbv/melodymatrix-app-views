@@ -24,7 +24,6 @@ class ScaleStage : VisualizerStage() {
         val inputStream: InputStream = javaClass.getResourceAsStream("/fonts/musiqwik/Musiqwik-rvL8.ttf")
         val font = Font.loadFont(inputStream, 40.0)
 
-        // "=&==========================rstuvwxyz{|}~=="
         val row1 = HBox().apply {
             spacing = 0.0
             padding = Insets(0.0)
@@ -85,7 +84,7 @@ class ScaleStage : VisualizerStage() {
         content: String,
         note: Note?
     ): Label {
-        var label = Label().apply {
+        val label = Label().apply {
             text = content
             font = musicFont
         }
