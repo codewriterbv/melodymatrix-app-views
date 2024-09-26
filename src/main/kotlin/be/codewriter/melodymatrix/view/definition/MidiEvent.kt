@@ -5,6 +5,7 @@ enum class MidiEvent {
     NOTE_ON,
     SELECT_INSTRUMENT,
     CONTROLLER,
+    POLYPHONIC_ATERTOUCH,
     PITCH_BEND,
     UNDEFINED
 }

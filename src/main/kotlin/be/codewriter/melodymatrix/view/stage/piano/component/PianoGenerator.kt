@@ -230,26 +230,27 @@ class PianoGenerator(
     }
 
     private fun initParticles(xx: Double, yy: Double, keyVelocity: Int) {
-        val emitter =
-            ParticleEmitters.newExplosionEmitter(getdp(PianoProperty.EXPLOSION_RADIUS.name).intValue())
-        emitter.maxEmissions = Int.MAX_VALUE
-        emitter.blendMode = BlendMode.SRC_OVER
-        emitter.numParticles =
-            getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
-        // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
-        emitter.emissionRate = 0.86
-        emitter.maxEmissions = 1
-        emitter.setSize(
-            1.0,
-            getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
-        )
-        emitter.setScaleFunction { _ -> FXGLMath.randomPoint2D().multiply(0.01) }
-        emitter.setExpireFunction { _ -> Duration.seconds(FXGLMath.random(0.25, 3.5)) } // make bindable for end time
-        emitter.setAccelerationFunction { Point2D.ZERO }
-        emitter.setVelocityFunction { _ ->
-            FXGLMath.randomPoint2D().multiply(FXGLMath.random(1.0, 45.0)).multiply(0.0003)
-        }
-        emitter.setColor(geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
+        val emitter = ParticleEmitters
+            .newExplosionEmitter(getdp(PianoProperty.EXPLOSION_RADIUS.name).intValue()).apply {
+                maxEmissions = Int.MAX_VALUE
+                blendMode = BlendMode.SRC_OVER
+                numParticles = getdp(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).intValue()
+                // How quickly they are spawned 1 = every frame 0,5 = every second frame, make it bindable
+                emissionRate = 0.86
+                maxEmissions = 1
+                setSize(
+                    1.0,
+                    getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
+                )
+                setScaleFunction { _ -> FXGLMath.randomPoint2D().multiply(0.01) }
+                setExpireFunction { _ -> Duration.seconds(FXGLMath.random(0.25, 3.5)) } // make bindable for end time
+                setAccelerationFunction { Point2D.ZERO }
+                setVelocityFunction { _ ->
+                    FXGLMath.randomPoint2D().multiply(FXGLMath.random(1.0, 45.0)).multiply(0.0003)
+                }
+                setColor(geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
+            }
+
 
         val particleSize =
             2 * getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
