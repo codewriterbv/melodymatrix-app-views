@@ -11,15 +11,14 @@ import javafx.collections.ObservableList
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
+import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+
 
 class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
@@ -43,31 +42,42 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
     val controllerValueBits: StringProperty = SimpleStringProperty("")
     val pitchBendValue: StringProperty = SimpleStringProperty("")
     val pitchBendValueBits: StringProperty = SimpleStringProperty("")
+    val table: TableView<MidiData> = TableView<MidiData>()
 
     init {
-        val table: TableView<MidiData> =
-            TableView<MidiData>().apply {
-                items = midiDataList
-                columns.addAll(
-                    TableColumn<MidiData, String>("Event").apply {
-                        cellValueFactory = PropertyValueFactory("event")
-                        prefWidth = 200.0
-                    },
-                    TableColumn<MidiData, String>("Note").apply {
-                        cellValueFactory = PropertyValueFactory("note")
-                        prefWidth = 150.0
-                    },
-                    TableColumn<MidiData, String>("Velocity").apply {
-                        cellValueFactory = PropertyValueFactory("velocity")
-                        prefWidth = 100.0
-                    }
-                )
+        table.apply {
+            items = midiDataList
+            columns.addAll(
+                TableColumn<MidiData, String>("Event").apply {
+                    cellValueFactory = PropertyValueFactory("event")
+                    prefWidth = 200.0
+                },
+                TableColumn<MidiData, String>("Note").apply {
+                    cellValueFactory = PropertyValueFactory("note")
+                    prefWidth = 150.0
+                },
+                TableColumn<MidiData, String>("Velocity").apply {
+                    cellValueFactory = PropertyValueFactory("velocity")
+                    prefWidth = 100.0
+                }
+            )
+            selectionModel.selectedItemProperty().addListener { _, _, newValue ->
+                if (newValue != null) {
+                    showValues(newValue)
+                }
             }
+        }
 
         val midiInfo = GridPane().apply {
             hgap = 5.0
             vgap = 5.0
             padding = Insets(25.0)
+            isGridLinesVisible = false
+            columnConstraints.addAll(
+                ColumnConstraints(200.0),
+                ColumnConstraints(100.0),
+                ColumnConstraints(150.0)
+            )
 
             add(Button("Clear table").apply {
                 setOnMouseClicked { _ ->
@@ -129,9 +139,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
                 GridPane.setHalignment(this, HPos.RIGHT)
             }, 2, 7)
 
-            add(Label("---------------------------------------------").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
-            }, 0, 8, 3, 1)
+            add(Separator(), 0, 8, 3, 1)
 
             add(Label("Data for last events").apply {
                 style = "-fx-font-size: 20px; -fx-font-weight: bold;"
@@ -233,12 +241,16 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     override fun onMidiData(midiData: MidiData) {
         Platform.runLater {
-            logger.info(midiData.event.name)
             midiDataList.addFirst(midiData)
+            table.selectionModel.selectFirst()
+        }
+    }
 
+    @OptIn(ExperimentalStdlibApi::class)
+    fun showValues(midiData: MidiData) {
+        Platform.runLater {
             midiData0Value.set(midiData.bytes[0].toString())
             midiData0Bits.set(byteToBitsString(midiData.bytes[0]))
             midiDataEventValue.set(midiData.event.name)
@@ -272,7 +284,10 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
     }
 
     fun byteToBitsString(byte: Byte): String {
-        return String.format("%8s", Integer.toBinaryString(byte.toInt() and 0xFF)).replace(' ', '0')
+        val bits = String
+            .format("%8s", Integer.toBinaryString(byte.toInt() and 0xFF))
+            .replace(' ', '0')
+        return bits.substring(0, 4) + " " + bits.substring(4, 8)
     }
 
     companion object {
