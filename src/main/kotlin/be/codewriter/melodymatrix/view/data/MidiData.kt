@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.data
 
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -23,10 +25,8 @@ import org.apache.logging.log4j.Logger
 open class MidiData(val bytes: ByteArray) {
     private val logger: Logger = LogManager.getLogger(MidiData::class.java.name)
 
-    var event: be.codewriter.melodymatrix.view.definition.MidiEvent =
-        be.codewriter.melodymatrix.view.definition.MidiEvent.UNDEFINED
-    var note: be.codewriter.melodymatrix.view.definition.Note =
-        be.codewriter.melodymatrix.view.definition.Note.UNDEFINED
+    var event: MidiEvent = MidiEvent.UNDEFINED
+    var note: Note = Note.UNDEFINED
     var velocity: Int = 0
     var channel: Int = 0
     var instrument: Int = 0
@@ -42,35 +42,35 @@ open class MidiData(val bytes: ByteArray) {
 
         if ((bytes[0].toInt() and 0xf0) == "10010000".toInt(2) || (bytes[0].toInt() and 0xf0) == "10000000".toInt(2)) {
             this.channel = (bytes[0].toInt() and 0x0f)
-            this.note = be.codewriter.melodymatrix.view.definition.Note.from(bytes[1])
+            this.note = Note.from(bytes[1])
             this.velocity = bytes[2].toInt()
 
             if ((bytes[0].toInt() and 0xf0) == "10010000".toInt(2) && this.velocity > 0) {
-                this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_ON
+                this.event = MidiEvent.NOTE_ON
             } else {
-                this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.NOTE_OFF
+                this.event = MidiEvent.NOTE_OFF
             }
 
             if ((bytes[0].toInt() and 0x0f) == 0x09) {
                 isDrum = true
             }
         } else if ((bytes[0].toInt() and 0xf0) == "11000000".toInt(2)) {
-            this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.SELECT_INSTRUMENT
+            this.event = MidiEvent.SELECT_INSTRUMENT
             this.channel = (bytes[0].toInt() and 0x0f)
             this.instrument = bytes[1].toInt()
         } else if ((bytes[0].toInt() and 0xf0) == "10110000".toInt(2)) {
-            this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.CONTROLLER
+            this.event = MidiEvent.CONTROLLER
             this.channel = (bytes[0].toInt() and 0x0f)
             this.controllerNumber = bytes[1].toInt()
             this.controllerValue = bytes[2].toInt()
         } else if ((bytes[0].toInt() and 0xf0) == "11100000".toInt(2)) {
-            this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.PITCH_BEND
+            this.event = MidiEvent.PITCH_BEND
             this.channel = (bytes[0].toInt() and 0x0f)
             // Data byte 1 : 0LLL LLLL = LSB
             // Data byte 2 : 0MMM MMMM = MSB
             this.pitch = ((bytes[2].toInt() and "01111111".toInt(2)) shl 7) + (bytes[1].toInt() and "01111111".toInt(2))
         } else if ((bytes[0].toInt() and 0xf0) == "10100000".toInt(2)) {
-            this.event = be.codewriter.melodymatrix.view.definition.MidiEvent.POLYPHONIC_ATERTOUCH
+            this.event = MidiEvent.POLYPHONIC_ATERTOUCH
         } else {
             logger.warn(
                 "Don't know how to convert Midi data with status {}, {}",

@@ -12,8 +12,6 @@ import javafx.scene.control.Label
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 
 class DrumStage : VisualizerStage() {
 
@@ -49,9 +47,5 @@ class DrumStage : VisualizerStage() {
 
     override fun onPlayEvent(playEvent: PlayEvent) {
         // Not needed here
-    }
-
-    companion object {
-        private val logger: Logger = LogManager.getLogger(DrumStage::class.java.name)
     }
 }

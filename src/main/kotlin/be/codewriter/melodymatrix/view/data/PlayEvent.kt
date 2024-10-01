@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.data
 
+import be.codewriter.melodymatrix.view.definition.Note
 import javafx.util.Duration
 
 /**
@@ -8,7 +9,7 @@ import javafx.util.Duration
  * the note is played.
  */
 data class PlayEvent(
-    val note: be.codewriter.melodymatrix.view.definition.Note,
+    val note: Note,
     val startTime: Long,
     val duration: Duration,
     val velocity: Int

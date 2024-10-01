@@ -1,783 +1,783 @@
 package be.codewriter.melodymatrix.view.definition
 
 enum class Note(
-    val mainNote: be.codewriter.melodymatrix.view.definition.MainNote,
+    val mainNote: MainNote,
     val parentNote: Note? = null,
-    val octave: be.codewriter.melodymatrix.view.definition.Octave,
+    val octave: Octave,
     val byteValue: Int,
     val showOnPiano: Boolean
 ) {
 
     A0(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_0,
+        Octave.OCTAVE_0,
         21,
         true
     ),
     A0_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A0,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_0,
+        Octave.OCTAVE_0,
         22,
         true
     ),
     B0(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_0,
+        Octave.OCTAVE_0,
         23,
         true
     ),
 
     C1(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         24,
         true
     ),
     C1_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C1,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         25,
         true
     ),
     D1(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         26,
         true
     ),
     D1_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D1,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         27,
         true
     ),
     E1(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         28,
         true
     ),
     F1(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         29,
         true
     ),
     F1_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F1,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         30,
         true
     ),
     G1(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         31,
         true
     ),
     G1_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G1,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         32,
         true
     ),
     A1(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         33,
         true
     ),
     A1_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A1,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         34,
         true
     ),
     B1(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_1,
+        Octave.OCTAVE_1,
         35,
         true
     ),
 
     C2(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         36,
         true
     ),
     C2_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C2,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         37,
         true
     ),
     D2(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         38,
         true
     ),
     D2_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D2,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         39,
         true
     ),
     E2(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         40,
         true
     ),
     F2(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         41,
         true
     ),
     F2_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F2,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         42,
         true
     ),
     G2(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         43,
         true
     ),
     G2_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G2,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         44,
         true
     ),
     A2(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         45,
         true
     ),
     A2_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A2,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         46,
         true
     ),
     B2(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_2,
+        Octave.OCTAVE_2,
         47,
         true
     ),
 
     C3(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         48,
         true
     ),
     C3_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C3,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         49,
         true
     ),
     D3(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         50,
         true
     ),
     D3_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D3,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         51,
         true
     ),
     E3(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         52,
         true
     ),
     F3(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         53,
         true
     ),
     F3_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F3,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         54,
         true
     ),
     G3(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         55,
         true
     ),
     G3_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G3,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         56,
         true
     ),
     A3(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         57,
         true
     ),
     A3_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A3,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         58,
         true
     ),
     B3(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_3,
+        Octave.OCTAVE_3,
         59,
         true
     ),
 
     C4(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         60,
         true
     ),
     C4_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C4,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         61,
         true
     ),
     D4(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         62,
         true
     ),
     D4_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D4,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         63,
         true
     ),
     E4(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         64,
         true
     ),
     F4(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         65,
         true
     ),
     F4_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F4,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         66,
         true
     ),
     G4(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         67,
         true
     ),
     G4_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G4,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         68,
         true
     ),
     A4(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         69,
         true
     ),
     A4_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A4,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         70,
         true
     ),
     B4(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_4,
+        Octave.OCTAVE_4,
         71,
         true
     ),
 
     C5(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         72,
         true
     ),
     C5_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C5,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         73,
         true
     ),
     D5(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         74,
         true
     ),
     D5_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D5,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         75,
         true
     ),
     E5(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         76,
         true
     ),
     F5(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         77,
         true
     ),
     F5_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F5,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         78,
         true
     ),
     G5(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         79,
         true
     ),
     G5_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G5,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         80,
         true
     ),
     A5(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         81,
         true
     ),
     A5_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A5,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         82,
         true
     ),
     B5(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_5,
+        Octave.OCTAVE_5,
         83,
         true
     ),
 
     C6(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         84,
         true
     ),
     C6_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C6,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         85,
         true
     ),
     D6(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         86,
         true
     ),
     D6_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D6,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         87,
         true
     ),
     E6(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         88,
         true
     ),
     F6(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         89,
         true
     ),
     F6_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F6,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         90,
         true
     ),
     G6(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         91,
         true
     ),
     G6_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G6,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         92,
         true
     ),
     A6(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         93,
         true
     ),
     A6_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A6,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         94,
         true
     ),
     B6(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_6,
+        Octave.OCTAVE_6,
         95,
         true
     ),
 
     C7(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         96,
         true
     ),
     C7_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C7,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         97,
         true
     ),
     D7(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         98,
         true
     ),
     D7_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D7,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         99,
         true
     ),
     E7(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         100,
         true
     ),
     F7(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         101,
         true
     ),
     F7_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F7,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         102,
         true
     ),
     G7(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         103,
         true
     ),
     G7_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G7,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         104,
         true
     ),
     A7(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         105,
         true
     ),
     A7_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A7,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         106,
         true
     ),
     B7(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_7,
+        Octave.OCTAVE_7,
         107,
         true
     ),
 
     C8(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         108,
         true
     ),
     C8_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C8,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         109,
         true
     ),
     D8(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         110,
         true
     ),
     D8_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D8,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         111,
         true
     ),
     E8(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         112,
         true
     ),
     F8(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         113,
         true
     ),
     F8_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F8,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         114,
         true
     ),
     G8(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         115,
         true
     ),
     G8_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G8,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         116,
         true
     ),
     A8(
-        be.codewriter.melodymatrix.view.definition.MainNote.A,
+        MainNote.A,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         117,
         true
     ),
     A8_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.A_SHARP,
+        MainNote.A_SHARP,
         A8,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         118,
         true
     ),
     B8(
-        be.codewriter.melodymatrix.view.definition.MainNote.B,
+        MainNote.B,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_8,
+        Octave.OCTAVE_8,
         119,
         true
     ),
 
     C9(
-        be.codewriter.melodymatrix.view.definition.MainNote.C,
+        MainNote.C,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         120,
         true
     ),
     C9_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.C_SHARP,
+        MainNote.C_SHARP,
         C9,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         121,
         false
     ),
     D9(
-        be.codewriter.melodymatrix.view.definition.MainNote.D,
+        MainNote.D,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         122,
         false
     ),
     D9_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.D_SHARP,
+        MainNote.D_SHARP,
         D9,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         123,
         false
     ),
     E9(
-        be.codewriter.melodymatrix.view.definition.MainNote.E,
+        MainNote.E,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         124,
         false
     ),
     F9(
-        be.codewriter.melodymatrix.view.definition.MainNote.F,
+        MainNote.F,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         125,
         false
     ),
     F9_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.F_SHARP,
+        MainNote.F_SHARP,
         F9,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         126,
         false
     ),
     G9(
-        be.codewriter.melodymatrix.view.definition.MainNote.G,
+        MainNote.G,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         127,
         false
     ),
     G9_SHARP(
-        be.codewriter.melodymatrix.view.definition.MainNote.G_SHARP,
+        MainNote.G_SHARP,
         G9,
-        be.codewriter.melodymatrix.view.definition.Octave.OCTAVE_9,
+        Octave.OCTAVE_9,
         128,
         false
     ),
 
     UNDEFINED(
-        be.codewriter.melodymatrix.view.definition.MainNote.UNDEFINED,
+        MainNote.UNDEFINED,
         null,
-        be.codewriter.melodymatrix.view.definition.Octave.UNDEFINED,
+        Octave.UNDEFINED,
         0,
         false
     );
@@ -801,21 +801,21 @@ enum class Note(
                 .toList()
         }
 
-        fun usedAndSortedOctaves(): List<be.codewriter.melodymatrix.view.definition.Octave> {
+        fun usedAndSortedOctaves(): List<Octave> {
             return entries.stream()
-                .filter { o -> o.octave != be.codewriter.melodymatrix.view.definition.Octave.UNDEFINED }
+                .filter { o -> o.octave != Octave.UNDEFINED }
                 .map { it.octave }
                 .distinct()
-                .sorted(Comparator.comparingInt(be.codewriter.melodymatrix.view.definition.Octave::octave))
+                .sorted(Comparator.comparingInt(Octave::octave))
                 .toList()
         }
 
-        fun usedAndSortedMainNotes(): List<be.codewriter.melodymatrix.view.definition.MainNote> {
+        fun usedAndSortedMainNotes(): List<MainNote> {
             return entries.stream()
-                .filter { o -> o.mainNote != be.codewriter.melodymatrix.view.definition.MainNote.UNDEFINED }
+                .filter { o -> o.mainNote != MainNote.UNDEFINED }
                 .map { it.mainNote }
                 .distinct()
-                .sorted(Comparator.comparingInt(be.codewriter.melodymatrix.view.definition.MainNote::sortingKey))
+                .sorted(Comparator.comparingInt(MainNote::sortingKey))
                 .toList()
         }
 

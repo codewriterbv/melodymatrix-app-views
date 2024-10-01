@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.Note
 import com.almasb.fxgl.dsl.random
 import org.apache.logging.log4j.LogManager
@@ -47,7 +48,7 @@ class MidiSimulator {
             }
         }
         notifyListeners(
-            be.codewriter.melodymatrix.view.data.MidiData(
+            MidiData(
                 byteArrayOf(
                     "10010000".toInt(2).toByte(),
                     notes[idx].byteValue.toByte(),
@@ -72,7 +73,7 @@ class MidiSimulator {
             return
         }
         notifyListeners(
-            be.codewriter.melodymatrix.view.data.MidiData(
+            MidiData(
                 byteArrayOf(
                     "10000000".toInt(2).toByte(),
                     notes[idx].byteValue.toByte(),
@@ -82,7 +83,7 @@ class MidiSimulator {
         )
     }
 
-    fun notifyListeners(midiData: be.codewriter.melodymatrix.view.data.MidiData) {
+    fun notifyListeners(midiData: MidiData) {
         for (listener in registeredListeners) {
             listener.onMidiData(midiData)
         }

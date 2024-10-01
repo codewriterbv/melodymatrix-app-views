@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.stage.piano.component
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import com.almasb.fxgl.app.GameApplication
 import com.almasb.fxgl.app.GameSettings
 import com.almasb.fxgl.core.math.FXGLMath
@@ -30,8 +31,6 @@ import javafx.scene.input.KeyCode
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.util.Duration
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import kotlin.collections.set
 
 class PianoGenerator(
@@ -144,8 +143,8 @@ class PianoGenerator(
                 isVisible = false
                 opacityProperty().bind(getdp(PianoProperty.BACKGROUND_IMAGE_TRANSPARENCY.name))
             }
-            (getop<be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).addListener { _, _, newValue ->
-                if (newValue == be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage.NONE) {
+            (getop<PianoBackgroundImage>(PianoProperty.BACKGROUND_IMAGE.name)).addListener { _, _, newValue ->
+                if (newValue == PianoBackgroundImage.NONE) {
                     imageView.isVisible = false
                 } else {
                     imageView.image = Image(newValue.file)
@@ -316,7 +315,6 @@ class PianoGenerator(
     }
 
     companion object {
-        private val logger: Logger = LogManager.getLogger(PianoGenerator::class.java.name)
         private lateinit var canvas: Canvas
         private lateinit var g: GraphicsContext
         val keys: MutableMap<Note, PianoKey> =
