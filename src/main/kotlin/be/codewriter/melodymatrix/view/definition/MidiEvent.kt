@@ -30,7 +30,7 @@ enum class MidiEvent {
                 return CONTROLLER
             } else if ((bytes[0].toInt() and 0xf0) == "11100000".toInt(2)) {
                 return PITCH_BEND
-            } else if (bytes[0].toInt() == 0xFF) {
+            } else if ((bytes[0].toInt() and 0xf0) == "11110000".toInt(2)) {
                 return RESET
             }
             logger.warn(
