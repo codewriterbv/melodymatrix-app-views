@@ -45,7 +45,7 @@ class LedStripStage : VisualizerStage() {
 
         title = "Let's flash some lights..."
         scene = Scene(VBox().apply {
-            spacing = 10.0
+            spacing = 25.0
             padding = Insets(10.0)
             children.addAll(
                 grid,
@@ -58,7 +58,7 @@ class LedStripStage : VisualizerStage() {
                 },
                 getSerialControls()
             )
-        }, (boxes.size * (BOX_WIDTH + 2)) + 20, BOX_HEIGHT + 200)
+        }, (boxes.size * (BOX_WIDTH + 2)) + 20, BOX_HEIGHT + 320)
 
         val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
@@ -72,31 +72,84 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
-    fun getColorControls(): HBox {
-        colorNormal.value = Color.NAVY
-        colorHighlighted.value = Color.RED
+    fun getColorControls(): VBox {
+        colorWhiteKeyNormal.apply {
+            value = Color.NAVY
+        }
+        colorWhiteKeyHighlighted.apply {
+            value = Color.RED
+        }
+
+        colorBlackKeyNormal.apply {
+            value = Color.NAVY
+            disableProperty().bind(sameColor.selectedProperty())
+        }
+        colorBlackKeyHighlighted.apply {
+            value = Color.RED
+            disableProperty().bind(sameColor.selectedProperty())
+        }
+
+        sameColor.apply {
+            isSelected = true
+        }
+
         effectWidth.apply {
             min = 1.0
             max = 50.0
             value = 10.0
         }
+
         effectSpeed.apply {
             min = 10.0
             max = 200.0
             value = 20.0
         }
-        return HBox().apply {
+
+        return VBox().apply {
             spacing = 10.0
             alignment = Pos.CENTER_LEFT
             children.addAll(
-                Label("Normal"),
-                colorNormal,
-                Label("Highlight"),
-                colorHighlighted,
-                Label("Effect width"),
-                effectWidth,
-                Label("Effect duration"),
-                effectSpeed
+                HBox().apply {
+                    spacing = 10.0
+                    alignment = Pos.CENTER_LEFT
+                    children.addAll(
+                        Label("White keys").apply {
+                            minWidth = 150.0
+                        },
+                        Label("Normal"),
+                        colorWhiteKeyNormal,
+                        Label("Highlight"),
+                        colorWhiteKeyHighlighted
+                    )
+                },
+
+                HBox().apply {
+                    spacing = 10.0
+                    alignment = Pos.CENTER_LEFT
+                    children.addAll(
+                        Label("Black keys").apply {
+                            minWidth = 150.0
+                        },
+                        Label("Normal"),
+                        colorBlackKeyNormal,
+                        Label("Highlight"),
+                        colorBlackKeyHighlighted,
+                        sameColor
+                    )
+                },
+                HBox().apply {
+                    spacing = 10.0
+                    alignment = Pos.CENTER_LEFT
+                    children.addAll(
+                        Label("Effect settings").apply {
+                            minWidth = 150.0
+                        },
+                        Label("Width"),
+                        effectWidth,
+                        Label("Duration"),
+                        effectSpeed
+                    )
+                }
             )
         }
     }
@@ -231,7 +284,11 @@ class LedStripStage : VisualizerStage() {
 
     class ColorBox(
         val note: Note,
-        val box: Rectangle = Rectangle(BOX_WIDTH, BOX_HEIGHT, colorNormal.value)
+        val box: Rectangle = Rectangle(
+            BOX_WIDTH,
+            BOX_HEIGHT,
+            if (note.mainNote.isSharp) colorBlackKeyNormal.value else colorWhiteKeyNormal.value
+        )
     ) : Rectangle() {
         var distance: Int = 0
         var startTimestamp: Long = 0L
@@ -249,8 +306,13 @@ class LedStripStage : VisualizerStage() {
         }
 
         fun getCurrentColor(): Color {
-            val startColor =
-                colorHighlighted.value.interpolate(colorNormal.value, distance.toDouble() / effectWidth.value.toInt())
+            var normalColor = colorWhiteKeyNormal.value
+            var highlightColor = colorWhiteKeyHighlighted.value
+            if (note.mainNote.isSharp && !sameColor.isSelected) {
+                normalColor = colorBlackKeyNormal.value
+                highlightColor = colorBlackKeyHighlighted.value
+            }
+            val startColor = highlightColor.interpolate(normalColor, distance.toDouble() / effectWidth.value.toInt())
             if (startTimestamp != 0L && System.currentTimeMillis() >= startTimestamp) {
                 startTimestamp = 0
                 step = 0
@@ -258,16 +320,16 @@ class LedStripStage : VisualizerStage() {
             }
 
             if (step == -1) {
-                return colorNormal.value
+                return normalColor
             }
 
             step++
             if (step > effectSpeed.value) {
                 step = -1
-                return colorNormal.value
+                return normalColor
             }
 
-            return startColor.interpolate(colorNormal.value, step.toDouble() / effectSpeed.value)
+            return startColor.interpolate(normalColor, step.toDouble() / effectSpeed.value)
         }
 
         fun getColor(): Color {
@@ -291,8 +353,11 @@ class LedStripStage : VisualizerStage() {
         const val BOX_WIDTH = 8.0
         const val BOX_HEIGHT = 50.0
 
-        val colorNormal = ColorPicker()
-        val colorHighlighted = ColorPicker()
+        val colorWhiteKeyNormal = ColorPicker()
+        val colorWhiteKeyHighlighted = ColorPicker()
+        val colorBlackKeyNormal = ColorPicker()
+        val colorBlackKeyHighlighted = ColorPicker()
+        val sameColor = ToggleSwitch("Same as white keys")
         val effectWidth = Slider()
         val effectSpeed = Slider()
         val serialPort = ComboBox<SerialPort>()
