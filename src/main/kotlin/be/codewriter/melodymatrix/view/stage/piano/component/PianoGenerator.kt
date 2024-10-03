@@ -321,7 +321,7 @@ class PianoGenerator(
             mutableMapOf()
         val PIANO_WIDTH = 800
         val PIANO_HEIGHT = 600
-        val PIANO_WHITE_KEY_WIDTH = 13.56
+        val PIANO_WHITE_KEY_WIDTH = 15.37
         val PIANO_WHITE_KEY_HEIGHT = 120.0
         val PIANO_BLACK_KEY_WIDTH = 5.0
         val PIANO_BLACK_KEY_HEIGHT = 80.0

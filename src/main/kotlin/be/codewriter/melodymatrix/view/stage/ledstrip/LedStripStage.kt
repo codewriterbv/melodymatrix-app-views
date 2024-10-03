@@ -18,7 +18,6 @@ import javafx.scene.control.ColorPicker
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
-import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
@@ -30,16 +29,18 @@ import kotlin.math.abs
 
 class LedStripStage : VisualizerStage() {
     init {
-        val grid = GridPane().apply {
-            hgap = 2.0
-            vgap = 0.0
+        val boxHolder = HBox().apply {
+            spacing = 2.0
+            alignment = Pos.TOP_CENTER
         }
 
+        var windowWidth = 960.0
         var counter = 0
-        Note.entries.forEach { note ->
-            val colorBox = ColorBox(note)
+        var boxWidth = ((windowWidth - 80) / Note.pianoKeys().size) - boxHolder.spacing
+        Note.pianoKeys().forEach { note ->
+            val colorBox = ColorBox(note, boxWidth)
             boxes[note] = colorBox
-            grid.add(colorBox.box, counter, 0)
+            boxHolder.children.add(colorBox.box)
             counter++
         }
 
@@ -48,7 +49,7 @@ class LedStripStage : VisualizerStage() {
             spacing = 25.0
             padding = Insets(10.0)
             children.addAll(
-                grid,
+                boxHolder,
                 Label("Color settings").apply {
                     style = "-fx-font-size: 18px; -fx-font-weight: bold;"
                 },
@@ -58,7 +59,7 @@ class LedStripStage : VisualizerStage() {
                 },
                 getSerialControls()
             )
-        }, (boxes.size * (BOX_WIDTH + 2)) + 20, BOX_HEIGHT + 320)
+        }, windowWidth, BOX_HEIGHT + 320)
 
         val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
@@ -284,8 +285,9 @@ class LedStripStage : VisualizerStage() {
 
     class ColorBox(
         val note: Note,
+        val boxWidth: Double,
         val box: Rectangle = Rectangle(
-            BOX_WIDTH,
+            boxWidth,
             BOX_HEIGHT,
             if (note.mainNote.isSharp) colorBlackKeyNormal.value else colorWhiteKeyNormal.value
         )
@@ -350,7 +352,6 @@ class LedStripStage : VisualizerStage() {
     companion object {
         private val logger: Logger = LogManager.getLogger(LedStripStage::class.java.name)
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
-        const val BOX_WIDTH = 8.0
         const val BOX_HEIGHT = 50.0
 
         val colorWhiteKeyNormal = ColorPicker()

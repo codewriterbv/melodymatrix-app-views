@@ -637,77 +637,77 @@ enum class Note(
         C8,
         Octave.OCTAVE_8,
         109,
-        true
+        false
     ),
     D8(
         MainNote.D,
         null,
         Octave.OCTAVE_8,
         110,
-        true
+        false
     ),
     D8_SHARP(
         MainNote.D_SHARP,
         D8,
         Octave.OCTAVE_8,
         111,
-        true
+        false
     ),
     E8(
         MainNote.E,
         null,
         Octave.OCTAVE_8,
         112,
-        true
+        false
     ),
     F8(
         MainNote.F,
         null,
         Octave.OCTAVE_8,
         113,
-        true
+        false
     ),
     F8_SHARP(
         MainNote.F_SHARP,
         F8,
         Octave.OCTAVE_8,
         114,
-        true
+        false
     ),
     G8(
         MainNote.G,
         null,
         Octave.OCTAVE_8,
         115,
-        true
+        false
     ),
     G8_SHARP(
         MainNote.G_SHARP,
         G8,
         Octave.OCTAVE_8,
         116,
-        true
+        false
     ),
     A8(
         MainNote.A,
         null,
         Octave.OCTAVE_8,
         117,
-        true
+        false
     ),
     A8_SHARP(
         MainNote.A_SHARP,
         A8,
         Octave.OCTAVE_8,
         118,
-        true
+        false
     ),
     B8(
         MainNote.B,
         null,
         Octave.OCTAVE_8,
         119,
-        true
+        false
     ),
 
     C9(
@@ -715,7 +715,7 @@ enum class Note(
         null,
         Octave.OCTAVE_9,
         120,
-        true
+        false
     ),
     C9_SHARP(
         MainNote.C_SHARP,

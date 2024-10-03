@@ -31,7 +31,7 @@ class PianoKeyWhite(val note: Note, val x: Double, val y: Double) :
 
     init {
         val cutOutType =
-            if (note == Note.A0) PianoKeyType.RIGHT else if (note == Note.C9) PianoKeyType.NONE else note.mainNote.pianoKeyType
+            if (note == Note.A0) PianoKeyType.RIGHT else if (note == Note.C8) PianoKeyType.NONE else note.mainNote.pianoKeyType
 
         val cutoutBlackWidth = PIANO_WHITE_KEY_WIDTH / 5
         val cutoutBlackHeight = PIANO_BLACK_KEY_HEIGHT
