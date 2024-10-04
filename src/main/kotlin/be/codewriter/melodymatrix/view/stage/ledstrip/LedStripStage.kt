@@ -69,7 +69,10 @@ class LedStripStage : VisualizerStage() {
         executor.submit(threadLedUpdate)
 
         setOnCloseRequest {
-            // Nothing needed here, but must be defined or will cause a problem when closing the window
+            updateLedStrip = false
+            for (i in 0 until 8) {
+                pixelblazeOutputExpanderHelper!!.sendAllOff(i, boxes.size)
+            }
         }
     }
 
@@ -159,6 +162,9 @@ class LedStripStage : VisualizerStage() {
         serialPort.apply {
             items = getSerialPorts()
         }
+        channel0.apply {
+            isSelected = true
+        }
         return HBox().apply {
             spacing = 10.0
             alignment = Pos.CENTER_LEFT
@@ -167,25 +173,14 @@ class LedStripStage : VisualizerStage() {
                 serialPort.apply {
                     maxWidth = 200.0
                 },
-                Label("Channels: 0"),
-                channel0.apply {
-                    isSelected = true
-                },
-                Label("1"),
-                channel1,
-                Label("2"),
-                channel2,
-                Label("3"),
-                channel3,
-                Label("4"),
-                channel4,
-                Label("5"),
-                channel5,
-                Label("6"),
-                channel6,
-                Label("7"),
-                channel7
+                Label("Channels:")
             )
+            for (i in 0 until 8) {
+                children.addAll(
+                    Label((i + 1).toString()),
+                    channelSelections.get(i),
+                )
+            }
         }
     }
 
@@ -215,11 +210,15 @@ class LedStripStage : VisualizerStage() {
 
     class LedStripSender : Runnable {
         override fun run() {
-            while (!Thread.interrupted()) {
-                if (pixelblazeOutputExpanderHelper != null || serialPort.value != null) {
-                    updateLeds()
+            while (!Thread.interrupted() && updateLedStrip) {
+                try {
+                    if (pixelblazeOutputExpanderHelper != null || serialPort.value != null) {
+                        updateLeds()
+                    }
+                    Thread.sleep(20)
+                } catch (e: Exception) {
+                    logger.warn("LED strip sender thread exception: {}", e.message)
                 }
-                Thread.sleep(20)
             }
         }
 
@@ -240,29 +239,10 @@ class LedStripStage : VisualizerStage() {
                 data[(i * 3) + 1] = (color.green * 255).toInt().toByte()
                 data[(i * 3) + 2] = (color.blue * 255).toInt().toByte()
             }
-            if (channel0.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(0, data, false)
-            }
-            if (channel1.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(1, data, false)
-            }
-            if (channel2.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(2, data, false)
-            }
-            if (channel3.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(3, data, false)
-            }
-            if (channel4.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(4, data, false)
-            }
-            if (channel5.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(5, data, false)
-            }
-            if (channel6.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(6, data, false)
-            }
-            if (channel7.isSelected) {
-                pixelblazeOutputExpanderHelper!!.sendColors(7, data, false)
+            for (i in 0 until 8) {
+                if (channelSelections.get(i).isSelected) {
+                    pixelblazeOutputExpanderHelper!!.sendColors(i, data, false)
+                }
             }
         }
     }
@@ -277,7 +257,7 @@ class LedStripStage : VisualizerStage() {
         if (end > boxes.size - 1) {
             end = boxes.size - 1
         }
-        for (i in start until end) {
+        for (i in start until end + 1) {
             val delay = abs(idx - i)
             boxes.values.elementAtOrNull(i)?.startFade(delay)
         }
@@ -354,6 +334,7 @@ class LedStripStage : VisualizerStage() {
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_HEIGHT = 50.0
 
+        var updateLedStrip = true
         val colorWhiteKeyNormal = ColorPicker()
         val colorWhiteKeyHighlighted = ColorPicker()
         val colorBlackKeyNormal = ColorPicker()
@@ -370,6 +351,7 @@ class LedStripStage : VisualizerStage() {
         val channel5 = ToggleSwitch()
         val channel6 = ToggleSwitch()
         val channel7 = ToggleSwitch()
+        val channelSelections = listOf(channel0, channel1, channel2, channel3, channel4, channel5, channel6, channel7)
         var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
     }
 }
