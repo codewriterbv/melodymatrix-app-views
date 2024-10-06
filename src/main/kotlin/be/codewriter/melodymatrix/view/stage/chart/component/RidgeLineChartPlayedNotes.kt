@@ -12,6 +12,7 @@ import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
@@ -64,7 +65,9 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                 upperBoundX = xySeries.items.size.toDouble()
                 width = Double.MAX_VALUE
                 style = "-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
+                HBox.setHgrow(this, Priority.ALWAYS)
             }
+
             chartBox.children.add(HBox().apply {
                 alignment = Pos.CENTER_LEFT
                 width = Double.MAX_VALUE
