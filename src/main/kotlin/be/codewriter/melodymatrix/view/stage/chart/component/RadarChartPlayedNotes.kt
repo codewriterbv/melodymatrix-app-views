@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
+import eu.hansolo.fx.charts.YChart
 import eu.hansolo.fx.charts.YPane
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
