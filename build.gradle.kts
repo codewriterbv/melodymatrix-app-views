@@ -1,6 +1,6 @@
 object Versions {
     const val atlantafx = "2.0.1"
-    const val charts = "21.0.17"
+    const val charts = "21.0.19"
     const val fxgl = "21.1"
     const val jserial = "2.11.0"
     const val log4j = "2.23.1"

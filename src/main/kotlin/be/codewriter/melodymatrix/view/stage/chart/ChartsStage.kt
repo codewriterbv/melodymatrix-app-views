@@ -23,7 +23,7 @@ class ChartsStage : VisualizerStage() {
                 createChartSelection("Concentric chart", ConcentricPlayedNotes()),
                 createChartSelection("Cox Comb chart", CoxCombPlayedNotes()),
                 createChartSelection("Ridge Line chart", RidgeLineChartPlayedNotes()),
-                createChartSelection("Radar Chart chart", RadarChartPlayedNotes())
+                createChartSelection("Radar chart", RadarChartPlayedNotes())
             )
         }
 

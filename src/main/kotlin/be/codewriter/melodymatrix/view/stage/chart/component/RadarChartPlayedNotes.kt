@@ -5,7 +5,6 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.Octave
 import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
-import eu.hansolo.fx.charts.YChart
 import eu.hansolo.fx.charts.YPane
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
@@ -64,7 +63,6 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             chords[Octave.OCTAVE_8],
             chords[Octave.OCTAVE_9]
         )
-        addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
