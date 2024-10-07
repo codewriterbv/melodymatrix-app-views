@@ -7,26 +7,29 @@ import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.YChart
 import eu.hansolo.fx.charts.YPane
+import eu.hansolo.fx.charts.event.ChartEvt
+import eu.hansolo.fx.charts.data.ChartItemBuilder
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
 import javafx.application.Platform
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
+import kotlin.random.Random
 
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
-    private var chords: MutableMap<Octave, YSeries<ValueChartItem>> =
-        mutableMapOf()
+    private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
 
     init {
-
         for (octave in Note.usedAndSortedOctaves()) {
             val notes: MutableList<ValueChartItem> = mutableListOf()
             MainNote.entries.stream()
                 .forEach { mn ->
                     run {
-                        notes.add(ValueChartItem(0.0, mn.label))
+                        var item = ValueChartItem(0.0, mn.label)
+                        item.valueProperty().addListener { _, ov, nv -> println(item.name + " changed from " + ov + " to " + nv)}
+                        notes.add(item)
                     }
                 }
             chords[octave] = YSeries<ValueChartItem>(
@@ -46,7 +49,7 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             )
         }
 
-        val categories: MutableList<Category> = ArrayList()
+        val categories: MutableList<Category> = mutableListOf()
         for (mainNote in Note.usedAndSortedMainNotes()) {
             categories.add(Category(mainNote.label))
         }
@@ -75,7 +78,9 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             if (series != null) {
                 for (item in series.items) {
                     if (item.name == note.mainNote.label) {
-                        item.value++
+                        var newValue = item.value
+                        newValue++
+                        item.value = newValue
                     }
                 }
             }
