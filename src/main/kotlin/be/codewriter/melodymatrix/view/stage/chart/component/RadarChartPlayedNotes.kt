@@ -64,6 +64,7 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             chords[Octave.OCTAVE_8],
             chords[Octave.OCTAVE_9]
         )
+        addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
