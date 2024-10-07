@@ -7,19 +7,19 @@ import eu.hansolo.fx.charts.Category
 import eu.hansolo.fx.charts.ChartType
 import eu.hansolo.fx.charts.YChart
 import eu.hansolo.fx.charts.YPane
-import eu.hansolo.fx.charts.event.ChartEvt
-import eu.hansolo.fx.charts.data.ChartItemBuilder
 import eu.hansolo.fx.charts.data.ValueChartItem
 import eu.hansolo.fx.charts.series.YSeries
 import javafx.application.Platform
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
-import kotlin.random.Random
 
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
-    private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
+    private var chords : MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
+    private var items  : MutableList<ValueChartItem>                 = mutableListOf()
+    private var data   : YPane<ValueChartItem>?                      = null
+    private var ychart : YChart<ValueChartItem>?                     = null
 
     init {
         for (octave in Note.usedAndSortedOctaves()) {
@@ -28,8 +28,8 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
                 .forEach { mn ->
                     run {
                         var item = ValueChartItem(0.0, mn.label)
-                        item.valueProperty().addListener { _, ov, nv -> println(item.name + " changed from " + ov + " to " + nv)}
                         notes.add(item)
+                        items.add(item)
                     }
                 }
             chords[octave] = YSeries<ValueChartItem>(
@@ -54,7 +54,7 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             categories.add(Category(mainNote.label))
         }
 
-        var data = YPane(
+        this.data = YPane(
             categories,
             true,
             chords[Octave.OCTAVE_0],
@@ -68,7 +68,10 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             chords[Octave.OCTAVE_8],
             chords[Octave.OCTAVE_9]
         )
-        addChart(YChart(data))
+
+        this.ychart = YChart(data)
+        addRadarChart(ychart)
+        //addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
@@ -76,11 +79,17 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
         Platform.runLater {
             val series = chords[note.octave]
             if (series != null) {
+                /*
                 for (item in series.items) {
                     if (item.name == note.mainNote.label) {
-                        var newValue = item.value
-                        newValue++
-                        item.value = newValue
+                        item.value++
+                    }
+                }
+                */
+                for (item in items) {
+                    if (item.name == note.mainNote.label) {
+                        item.value++
+                        ychart?.refresh()
                     }
                 }
             }
