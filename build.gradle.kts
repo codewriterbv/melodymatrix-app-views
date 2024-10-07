@@ -1,6 +1,10 @@
 object Versions {
     const val atlantafx = "2.0.1"
+<<<<<<< HEAD
     const val charts = "21.0.19"
+=======
+    const val charts = "21.0.21"
+>>>>>>> 31621d5 (Fixed “orange circle problem” in RadarChart and updated dependency to charts lib)
     const val fxgl = "21.1"
     const val jserial = "2.11.0"
     const val log4j = "2.23.1"

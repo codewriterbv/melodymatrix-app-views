@@ -50,8 +50,9 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
             categories.add(Category(mainNote.label))
         }
 
-        val data = YPane(
+        var data = YPane(
             categories,
+            true,
             chords[Octave.OCTAVE_0],
             chords[Octave.OCTAVE_1],
             chords[Octave.OCTAVE_2],

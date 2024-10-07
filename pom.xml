@@ -14,7 +14,7 @@
 
         <!-- Dependencies -->
         <fxgl.version>21.1</fxgl.version>
-        <charts.version>21.0.17</charts.version>
+        <charts.version>21.0.21</charts.version>
         <atlantafx.version>2.0.1</atlantafx.version>
         <log4j.version>2.23.1</log4j.version>
         <jserial.version>2.11.0</jserial.version>
