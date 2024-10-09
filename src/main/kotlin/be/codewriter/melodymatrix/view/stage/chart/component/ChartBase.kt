@@ -10,8 +10,6 @@ open class ChartBase : Pane() {
     private var chart: Node? = null
 
     override fun layoutChildren() {
-        println("Test")
-
         left = snappedLeftInset()
         right = snappedRightInset()
         top = snappedTopInset()

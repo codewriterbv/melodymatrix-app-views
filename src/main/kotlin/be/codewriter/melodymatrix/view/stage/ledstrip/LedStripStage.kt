@@ -71,7 +71,11 @@ class LedStripStage : VisualizerStage() {
         setOnCloseRequest {
             updateLedStrip = false
             for (i in 0 until 8) {
-                pixelblazeOutputExpanderHelper!!.sendAllOff(i, boxes.size)
+                try {
+                    pixelblazeOutputExpanderHelper!!.sendAllOff(i, boxes.size)
+                } catch (e: Exception) {
+                    // Serial can be tricky, so let's catch any exception here...
+                }
             }
         }
     }
