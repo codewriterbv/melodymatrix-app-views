@@ -16,10 +16,10 @@ import javafx.scene.paint.RadialGradient
 
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
-    private var chords : MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
-    private var items  : MutableList<ValueChartItem>                 = mutableListOf()
-    private var data   : YPane<ValueChartItem>?                      = null
-    private var ychart : YChart<ValueChartItem>?                     = null
+    private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
+    private var items: MutableList<ValueChartItem> = mutableListOf()
+    private var data: YPane<ValueChartItem>? = null
+    private var ychart: YChart<ValueChartItem>? = null
 
     init {
         for (octave in Note.usedAndSortedOctaves()) {
@@ -71,7 +71,6 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
         this.ychart = YChart(data)
         addRadarChart(ychart)
-        //addChart(YChart(data))
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
@@ -79,13 +78,6 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
         Platform.runLater {
             val series = chords[note.octave]
             if (series != null) {
-                /*
-                for (item in series.items) {
-                    if (item.name == note.mainNote.label) {
-                        item.value++
-                    }
-                }
-                */
                 for (item in items) {
                     if (item.name == note.mainNote.label) {
                         item.value++
