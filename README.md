@@ -20,7 +20,7 @@ What this project doesn't contain:
 ## Requirements
 
 * JDK 21 or newer
-* Gradle
+* Gradle or Maven
 
 ## Guidelines
 
@@ -28,15 +28,15 @@ What this project doesn't contain:
 
 * Clone the repository
 * Open the cloned directory in IntelliJIDEA
-* Import as Gradle project
+* Import as Gradle or Maven project (both configurations are included)
 * Open `be.codewriter.melodymatrix.view.TestJavaLauncher`
 * Hit 'Run' on the 'main' method
 
 ### Testing a viewer
 
-* Once the application has started, selected one of the included music patterns
+* Once the application has started, select one of the included music patterns
   ![](docs/mainscreen.png)
-* You can adjust the speed to speed up or slow down the notes
+* You can adjust the speed of the "played" notes
 * Select one or more of the views to see the effect
   ![](docs/view-charts.png)
 
@@ -61,7 +61,7 @@ override fun onMidiDataReceived(midiData:MidiData) {
 ## Run with Maven
 
 To make it easier to run and extend this project, it also includes a Maven configuration, which can be used on e.g.
-Raspberry Pi
+Raspberry Pi:
 
 ```shell
 # Install SDKMAN 
