@@ -17,7 +17,7 @@ import javafx.scene.paint.Color
 class ConfiguratorEffect : VBox() {
     companion object {
         private val explosionVisible = ToggleSwitch()
-
+        private val explosionType = ToggleSwitch()
         private val explosionRadius = Slider()
         private val numParticles = Slider()
         private val particleSize = Slider()
@@ -32,17 +32,22 @@ class ConfiguratorEffect : VBox() {
             textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
             labelPosition = HorizontalDirection.RIGHT
         }
+        explosionType.apply {
+            isSelected = true
+            textProperty().bind(selectedProperty().map { selected -> if (selected) "Fireworks" else "Splash" })
+            labelPosition = HorizontalDirection.RIGHT
+        }
         explosionRadius.apply {
-            min = 1.0
+            min = 50.0 //1.0
             max = 400.0
         }
         numParticles.apply {
-            min = 10.0
+            min = 20.0 //10.0
             max = 50.0
         }
         particleSize.apply {
-            min = 1.0
-            max = 10.0
+            min = 0.25 //1.0
+            max = 5.0 //10.0
         }
         tailNumParticles.apply {
             min = 0.0
@@ -51,15 +56,17 @@ class ConfiguratorEffect : VBox() {
         colorStart.value = Color.YELLOW
         colorEnd.value = Color.DARKRED
         children.addAll(
-            Label("Show explosion"),
+            Label("Show Explosion"),
             explosionVisible,
-            Label("Explosion radius"),
+            Label("Animation Type"),
+            explosionType,
+            Label("Explosion Radius"),
             explosionRadius,
-            Label("Number of particles"),
+            Label("Number of Particles"),
             numParticles,
-            Label("Particle size"),
+            Label("Particle Size"),
             particleSize,
-            Label("Number of tail particles"),
+            Label("Number of Tail Particles"),
             tailNumParticles,
             Label("Colors"),
             HBox(colorStart, colorEnd).apply {
