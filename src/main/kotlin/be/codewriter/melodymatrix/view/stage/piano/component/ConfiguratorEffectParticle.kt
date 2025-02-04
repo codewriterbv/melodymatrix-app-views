@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 
-class ConfiguratorEffect : VBox() {
+class ConfiguratorEffectParticle : VBox() {
     companion object {
         private val explosionVisible = ToggleSwitch()
         private val explosionType = ToggleSwitch()

@@ -33,6 +33,10 @@ class DefaultValues {
             vars.put(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name, 25.0)
             vars.put(PianoProperty.EXPLOSION_PARTICLE_SIZE.name, 5.0)
             vars.put(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name, 0.0)
+            
+            vars.put(PianoProperty.ABOVE_KEY_ENABLED.name, true)
+            vars.put(PianoProperty.ABOVE_KEY_COLOR_START.name, Color.YELLOW)
+            vars.put(PianoProperty.ABOVE_KEY_COLOR_END.name, Color.RED)
         }
     }
 }

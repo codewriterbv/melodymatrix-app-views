@@ -21,9 +21,7 @@ import com.almasb.fxgl.entity.SpawnData
 import com.almasb.fxgl.entity.Spawns
 import com.almasb.fxgl.entity.components.IrremovableComponent
 import com.almasb.fxgl.particle.ParticleComponent
-import com.almasb.fxgl.particle.ParticleEmitter
 import com.almasb.fxgl.particle.ParticleEmitters
-import com.almasb.fxgl.physics.PhysicsComponent
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
 import javafx.scene.canvas.Canvas
@@ -37,7 +35,6 @@ import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.util.Duration
 import java.util.function.Function
-import java.util.function.Supplier
 import kotlin.collections.set
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -45,7 +42,8 @@ import kotlin.math.sin
 
 class PianoGenerator(
     val configuratorBackground: ConfiguratorBackground,
-    val configuratorEffect: ConfiguratorEffect,
+    val configuratorEffectParticle: ConfiguratorEffectParticle,
+    val configuratorEffectAboveKey: ConfiguratorEffectAboveKey,
     val configuratorKey: ConfiguratorKey
 ) : GameApplication() {
 
@@ -73,7 +71,8 @@ class PianoGenerator(
     override fun initGame() {
         // Bindings can only be created when FXGL has started, so we have a callback here
         configuratorBackground.createBindings()
-        configuratorEffect.createBindings()
+        configuratorEffectParticle.createBindings()
+        configuratorEffectAboveKey.createBindings()
         configuratorKey.createBindings()
 
         getGameScene().setCursor(Cursor.DEFAULT)
@@ -121,6 +120,8 @@ class PianoGenerator(
                 previousWhiteKeyX = x
             }
         }
+
+        initAnimationAboveKeys()
     }
 
     class GameFactory : EntityFactory {
@@ -214,6 +215,27 @@ class PianoGenerator(
         if (midiData.event == MidiEvent.NOTE_ON) {
             //initFallingBlock(keyView.position().x)
         }
+    }
+
+    private fun initAnimationAboveKeys() {
+        val emitter = ParticleEmitters.newFireEmitter(getAppWidth() + 100)
+        emitter.startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
+        emitter.endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
+        emitter.setSize(2.0, 24.0)
+        emitter.setVelocityFunction { i ->
+            Point2D(
+                FXGLMath.random(
+                    -1,
+                    1
+                ) * 2.5, -FXGLMath.randomDouble() * FXGLMath.random(0.2, 0.5)
+            )
+        }
+
+        entityBuilder()
+            .at(-50.0, getAppHeight() - PIANO_WHITE_KEY_HEIGHT - 10.0)
+            .with(ParticleComponent(emitter))
+            .zIndex(1000)
+            .buildAndAttach()
     }
 
     private fun initFallingBlock(x: Double) {
@@ -326,9 +348,7 @@ class PianoGenerator(
             .buildAndAttach()
     }
 
-
-
-    private fun fireworksAnim(keyPosX: Double, keyPosY: Double, keyVelocity: Int){
+    private fun fireworksAnim(keyPosX: Double, keyPosY: Double, keyVelocity: Int) {
         val emitter = ParticleEmitters.newExplosionEmitter(1).apply {
             numParticles = 50
             emissionRate = 0.001

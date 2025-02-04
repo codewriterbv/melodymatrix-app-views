@@ -1,6 +1,9 @@
 package be.codewriter.melodymatrix.view.stage.piano.component
 
 enum class PianoProperty {
+    ABOVE_KEY_ENABLED,
+    ABOVE_KEY_COLOR_START,
+    ABOVE_KEY_COLOR_END,
     BACKGROUND_COLOR,
     BACKGROUND_IMAGE,
     BACKGROUND_IMAGE_TRANSPARENCY,
