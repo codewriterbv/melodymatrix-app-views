@@ -27,9 +27,10 @@ class DefaultValues {
             vars.put(PianoProperty.LOGO_TOP.name, (PIANO_HEIGHT - 120.0 - 150.0) / 2)
 
             vars.put(PianoProperty.EXPLOSION_ENABLED.name, true)
-            vars.put(PianoProperty.EXPLOSION_COLOR_END.name, Color.YELLOW)
-            vars.put(PianoProperty.EXPLOSION_COLOR_START.name, Color.RED)
-            vars.put(PianoProperty.EXPLOSION_RADIUS.name, 100.0)
+            vars.put(PianoProperty.EXPLOSION_TYPE.name, true)
+            vars.put(PianoProperty.EXPLOSION_COLOR.name, Color.YELLOW)
+            vars.put(PianoProperty.EXPLOSION_RANDOM_COLOR.name, false)
+            vars.put(PianoProperty.EXPLOSION_RADIUS.name, 30.0)
             vars.put(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name, 25.0)
             vars.put(PianoProperty.EXPLOSION_PARTICLE_SIZE.name, 5.0)
             vars.put(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name, 0.0)
