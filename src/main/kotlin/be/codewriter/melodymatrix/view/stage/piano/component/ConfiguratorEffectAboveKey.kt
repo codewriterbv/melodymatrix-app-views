@@ -30,8 +30,8 @@ class ConfiguratorEffectAboveKey : VBox() {
         children.addAll(
             Label("Show particles above keys"),
             aboveKeyVisible,
-            Label("Colors"),
-            HBox(aboveKeyStart, aboveKeyEnd).apply {
+            Label("Smoke Color"),
+            HBox(aboveKeyStart).apply {
                 spacing = 5.0
                 alignment = Pos.CENTER_LEFT
             }

@@ -21,6 +21,7 @@ import com.almasb.fxgl.entity.SpawnData
 import com.almasb.fxgl.entity.Spawns
 import com.almasb.fxgl.entity.components.IrremovableComponent
 import com.almasb.fxgl.particle.ParticleComponent
+import com.almasb.fxgl.particle.ParticleEmitter
 import com.almasb.fxgl.particle.ParticleEmitters
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
@@ -218,38 +219,84 @@ class PianoGenerator(
         }
     }
 
+    private lateinit var smokeEmitter: ParticleEmitter
+    private var smokeEntity: Entity? = null
+    private lateinit var startColor: Color
+    private lateinit var endColor: Color
+    private var targetEmissionRate = 0.01 // 🔹 The final desired emission rate
+    private var currentEmissionRate = 0.0 // 🔹 Start with no emission
+
     private fun initAnimationAboveKeys() {
-        val e = ParticleEmitters.newSmokeEmitter()
-        e.blendMode = BlendMode.SRC_OVER
-        e.setSize(15.0, 30.0)
-        e.numParticles = 10
-        e.emissionRate = 0.25
-        e.startColor = Color.color(0.6, 0.55, 0.5, 0.47)
-        e.endColor = Color.BLACK
-        e.setExpireFunction { Duration.seconds(16.0) }
-        e.setVelocityFunction { Point2D(FXGLMath.randomDouble() - 0.5, 0.0) }
+        startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
+        endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
 
+        smokeEmitter = ParticleEmitters.newSmokeEmitter()
+        configureEmitter() // 🔹 Set initial properties
 
-        //        Entities.builder()
-//                .at(getWidth() / 2, getHeight() - 100)
-//                .with(new ParticleComponent(e), new RandomMoveControl(2))
-//                .buildAndAttach(getGameWorld());
-        val emitter = ParticleEmitters.newFireEmitter()
-
-
-        //        emitter.setSize(5, 15);
-//        emitter.setVelocityFunction(i -> new Point2D(FXGLMath.random() - 0.5, -FXGLMath.random() * 3));
-//        emitter.setAccelerationFunction(() -> new Point2D(0, 0.05));
-//        emitter.setExpireFunction(i -> Duration.seconds(3));
-//        emitter.setScaleFunction(i -> new Point2D(FXGLMath.random(0, 0.01), FXGLMath.random(-0.05, 0.05)));
-//        emitter.setStartColor(Color.YELLOW);
-//        emitter.setEndColor(Color.RED);
-//        emitter.setBlendMode(BlendMode.SRC_OVER);
-//        emitter.setSourceImage(texture("particleTexture2.png").toColor(Color.rgb(230, 75, 40)).getImage());
-        entityBuilder()
-            .with(ParticleComponent(emitter))
+        smokeEntity = entityBuilder()
+            .at(-100.0, getAppHeight() - PIANO_WHITE_KEY_HEIGHT - 20.0) // Small height adjustment
+            .with(ParticleComponent(smokeEmitter))
+            .zIndex(1000)
             .buildAndAttach()
+
+        // 🔹 Start emission with a smooth fade-in effect
+        fadeInSmoke()
     }
+
+    // 🔹 Configure the smoke emitter for a seamless glowing effect
+    private fun configureEmitter() {
+        smokeEmitter.setSize(getAppWidth().toDouble() + 200.0, 50.0) // 🔹 Slight height to blend better
+        smokeEmitter.numParticles = 20 // 🔹 Moderate amount for a soft effect
+        smokeEmitter.emissionRate = 0.0 // 🔴 Start at 0, will increase over time
+        smokeEmitter.setExpireFunction { Duration.seconds(6.0) } // 🔹 Longer fade-out for natural dispersion
+        smokeEmitter.blendMode = BlendMode.ADD // 🔹 Additive blending to create a glow effect
+        smokeEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.08) // 🔹 Soft glow effect
+        smokeEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.02) // 🔹 Smooth fade out
+
+        smokeEmitter.setVelocityFunction {
+            Point2D(
+                FXGLMath.random(-0.005, 0.005), // 🔹 Very subtle horizontal drift
+                -FXGLMath.randomDouble() * FXGLMath.random(0.005, 0.05) // 🔹 Extremely slow rising motion
+            )
+        }
+    }
+
+    // 🔹 Gradually increase emission rate for a fade-in effect
+    private fun fadeInSmoke() {
+        currentEmissionRate = 0.0
+        run({
+            if (currentEmissionRate < targetEmissionRate) {
+                currentEmissionRate += 0.002 // 🔹 Increase emission rate gradually
+                smokeEmitter.emissionRate = currentEmissionRate
+            }
+        }, Duration.seconds(0.2), 5) // 🔹 Update every 0.2s, stops after 5 steps (~1s fade-in)
+    }
+
+    // 🔹 Smoothly update smoke properties with a natural fade effect
+    private fun updateEmitterState() {
+        if (!this::smokeEmitter.isInitialized) return
+
+        val isEnabled = getb(PianoProperty.ABOVE_KEY_ENABLED.name)
+
+        if (!isEnabled) {
+            smokeEmitter.emissionRate = 0.0 // 🔴 Stop new particles
+            smokeEntity?.opacity = 0.0 // 🔴 Let old particles fade naturally
+            return
+        }
+
+        // 🔹 Ensure smoke fades in again when re-enabled
+        if (smokeEmitter.emissionRate == 0.0) {
+            fadeInSmoke()
+        }
+
+        smokeEntity?.opacity = 1.0 // 🔹 Ensure smoke is fully visible
+
+        startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
+        endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
+        smokeEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.08) // 🔹 Soft glow effect
+        smokeEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.02) // 🔹 Smooth fade out
+    }
+
 
     private fun initFallingBlock(x: Double) {
         val speed = 50.0
@@ -306,7 +353,7 @@ class PianoGenerator(
             .with(ProjectileComponent(Point2D(random(-0.8, 0.8), -1.0), speed).allowRotation(true))
             .with(ParticleComponent(emitter))
             .buildAndAttach()
-3
+
         runOnce({
             spawnFireworksScatterAnim(e.position, keyVelocity)
             e.removeFromWorld()

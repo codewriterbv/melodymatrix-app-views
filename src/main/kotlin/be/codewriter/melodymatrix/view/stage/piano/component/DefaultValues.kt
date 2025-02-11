@@ -37,7 +37,7 @@ class DefaultValues {
             
             vars.put(PianoProperty.ABOVE_KEY_ENABLED.name, true)
             vars.put(PianoProperty.ABOVE_KEY_COLOR_START.name, Color.YELLOW)
-            vars.put(PianoProperty.ABOVE_KEY_COLOR_END.name, Color.RED)
+            vars.put(PianoProperty.ABOVE_KEY_COLOR_END.name, Color.BLACK)
         }
     }
 }
