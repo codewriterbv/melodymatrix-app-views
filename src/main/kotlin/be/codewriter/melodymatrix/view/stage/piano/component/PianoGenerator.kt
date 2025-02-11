@@ -219,84 +219,87 @@ class PianoGenerator(
         }
     }
 
-    private lateinit var smokeEmitter: ParticleEmitter
-    private var smokeEntity: Entity? = null
-    private lateinit var startColor: Color
-    private lateinit var endColor: Color
-    private var targetEmissionRate = 0.01 // 🔹 The final desired emission rate
-    private var currentEmissionRate = 0.0 // 🔹 Start with no emission
+    private lateinit var fireEmitter: ParticleEmitter
+    private var fireEntity: Entity? = null
+    private var targetEmissionRate = 0.05 // 🔥 Intensity of fire
+    private var currentEmissionRate = 0.0 // 🔥 Start with no emission
+    private lateinit var startColor : Color
+    private lateinit var endColor : Color
 
     private fun initAnimationAboveKeys() {
         startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
         endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
 
-        smokeEmitter = ParticleEmitters.newSmokeEmitter()
-        configureEmitter() // 🔹 Set initial properties
+        fireEmitter = ParticleEmitters.newFireEmitter() // 🔥 Fire particle system
+        configureFireEmitter() // 🔥 Set properties
 
-        smokeEntity = entityBuilder()
-            .at(-100.0, getAppHeight() - PIANO_WHITE_KEY_HEIGHT - 20.0) // Small height adjustment
-            .with(ParticleComponent(smokeEmitter))
+        fireEntity = entityBuilder()
+            .at(-100.0, getAppHeight() - PIANO_WHITE_KEY_HEIGHT - 5.0 + FXGLMath.random(-10.0, 10.0)) // 🔥 Random slight height variation
+            .with(ParticleComponent(fireEmitter))
             .zIndex(1000)
             .buildAndAttach()
 
-        // 🔹 Start emission with a smooth fade-in effect
-        fadeInSmoke()
+        // 🔥 Start fire effect with a smooth fade-in
+        fadeInFire()
+
+        // 🔥 Ensure updateFireState is called every 1 second to adjust fire properties
+        run({ updateFireState() }, Duration.seconds(1.0))
     }
 
-    // 🔹 Configure the smoke emitter for a seamless glowing effect
-    private fun configureEmitter() {
-        smokeEmitter.setSize(getAppWidth().toDouble() + 200.0, 50.0) // 🔹 Slight height to blend better
-        smokeEmitter.numParticles = 20 // 🔹 Moderate amount for a soft effect
-        smokeEmitter.emissionRate = 0.0 // 🔴 Start at 0, will increase over time
-        smokeEmitter.setExpireFunction { Duration.seconds(6.0) } // 🔹 Longer fade-out for natural dispersion
-        smokeEmitter.blendMode = BlendMode.ADD // 🔹 Additive blending to create a glow effect
-        smokeEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.08) // 🔹 Soft glow effect
-        smokeEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.02) // 🔹 Smooth fade out
+    // 🔥 Configure fire emitter with random heights
+    private fun configureFireEmitter() {
+        fireEmitter.setSize(getAppWidth().toDouble() + 100.0, 80.0) // 🔥 Wider but controlled height
+        fireEmitter.numParticles = 15 // 🔥 Fewer particles for a steady effect
+        fireEmitter.emissionRate = 0.005 // 🔥 Very slow particle emission
+        fireEmitter.setExpireFunction { Duration.seconds(6.0) } // 🔥 Longer lifespan for static feel
+        fireEmitter.blendMode = BlendMode.ADD // 🔥 Glow effect
 
-        smokeEmitter.setVelocityFunction {
+        fireEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.2) // 🔥 Orange soft glow
+        fireEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.1) // 🔥 Deep orange fade-out
+
+        fireEmitter.setVelocityFunction {
             Point2D(
-                FXGLMath.random(-0.005, 0.005), // 🔹 Very subtle horizontal drift
-                -FXGLMath.randomDouble() * FXGLMath.random(0.005, 0.05) // 🔹 Extremely slow rising motion
+                FXGLMath.random(-0.002, 0.002), // 🔥 Very slight horizontal flicker
+                -FXGLMath.randomDouble() * FXGLMath.random(0.002, 0.008) // 🔥 Super slow upward movement
             )
         }
     }
 
-    // 🔹 Gradually increase emission rate for a fade-in effect
-    private fun fadeInSmoke() {
+    // 🔥 Smooth fade-in effect for fire emission
+    private fun fadeInFire() {
         currentEmissionRate = 0.0
         run({
             if (currentEmissionRate < targetEmissionRate) {
-                currentEmissionRate += 0.002 // 🔹 Increase emission rate gradually
-                smokeEmitter.emissionRate = currentEmissionRate
+                currentEmissionRate += 0.01 // 🔥 Increase gradually
+                fireEmitter.emissionRate = currentEmissionRate
             }
-        }, Duration.seconds(0.2), 5) // 🔹 Update every 0.2s, stops after 5 steps (~1s fade-in)
+        }, Duration.seconds(0.1), 5) // 🔥 Updates every 0.1s (~0.5s fade-in)
     }
 
-    // 🔹 Smoothly update smoke properties with a natural fade effect
-    private fun updateEmitterState() {
-        if (!this::smokeEmitter.isInitialized) return
+    // 🔥 Smoothly update fire properties
+    private fun updateFireState() {
+        if (!this::fireEmitter.isInitialized) return
 
         val isEnabled = getb(PianoProperty.ABOVE_KEY_ENABLED.name)
 
         if (!isEnabled) {
-            smokeEmitter.emissionRate = 0.0 // 🔴 Stop new particles
-            smokeEntity?.opacity = 0.0 // 🔴 Let old particles fade naturally
+            fireEmitter.emissionRate = 0.0 // 🔴 Stop new flames
+            fireEntity?.opacity = 0.0 // 🔴 Let remaining flames fade naturally
             return
         }
 
-        // 🔹 Ensure smoke fades in again when re-enabled
-        if (smokeEmitter.emissionRate == 0.0) {
-            fadeInSmoke()
+        // 🔥 Restart with fade-in when re-enabled
+        if (fireEmitter.emissionRate == 0.0) {
+            fadeInFire()
         }
 
-        smokeEntity?.opacity = 1.0 // 🔹 Ensure smoke is fully visible
+        fireEntity?.opacity = 1.0 // 🔥 Ensure flames are fully visible
 
         startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
         endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
-        smokeEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.08) // 🔹 Soft glow effect
-        smokeEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.02) // 🔹 Smooth fade out
+        fireEmitter.startColor = Color.color(startColor.red, startColor.green, startColor.blue, 0.2) // 🔥 Orange soft glow
+        fireEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.1) // 🔥 Deep orange fade-out
     }
-
 
     private fun initFallingBlock(x: Double) {
         val speed = 50.0
