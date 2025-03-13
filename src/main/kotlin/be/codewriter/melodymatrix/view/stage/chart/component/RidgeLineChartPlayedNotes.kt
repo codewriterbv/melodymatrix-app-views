@@ -19,11 +19,12 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
+
 class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
-        height = Double.MAX_VALUE
-        width = Double.MAX_VALUE
+        prefHeight = Double.MAX_VALUE
+        prefWidth = Double.MAX_VALUE
         //style = "-fx-border-color: black; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
     }
 
@@ -63,14 +64,14 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                 .build()
             val ridgeLineChart = XYPane(xySeries).apply {
                 upperBoundX = xySeries.items.size.toDouble()
-                width = Double.MAX_VALUE
+                prefWidth = Double.MAX_VALUE
                 //style = "-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
                 HBox.setHgrow(this, Priority.ALWAYS)
             }
 
             chartBox.children.add(HBox().apply {
                 alignment = Pos.CENTER_LEFT
-                width = Double.MAX_VALUE
+                prefWidth = Double.MAX_VALUE
                 //style =
                 //    "-fx-border-color: blue; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
                 children.addAll(

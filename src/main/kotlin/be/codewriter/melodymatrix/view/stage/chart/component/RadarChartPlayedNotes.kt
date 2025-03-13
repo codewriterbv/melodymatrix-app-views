@@ -14,6 +14,7 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 
+
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()

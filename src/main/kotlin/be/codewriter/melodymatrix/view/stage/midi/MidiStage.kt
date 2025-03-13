@@ -273,7 +273,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
                 controllerValue.set(midiData.controllerValue.toString())
                 controllerValueBits.set(byteToBitsString(midiData.bytes[2]))
             } else if (midiData.event == MidiEvent.PITCH_BEND) {
-                pitchBendValue.set(midiData.pitch.toHexString())
+                pitchBendValue.set(midiData.pitch.toString())
                 pitchBendValueBits.set(byteToBitsString(midiData.bytes[1]) + " " + byteToBitsString(midiData.bytes[2]))
             }
         }

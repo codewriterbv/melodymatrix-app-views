@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+
 class MidiSimulator {
 
     private val registeredListeners: MutableList<EventHandler> = ArrayList()

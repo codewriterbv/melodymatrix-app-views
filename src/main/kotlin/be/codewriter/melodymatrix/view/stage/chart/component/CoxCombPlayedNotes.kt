@@ -8,6 +8,7 @@ import eu.hansolo.fx.charts.data.ChartItemBuilder
 import javafx.application.Platform
 import javafx.scene.paint.Color
 
+
 class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()

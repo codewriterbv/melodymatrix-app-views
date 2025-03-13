@@ -10,6 +10,7 @@ import javafx.scene.Parent
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 
+
 class PianoKeyBlack(val note: be.codewriter.melodymatrix.view.definition.Note, val x: Double, val y: Double) :
     PianoKey, Parent() {
 

@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.stage.piano.component.PianoGenerator.Comp
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import javafx.scene.paint.Color
 
+
 class DefaultValues {
 
     companion object {

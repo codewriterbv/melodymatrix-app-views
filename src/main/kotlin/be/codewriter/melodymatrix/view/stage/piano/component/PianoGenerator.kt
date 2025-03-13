@@ -43,6 +43,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
+
 class PianoGenerator(
     val configuratorBackground: ConfiguratorBackground,
     val configuratorEffect: ConfiguratorEffect,

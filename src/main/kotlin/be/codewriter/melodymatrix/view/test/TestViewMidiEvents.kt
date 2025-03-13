@@ -11,6 +11,7 @@ import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
 import java.util.*
 
+
 class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
     init {

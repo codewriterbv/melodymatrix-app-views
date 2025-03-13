@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
+
 class LedStripStage : VisualizerStage() {
     init {
         val boxHolder = HBox().apply {

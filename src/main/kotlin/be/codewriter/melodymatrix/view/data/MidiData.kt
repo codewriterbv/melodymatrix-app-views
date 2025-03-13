@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger
  * * Data byte 2 : 0VVV VVVV - VVV VVVV is the velocity value from 0 to 127
  *    * Velocity is 0 also means NOTE OFF
  */
+
 open class MidiData(val bytes: ByteArray) {
     private val logger: Logger = LogManager.getLogger(MidiData::class.java.name)
 

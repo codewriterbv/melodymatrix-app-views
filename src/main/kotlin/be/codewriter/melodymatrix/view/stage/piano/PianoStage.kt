@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
+
 class PianoStage(
     private val licenseStatus: LicenseStatus,
     private val videoRecorder: VideoRecorder

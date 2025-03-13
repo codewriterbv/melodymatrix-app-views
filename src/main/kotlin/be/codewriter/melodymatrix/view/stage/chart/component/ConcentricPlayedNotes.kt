@@ -9,6 +9,7 @@ import eu.hansolo.fx.charts.tools.NumberFormat
 import javafx.application.Platform
 import javafx.scene.paint.Color
 
+
 class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()

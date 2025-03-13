@@ -9,6 +9,7 @@ import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
+
 class ConfiguratorRecording(licenseStatus: LicenseStatus, videoRecorder: VideoRecorder, node: Node) : VBox() {
 
     init {
