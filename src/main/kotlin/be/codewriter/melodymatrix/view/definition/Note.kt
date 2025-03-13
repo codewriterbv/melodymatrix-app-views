@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.definition
 
+
 enum class Note(
     val mainNote: MainNote,
     val parentNote: Note? = null,

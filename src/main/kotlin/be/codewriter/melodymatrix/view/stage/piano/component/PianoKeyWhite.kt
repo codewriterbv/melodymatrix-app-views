@@ -21,6 +21,7 @@ import javafx.scene.text.TextAlignment
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
+
 class PianoKeyWhite(val note: Note, val x: Double, val y: Double) :
     PianoKey, Parent() {
 

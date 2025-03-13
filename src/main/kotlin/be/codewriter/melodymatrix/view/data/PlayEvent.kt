@@ -8,6 +8,7 @@ import javafx.util.Duration
  * define which note is played, with a start time relative to the beginning of the recording, and a duration of which
  * the note is played.
  */
+
 data class PlayEvent(
     val note: Note,
     val startTime: Long,

@@ -13,6 +13,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 
+
 class DrumStage : VisualizerStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()

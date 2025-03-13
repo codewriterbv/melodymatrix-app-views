@@ -15,6 +15,7 @@ import stage.drum.DrumStage
 import stage.ledstrip.LedStripStage
 import stage.scale.ScaleStage
 
+
 class TestViewStages(
     val parentStage: Stage,
     val midiSimulator: MidiSimulator,

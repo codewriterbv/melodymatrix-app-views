@@ -5,6 +5,7 @@ import javafx.geometry.Insets
 import javafx.scene.layout.HBox
 import javafx.stage.Stage
 
+
 class TestView(stage: Stage) : HBox() {
 
     init {

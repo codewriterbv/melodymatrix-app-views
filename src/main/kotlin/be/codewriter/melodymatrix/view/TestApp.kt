@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import kotlin.system.exitProcess
 
+
 class TestApp : Application() {
     fun run() {
         launch()
