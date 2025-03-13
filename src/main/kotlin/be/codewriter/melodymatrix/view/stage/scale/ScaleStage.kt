@@ -22,7 +22,19 @@ class ScaleStage : VisualizerStage() {
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
     init {
-        val inputStream: InputStream = javaClass.getResourceAsStream("/fonts/musiqwik/Musiqwik-rvL8.ttf")
+        this::class.java.classLoader.getResources("").toList().forEach {
+            println("Resource: ${it.path}")
+        }
+
+        val url = this::class.java.classLoader.getResource("fonts")
+        println("Fonts directory exists: ${url != null}")
+
+        val inputStream: InputStream? = this::class.java.getResourceAsStream("fonts/musiqwik/Musiqwik-rvL8.ttf")
+
+        if (inputStream == null) {
+            logger.error("Can't find the font file, sorry can't create the screen...")
+        }
+
         val font = Font.loadFont(inputStream, 40.0)
 
         val row1 = HBox().apply {
