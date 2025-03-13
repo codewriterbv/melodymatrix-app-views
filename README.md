@@ -27,8 +27,9 @@ What this project doesn't contain:
 * Clone the repository
 * Open the cloned directory in IntelliJIDEA
 * Import as Maven project
-* Open `be.codewriter.melodymatrix.view.TestJavaLauncher`
-* Hit 'Run' on the 'main' method
+* In your IDE create a run configuration for `javafx:run`
+
+![](docs/run-configuration.png)
 
 ### Testing a viewer
 
