@@ -24,11 +24,12 @@ jobs:
       - name: Checkout the sources
         uses: actions/checkout@v4
 
-      - name: Setup Maven Action
-        uses: s4u/setup-maven-action@v1.14.0
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
           java-version: '22'
-          maven-version: '3.9.7'
+          distribution: 'zulu'
+          cache: 'maven'
 
       - name: Build with Maven, without compiling and running the tests
-        run: mvn package -Dmaven.test.skip=true
+        run: mvn package

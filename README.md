@@ -1,8 +1,6 @@
 # Viewer Components of the MelodyMatrix Application
 
-This project contains the Stage components that are used by the MelodyMatrix application to visualize music. It's a
-JavaFX/Kotlin/Gradle project as that is also what is used for the MelodyMatrix application itself. More information and
-a video are available on [https://melodymatrix.rocks/sources](https://melodymatrix.rocks/sources).
+This project contains the Stage components that are used by the MelodyMatrix application to visualize music. It's a JavaFX/Kotlin/Maven project as that is also what is used for the MelodyMatrix application itself. More information and a video are available on [https://melodymatrix.rocks/sources](https://melodymatrix.rocks/sources).
 
 ![](docs/melodymatrix.png)
 
@@ -19,8 +17,8 @@ What this project doesn't contain:
 
 ## Requirements
 
-* JDK 21 or newer
-* Gradle or Maven
+* JDK 22 or newer
+* Maven
 
 ## Guidelines
 
@@ -28,7 +26,7 @@ What this project doesn't contain:
 
 * Clone the repository
 * Open the cloned directory in IntelliJIDEA
-* Import as Gradle or Maven project (both configurations are included)
+* Import as Maven project
 * Open `be.codewriter.melodymatrix.view.TestJavaLauncher`
 * Hit 'Run' on the 'main' method
 
@@ -60,8 +58,7 @@ override fun onMidiDataReceived(midiData:MidiData) {
 
 ## Run with Maven
 
-To make it easier to run and extend this project, it also includes a Maven configuration, which can be used on e.g.
-Raspberry Pi:
+Default step-by-step to run this project on a Linux / Raspberry Pi system:
 
 ```shell
 # Install SDKMAN 
@@ -70,8 +67,9 @@ $ curl -s "https://get.sdkman.io" | bash
 # Open new terminal or 
 $ source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# Instal JDK with JFX and set as default
+# Instal JDK with JFX 
 $ sdk install java 22.0.1.fx-zulu
+# When needed, set as default
 $ sdk default java 22.0.1.fx-zulu
 
 # Install Maven
@@ -99,5 +97,4 @@ $ mvn javafx:run
 
 # Build without compiling and running the tests
 $ mvn package -Dmaven.test.skip=true
-
 ```
