@@ -7,7 +7,7 @@
     <groupId>be.codewriter</groupId>
     <artifactId>viewers</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,12 +20,11 @@
         <commonmark.version>0.22.0</commonmark.version>
         <ikonli.version>12.3.1</ikonli.version>
         <javacv.version>1.5.10</javacv.version>
-        <kotlin.coroutines.version>1.8.1</kotlin.coroutines.version>
-        <kotlin.serialization.version>1.6.3</kotlin.serialization.version>
+        <kotlin.coroutines.version>1.10.1</kotlin.coroutines.version>
+        <kotlin.serialization.version>1.8.0</kotlin.serialization.version>
         <ktmidi.version>0.10.0</ktmidi.version>
         <log4j.version>2.23.1</log4j.version>
         <javafx.version>23.0.2</javafx.version>
-        <javacpp.platform>linux-x86_64,linux-arm64,macosx-x86_64,macosx-arm64,windows-x86_64</javacpp.platform>
     </properties>
 
     <dependencies>
@@ -147,49 +146,6 @@
         </resources>
         
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>java-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>java-test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>be.codewriter.melodymatrix.view.TestLauncher</mainClass>
-                </configuration>
-            </plugin>
-
             <!-- Kotlin plugin -->
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -212,11 +168,37 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>${maven.compiler.target}</jvmTarget>
                     <args>
                         <arg>-Xjsr305=strict</arg>
-                        <arg>-Xopt-in=kotlin.ExperimentalStdlibApi</arg>
+                        <arg>-opt-in=kotlin.ExperimentalStdlibApi</arg>
                     </args>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Shade/Shadow jar plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+            </plugin>
+
+            <!-- JavaFX Maven Plugin -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>be.codewriter.melodymatrix.view.TestLauncher</mainClass>
                 </configuration>
             </plugin>
         </plugins>

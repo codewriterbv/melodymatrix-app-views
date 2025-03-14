@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.helper.FileLoader
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -16,24 +17,12 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.InputStream
 
-
 class ScaleStage : VisualizerStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
     init {
-        this::class.java.classLoader.getResources("").toList().forEach {
-            println("Resource: ${it.path}")
-        }
-
-        val url = this::class.java.classLoader.getResource("fonts")
-        println("Fonts directory exists: ${url != null}")
-
-        val inputStream: InputStream? = this::class.java.getResourceAsStream("fonts/musiqwik/Musiqwik-rvL8.ttf")
-
-        if (inputStream == null) {
-            logger.error("Can't find the font file, sorry can't create the screen...")
-        }
+        val inputStream: InputStream? = FileLoader.getResource("/fonts/musiqwik/Musiqwik-rvL8.ttf")
 
         val font = Font.loadFont(inputStream, 40.0)
 
