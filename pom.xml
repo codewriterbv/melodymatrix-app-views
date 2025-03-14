@@ -19,6 +19,7 @@
         <atlantafx.version>2.0.1</atlantafx.version>
         <charts.version>21.0.21</charts.version>
         <fxgl.version>21.1</fxgl.version>
+        <javafx.version>23.0.2</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <log4j.version>2.23.1</log4j.version>
 
@@ -45,11 +46,39 @@
             <version>${atlantafx.version}</version>
         </dependency>
 
-        <!-- FXGL (contains JavaFX) -->
+        <!-- JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- FXGL (contains JavaFX, but probably different version) -->
         <dependency>
             <groupId>com.github.almasb</groupId>
             <artifactId>fxgl</artifactId>
             <version>${fxgl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-fxml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Charts -->
