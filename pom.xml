@@ -17,24 +17,20 @@
 
         <!-- Dependency versions -->
         <atlantafx.version>2.0.1</atlantafx.version>
-        <commonmark.version>0.22.0</commonmark.version>
-        <ikonli.version>12.3.1</ikonli.version>
-        <javacv.version>1.5.10</javacv.version>
-        <kotlin.coroutines.version>1.10.1</kotlin.coroutines.version>
-        <kotlin.serialization.version>1.8.0</kotlin.serialization.version>
-        <ktmidi.version>0.10.0</ktmidi.version>
+        <charts.version>21.0.21</charts.version>
+        <fxgl.version>21.1</fxgl.version>
+        <jserial.version>2.11.0</jserial.version>
         <log4j.version>2.23.1</log4j.version>
-        <javafx.version>23.0.2</javafx.version>
+
+        <!-- Test dependency versions -->
+        <junit.version>5.10.2</junit.version>
+
+        <!-- Plugin versions -->
+        <javafx.maven.version>0.0.8</javafx.maven.version>
+        <maven.shade.version>3.4.1</maven.shade.version>
     </properties>
 
     <dependencies>
-        <!-- AtlantaFX -->
-        <dependency>
-            <groupId>io.github.mkpaz</groupId>
-            <artifactId>atlantafx-base</artifactId>
-            <version>${atlantafx.version}</version>
-        </dependency>
-
         <!-- Log4j -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -42,71 +38,32 @@
             <version>${log4j.version}</version>
         </dependency>
 
-        <!-- CommonMark -->
+        <!-- AtlantaFX -->
         <dependency>
-            <groupId>org.commonmark</groupId>
-            <artifactId>commonmark</artifactId>
-            <version>${commonmark.version}</version>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>${atlantafx.version}</version>
         </dependency>
 
-        <!-- JavaCV -->
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacv-platform</artifactId>
-            <version>${javacv.version}</version>
-        </dependency>
-
-        <!-- Kotlin Coroutines and Serialization -->
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>${kotlin.coroutines.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-json</artifactId>
-            <version>${kotlin.serialization.version}</version>
-        </dependency>
-
-        <!-- Ikonli -->
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-fontawesome5-pack</artifactId>
-            <version>${ikonli.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
-            <version>${ikonli.version}</version>
-        </dependency>
-
-        <!-- JavaFX -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-media</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-
-        <!-- -->
+        <!-- FXGL (contains JavaFX) -->
         <dependency>
             <groupId>com.github.almasb</groupId>
             <artifactId>fxgl</artifactId>
-            <version>21.1</version>
+            <version>${fxgl.version}</version>
         </dependency>
+
+        <!-- Charts -->
         <dependency>
             <groupId>eu.hansolo.fx</groupId>
             <artifactId>charts</artifactId>
-            <version>21.0.21</version>
+            <version>${charts.version}</version>
         </dependency>
+
+        <!-- Serial link to LED strip controller -->
         <dependency>
             <groupId>com.fazecast</groupId>
             <artifactId>jSerialComm</artifactId>
-            <version>2.11.0</version>
+            <version>${jserial.version}</version>
         </dependency>
         
         <!-- Test dependencies -->
@@ -119,19 +76,8 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.2</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 
@@ -189,14 +135,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>${maven.shade.version}</version>
             </plugin>
 
             <!-- JavaFX Maven Plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <version>${javafx.maven.version}</version>
                 <configuration>
                     <mainClass>be.codewriter.melodymatrix.view.TestLauncher</mainClass>
                 </configuration>
