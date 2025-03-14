@@ -7,7 +7,6 @@ import com.almasb.fxgl.animation.Interpolators
 import com.almasb.fxgl.app.GameApplication
 import com.almasb.fxgl.app.GameSettings
 import com.almasb.fxgl.core.math.FXGLMath
-import com.almasb.fxgl.core.math.Vec2
 import com.almasb.fxgl.dsl.*
 import com.almasb.fxgl.dsl.FXGL.Companion.getbp
 import com.almasb.fxgl.dsl.FXGL.Companion.getdp
@@ -23,7 +22,6 @@ import com.almasb.fxgl.entity.components.IrremovableComponent
 import com.almasb.fxgl.particle.ParticleComponent
 import com.almasb.fxgl.particle.ParticleEmitter
 import com.almasb.fxgl.particle.ParticleEmitters
-import com.almasb.fxgl.physics.PhysicsComponent
 import javafx.geometry.Point2D
 import javafx.scene.Cursor
 import javafx.scene.canvas.Canvas
@@ -36,8 +34,6 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.util.Duration
-import java.util.function.Function
-import java.util.function.Supplier
 import kotlin.collections.set
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -46,7 +42,8 @@ import kotlin.math.sin
 
 class PianoGenerator(
     val configuratorBackground: ConfiguratorBackground,
-    val configuratorEffect: ConfiguratorEffect,
+    val configuratorEffectParticle: ConfiguratorEffectParticle,
+    val configuratorEffectAboveKey: ConfiguratorEffectAboveKey,
     val configuratorKey: ConfiguratorKey
 ) : GameApplication() {
 
@@ -74,7 +71,8 @@ class PianoGenerator(
     override fun initGame() {
         // Bindings can only be created when FXGL has started, so we have a callback here
         configuratorBackground.createBindings()
-        configuratorEffect.createBindings()
+        configuratorEffectParticle.createBindings()
+        configuratorEffectAboveKey.createBindings()
         configuratorKey.createBindings()
 
         getGameScene().setCursor(Cursor.DEFAULT)
@@ -122,6 +120,8 @@ class PianoGenerator(
                 previousWhiteKeyX = x
             }
         }
+
+        initAnimationAboveKeys()
     }
 
     class GameFactory : EntityFactory {
@@ -217,6 +217,93 @@ class PianoGenerator(
         }
     }
 
+    private lateinit var fireEmitter: ParticleEmitter
+    private var fireEntity: Entity? = null
+    private var targetEmissionRate = 0.05 // 🔥 Intensity of fire
+    private var currentEmissionRate = 0.0 // 🔥 Start with no emission
+    private lateinit var startColor: Color
+    private lateinit var endColor: Color
+
+    private fun initAnimationAboveKeys() {
+        startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
+        endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
+
+        fireEmitter = ParticleEmitters.newFireEmitter() // 🔥 Fire particle system
+        configureFireEmitter() // 🔥 Set properties
+
+        fireEntity = entityBuilder()
+            .at(
+                -100.0,
+                getAppHeight() - PIANO_WHITE_KEY_HEIGHT - 5.0 + FXGLMath.random(-10.0, 10.0)
+            ) // 🔥 Random slight height variation
+            .with(ParticleComponent(fireEmitter))
+            .zIndex(1000)
+            .buildAndAttach()
+
+        // 🔥 Start fire effect with a smooth fade-in
+        fadeInFire()
+
+        // 🔥 Ensure updateFireState is called every 1 second to adjust fire properties
+        run({ updateFireState() }, Duration.seconds(1.0))
+    }
+
+    // 🔥 Configure fire emitter with random heights
+    private fun configureFireEmitter() {
+        fireEmitter.setSize(getAppWidth().toDouble() + 100.0, 80.0) // 🔥 Wider but controlled height
+        fireEmitter.numParticles = 15 // 🔥 Fewer particles for a steady effect
+        fireEmitter.emissionRate = 0.005 // 🔥 Very slow particle emission
+        fireEmitter.setExpireFunction { Duration.seconds(6.0) } // 🔥 Longer lifespan for static feel
+        fireEmitter.blendMode = BlendMode.ADD // 🔥 Glow effect
+
+        fireEmitter.startColor =
+            Color.color(startColor.red, startColor.green, startColor.blue, 0.2) // 🔥 Orange soft glow
+        fireEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.1) // 🔥 Deep orange fade-out
+
+        fireEmitter.setVelocityFunction {
+            Point2D(
+                FXGLMath.random(-0.002, 0.002), // 🔥 Very slight horizontal flicker
+                -FXGLMath.randomDouble() * FXGLMath.random(0.002, 0.008) // 🔥 Super slow upward movement
+            )
+        }
+    }
+
+    // 🔥 Smooth fade-in effect for fire emission
+    private fun fadeInFire() {
+        currentEmissionRate = 0.0
+        run({
+            if (currentEmissionRate < targetEmissionRate) {
+                currentEmissionRate += 0.01 // 🔥 Increase gradually
+                fireEmitter.emissionRate = currentEmissionRate
+            }
+        }, Duration.seconds(0.1), 5) // 🔥 Updates every 0.1s (~0.5s fade-in)
+    }
+
+    // 🔥 Smoothly update fire properties
+    private fun updateFireState() {
+        if (!this::fireEmitter.isInitialized) return
+
+        val isEnabled = getb(PianoProperty.ABOVE_KEY_ENABLED.name)
+
+        if (!isEnabled) {
+            fireEmitter.emissionRate = 0.0 // 🔴 Stop new flames
+            fireEntity?.opacity = 0.0 // 🔴 Let remaining flames fade naturally
+            return
+        }
+
+        // 🔥 Restart with fade-in when re-enabled
+        if (fireEmitter.emissionRate == 0.0) {
+            fadeInFire()
+        }
+
+        fireEntity?.opacity = 1.0 // 🔥 Ensure flames are fully visible
+
+        startColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_START.name)
+        endColor = geto<Color>(PianoProperty.ABOVE_KEY_COLOR_END.name)
+        fireEmitter.startColor =
+            Color.color(startColor.red, startColor.green, startColor.blue, 0.2) // 🔥 Orange soft glow
+        fireEmitter.endColor = Color.color(endColor.red, endColor.green, endColor.blue, 0.1) // 🔥 Deep orange fade-out
+    }
+
     private fun initFallingBlock(x: Double) {
         val speed = 50.0
         val height = 50.0 // Needs to be calculated based on the duration of the note
@@ -240,50 +327,67 @@ class PianoGenerator(
     }
 
     private fun initParticles(keyPosX: Double, keyPosY: Double, keyVelocity: Int) {
-//        if (getb(PianoProperty.EXPLOSION_TYPE.name)){
-//            spawnFireworksStarterAnim(Point2D(keyPosX, keyPosY))
-//        }else{
-//            spawnSplashAnim(Point2D(keyPosX, keyPosY))
-//        }
-        spawnSplashAnim(Point2D(keyPosX, keyPosY))
+        // if true, play fireworks animation
+        if (getb(PianoProperty.EXPLOSION_TYPE.name)) {
+            spawnFireworksStarterAnim(Point2D(keyPosX, keyPosY), keyVelocity)
+        } else {
+            spawnSplashAnim(Point2D(keyPosX, keyPosY), keyVelocity)
+        }
     }
 
-    private fun spawnFireworksStarterAnim(pos: Point2D) {
+    private fun spawnFireworksStarterAnim(pos: Point2D, keyVelocity: Int) {
+        val color = if (getb(PianoProperty.EXPLOSION_RANDOM_COLOR.name)) {
+            FXGLMath.randomColor().brighter().brighter()
+        } else {
+            geto<Color>(PianoProperty.EXPLOSION_COLOR.name)
+        }
+
         val emitter = ParticleEmitters.newFireEmitter().apply {
             numParticles = 1
             emissionRate = 0.5
             setSize(0.2, 1.0)
-            setExpireFunction { _ -> Duration.seconds(random(0.5, 2.0)) }
+            setExpireFunction { _ -> Duration.seconds(0.5 + keyVelocity * 0.005) }
             blendMode = BlendMode.SRC_OVER
-            setColor(Color.YELLOW)
+            setColor(color)
             isAllowParticleRotation = true
         }
+        val speed = keyVelocity * 1.5
 
         val e = entityBuilder()
             .at(pos)
             .view(Circle(1.0, 1.0, 1.0, Color.WHITE))
-            .with(ProjectileComponent(Point2D(random(-0.8, 0.8), -1.0), 50.0).allowRotation(true))
+            .with(ProjectileComponent(Point2D(random(-0.8, 0.8), -1.0), speed).allowRotation(true))
             .with(ParticleComponent(emitter))
             .buildAndAttach()
 
         runOnce({
-            spawnFireworksScatterAnim(e.position)
+            spawnFireworksScatterAnim(e.position, keyVelocity)
             e.removeFromWorld()
-        }, Duration.seconds(random(1.0, 3.5)))
+        }, Duration.seconds(0.5))
     }
 
-    private fun spawnFireworksScatterAnim(pos: Point2D) {
-        val color = FXGLMath.randomColor().brighter().brighter()
-
-        val emitter = ParticleEmitters.newExplosionEmitter(random(30, 80)).apply {
-            setExpireFunction { _ -> Duration.seconds(random(2.0, 4.5)) }
-            interpolator = Interpolators.EXPONENTIAL.EASE_OUT()
-            setAccelerationFunction { Point2D(random(0.5, 0.95), random(1.0, 10.5)) }
-            blendMode = BlendMode.ADD
-            setSize(0.3, 0.8)
-            isAllowParticleRotation = false
-            setColor(color)
+    private fun spawnFireworksScatterAnim(pos: Point2D, keyVelocity: Int) {
+        val color = if (getb(PianoProperty.EXPLOSION_RANDOM_COLOR.name)) {
+            FXGLMath.randomColor().brighter().brighter()
+        } else {
+            geto<Color>(PianoProperty.EXPLOSION_COLOR.name)
         }
+
+        val emitter =
+            ParticleEmitters.newExplosionEmitter((getd(PianoProperty.EXPLOSION_RADIUS.name) * (keyVelocity * 0.02)).toInt())
+                .apply {
+                    setExpireFunction { _ -> Duration.seconds(random(2.0, 4.5)) }
+                    interpolator = Interpolators.EXPONENTIAL.EASE_OUT()
+                    setAccelerationFunction { Point2D(random(0.5, 0.95), random(1.0, 10.5)) }
+                    blendMode = BlendMode.ADD
+                    setSize(
+                        getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name) / 2,
+                        getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
+                    )
+                    numParticles = getd(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).toInt()
+                    isAllowParticleRotation = false
+                    setColor(color)
+                }
 
         entityBuilder()
             .at(pos)
@@ -293,31 +397,40 @@ class PianoGenerator(
             .buildAndAttach()
     }
 
-    private fun spawnSplashAnim(pos: Point2D) {
-        val color = FXGLMath.randomColor().brighter().brighter()
-
-        val emitter = ParticleEmitters.newExplosionEmitter(3).apply {
-            numParticles = 150
-            setExpireFunction { _ -> Duration.seconds(random(4.5, 6.0)) } // Longer lifespan
-            interpolator = Interpolators.CIRCULAR.EASE_OUT()
-            blendMode = BlendMode.ADD
-            setSize(0.5, 1.2) // Slightly larger particles for slow movement
-            isAllowParticleRotation = false
-            setColor(color)
-
-            // Emit randomly upwards with very slow movement
-            setAccelerationFunction {
-                val spread = 0.6 // Keep a natural spread
-                val angle = atan2(-1.0, 0.0) // Upward direction
-                val randomizedAngle = angle + random(-spread, spread) // Add randomness
-
-                val speed = random(5.0, 15.0) // Very slow movement
-                Point2D(
-                    cos(randomizedAngle) * speed,
-                    sin(randomizedAngle) * speed * 2.0 // Slight boost for height
-                )
-            }
+    private fun spawnSplashAnim(pos: Point2D, keyVelocity: Int) {
+        val color = if (getb(PianoProperty.EXPLOSION_RANDOM_COLOR.name)) {
+            FXGLMath.randomColor().brighter().brighter()
+        } else {
+            geto<Color>(PianoProperty.EXPLOSION_COLOR.name)
         }
+
+        val emitter =
+            ParticleEmitters.newExplosionEmitter((getd(PianoProperty.EXPLOSION_RADIUS.name) * (keyVelocity * 0.04)).toInt())
+                .apply {
+                    numParticles = getd(PianoProperty.EXPLOSION_NUMBER_OF_PARTICLES.name).toInt()
+                    setSize(
+                        getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name) / 2,
+                        getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
+                    ) // Slightly larger particles for slow movement
+                    setExpireFunction { _ -> Duration.seconds(keyVelocity * 0.07) } // random(4.5, 6.0)
+                    interpolator = Interpolators.CIRCULAR.EASE_OUT()
+                    blendMode = BlendMode.ADD
+                    isAllowParticleRotation = false
+                    setColor(color)
+
+                    // Emit randomly upwards with very slow movement
+                    setAccelerationFunction {
+                        val spread = 0.6 // Keep a natural spread
+                        val angle = atan2(-1.0, 0.0) // Upward direction
+                        val randomizedAngle = angle + random(-spread, spread) // Add randomness
+
+                        val speed = keyVelocity * 0.15 // random(5.0, 15.0) -  Very slow movement
+                        Point2D(
+                            cos(randomizedAngle) * speed,
+                            sin(randomizedAngle) * speed * 1.2 // 2.0 - Slight boost for height
+                        )
+                    }
+                }
 
         entityBuilder()
             .at(Point2D(pos.x, pos.y - 2))
@@ -327,85 +440,6 @@ class PianoGenerator(
             .buildAndAttach()
     }
 
-
-
-    private fun fireworksAnim(keyPosX: Double, keyPosY: Double, keyVelocity: Int){
-        val emitter = ParticleEmitters.newExplosionEmitter(1).apply {
-            numParticles = 50
-            emissionRate = 0.001
-            setSize(0.1, 0.5)
-            blendMode = BlendMode.ADD
-            setSpawnPointFunction(Function<Int, Point2D> { i: Int ->
-                val vector = Point2D(cos(i.toDouble()), sin(i.toDouble()))
-                (Point2D(0.0, 0.0)).add(vector.multiply(25.0))
-            })
-            setVelocityFunction { _ -> FXGLMath.randomPoint2D().multiply(FXGLMath.random(0.1, 10.0)).multiply(0.0003) }
-            setExpireFunction { _ -> Duration.seconds(FXGLMath.random(3.0, 5.0)) }
-            setColor(geto<Color>(PianoProperty.EXPLOSION_COLOR_START.name))
-        }
-
-        val particleSize = 0.1 //2 * getd(PianoProperty.EXPLOSION_PARTICLE_SIZE.name)
-
-        // The animation of each particle of the explosion
-        emitter.setControl { p ->
-            val x = p.position.x
-            val y = p.position.y
-
-            val noiseValue = FXGLMath.noise2D(x * 0.008 * t, y * 0.002 * t)
-            var angle = FXGLMath.toDegrees(40.0)
-//            var angle = FXGLMath.toDegrees((noiseValue + 1) * Math.PI * 1.5)
-
-            angle %= 360.0
-
-            val v = Vec2.fromAngle(angle)
-                .normalizeLocal()
-                .mulLocal(FXGLMath.random(1.0, 25.0))
-                .mulLocal(0.5)
-
-            // Move the particles (a bit) left-right
-            val vx = p.velocity.x * 0.4f + v.x * 0.2f
-            p.velocity.x = vx * 0.8f + 0.2f // How wide does the particle move
-
-            // Move the particles up, depending on how hard the key is pressed
-            // Maps MIDI velocity between 1 and 127 (7 bits) to a range to define the upwards speed
-            val vy = p.velocity.y * 0.8f + v.y * 0.2f
-            val vyMult = FXGLMath.map(keyVelocity.toDouble(), 1.0, 127.0, 0.5, 1.0) * -1
-            p.velocity.y = Math.abs(vy) * vyMult.toFloat()
-
-            // Lighting
-            g.fill =
-                getop<Color>(PianoProperty.EXPLOSION_COLOR_END.name).value
-
-            // Draw the particle using JavaFX canvas
-            g.fillOval(
-                (x - 2).toDouble(),
-                (y - 2).toDouble(),
-                particleSize,
-                particleSize
-            )
-
-            // Add a tail
-            if (getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt() > 0) {
-                for (i in 1..getd(PianoProperty.EXPLOSION_TAIL_NUMBER_OF_ARTICLES.name).toInt()) {
-                    g.fillOval(
-                        (x - 2).toDouble() + (particleSize / 2) - 1 + FXGLMath.random(-2.0, 2.0),
-                        (y - 2).toDouble() + ((particleSize / 5.0) * (i * 2)),
-                        particleSize / 5.0,
-                        particleSize / 5.0
-                    )
-                }
-            }
-        }
-
-        val comp = ParticleComponent(emitter)
-
-        entityBuilder()
-            .at(keyPosX, keyPosY - 20)
-            .zIndex(100)
-            .with(ExpireCleanComponent(Duration.seconds(2.0)))
-            .with(comp)
-            .buildAndAttach()
-    }
 
     companion object {
         private lateinit var canvas: Canvas

@@ -27,11 +27,13 @@ class PianoStage(
     VisualizerStage() {
     private val holder = BorderPane()
     private val configuratorBackground = ConfiguratorBackground(licenseStatus)
-    private val configuratorEffect = ConfiguratorEffect()
+    private val configuratorEffectParticle = ConfiguratorEffectParticle()
+    private val configuratorEffectAboveKey = ConfiguratorEffectAboveKey()
     private val configuratorKey = ConfiguratorKey()
     private val pianoGenerator: PianoGenerator = PianoGenerator(
         configuratorBackground,
-        configuratorEffect,
+        configuratorEffectParticle,
+        configuratorEffectAboveKey,
         configuratorKey
     )
 
@@ -66,8 +68,12 @@ class PianoStage(
                     content = configuratorKey
                 },
                 TitledPane().apply {
-                    text = "Particle effect"
-                    content = configuratorEffect
+                    text = "Effect with particles"
+                    content = configuratorEffectParticle
+                },
+                TitledPane().apply {
+                    text = "Effect above the keys"
+                    content = configuratorEffectAboveKey
                 },
                 TitledPane().apply {
                     text = "Record"
