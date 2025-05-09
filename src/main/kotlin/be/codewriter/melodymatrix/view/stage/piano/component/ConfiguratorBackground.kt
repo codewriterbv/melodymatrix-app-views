@@ -55,7 +55,7 @@ class ConfiguratorBackground(licenseStatus: LicenseStatus) : VBox() {
             majorTickUnit = 0.1
         }
         logoWidth.apply {
-            min = 100.0
+            min = 200.0
             max = PIANO_WIDTH - 100.0
             majorTickUnit = 1.0
         }
