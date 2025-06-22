@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 
 class MidiSimulator {
 
-    private val registeredListeners: MutableList<EventHandler> = ArrayList()
+    private val registeredListeners: MutableList<MmxEventHandler> = ArrayList()
     private val notes: MutableList<Note> = mutableListOf()
     private var idx: Int = 0
     private var delay: Long = 500
@@ -19,12 +19,12 @@ class MidiSimulator {
 
     val scheduler = Executors.newScheduledThreadPool(1)
 
-    fun registerListener(listener: EventHandler) {
+    fun registerListener(listener: MmxEventHandler) {
         logger.info("Adding listener {}", listener)
         registeredListeners.add(listener)
     }
 
-    fun removeListener(listener: EventHandler) {
+    fun removeListener(listener: MmxEventHandler) {
         logger.info("Removing listener {}", listener)
         registeredListeners.remove(listener)
     }
