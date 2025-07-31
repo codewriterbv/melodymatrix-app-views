@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,7 +17,7 @@
 
         <!-- Dependency versions -->
         <atlantafx.version>2.0.1</atlantafx.version>
-        <charts.version>21.0.23</charts.version>
+        <charts.version>21.0.25</charts.version>
         <fxgl.version>21.1</fxgl.version>
         <javafx.version>23.0.2</javafx.version>
         <jserial.version>2.11.0</jserial.version>
@@ -94,7 +94,7 @@
             <artifactId>jSerialComm</artifactId>
             <version>${jserial.version}</version>
         </dependency>
-        
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -119,7 +119,7 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
-        
+
         <plugins>
             <!-- Kotlin plugin -->
             <plugin>
