@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.definition.Note
 import com.almasb.fxgl.dsl.random
 import org.apache.logging.log4j.LogManager

@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view
 
-import be.codewriter.melodymatrix.view.test.MmxEventHandler
+import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import javafx.stage.Stage
 
 /**
