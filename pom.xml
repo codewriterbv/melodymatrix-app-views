@@ -13,13 +13,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>23</maven.compiler.source>
         <maven.compiler.target>23</maven.compiler.target>
-        <kotlin.version>2.1.20</kotlin.version>
+        <kotlin.version>2.2.0</kotlin.version>
 
         <!-- Dependency versions -->
-        <atlantafx.version>2.0.1</atlantafx.version>
+        <atlantafx.version>2.1.0</atlantafx.version>
         <charts.version>21.0.25</charts.version>
         <fxgl.version>21.1</fxgl.version>
-        <javafx.version>23.0.2</javafx.version>
+        <javafx.version>24.0.2</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <log4j.version>2.23.1</log4j.version>
 
