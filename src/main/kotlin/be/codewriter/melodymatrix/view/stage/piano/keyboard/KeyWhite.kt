@@ -19,8 +19,9 @@ import javafx.scene.text.TextAlignment
 class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     Key, Region() {
 
-    val key: Shape
-    val noteName: Label
+    private var pressed = false
+    private val key: Shape
+    private val noteName: Label
 
     init {
         val cutOutType =
@@ -82,6 +83,9 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
         }
 
         children.addAll(key, noteName)
+
+        config.pianoWhiteKeyColor.addListener { _, _, _ -> setColor() }
+        config.pianoWhiteKeyActiveColor.addListener { _, _, _ -> setColor() }
     }
 
     override fun note(): Note {
@@ -93,6 +97,11 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     }
 
     override fun update(pressed: Boolean) {
+        this.pressed = pressed
+        setColor()
+    }
+
+    private fun setColor() {
         if (pressed) {
             key.fill = config.pianoWhiteKeyActiveColor.value
         } else {

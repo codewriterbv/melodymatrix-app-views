@@ -11,12 +11,15 @@ import javafx.scene.shape.Rectangle
 class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
     Key, Region() {
 
+    private var pressed = false
     private var key: Rectangle = Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
         fill = config.pianoBlackKeyColor.value
     }
 
     init {
         children.add(key)
+        config.pianoBlackKeyColor.addListener { _, _, _ -> setColor() }
+        config.pianoBlackKeyActiveColor.addListener { _, _, _ -> setColor() }
     }
 
     override fun note(): Note {
@@ -28,6 +31,11 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
     }
 
     override fun update(pressed: Boolean) {
+        this.pressed = pressed
+        setColor()
+    }
+
+    private fun setColor() {
         if (pressed) {
             key.fill = config.pianoBlackKeyActiveColor.value
         } else {
