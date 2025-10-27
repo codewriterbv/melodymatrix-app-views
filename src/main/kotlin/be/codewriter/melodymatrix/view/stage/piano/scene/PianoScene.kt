@@ -25,6 +25,14 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     private var currentBackgroundImage = PianoBackgroundImage.NONE
     private var backgroundImage: Image? = null
 
+    private var logoImage = Image(
+        "logo/heavy-melodymatrix.png",
+        796.0,
+        164.0,
+        false,
+        true
+    )
+
     init {
         width = PIANO_WIDTH
         height = PIANO_BACKGROUND_HEIGHT
@@ -57,7 +65,12 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         // Apply state to visual elements
         ctx.clearRect(0.0, 0.0, width, height)
 
-        // Background image
+        addBackgroundImage()
+        addLogoImage()
+
+    }
+
+    private fun addBackgroundImage() {
         if (config.backgroundImage.value != currentBackgroundImage) {
             currentBackgroundImage = config.backgroundImage.value
             if (currentBackgroundImage == PianoBackgroundImage.NONE) {
@@ -78,21 +91,16 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             ctx.drawImage(backgroundImage, 0.0, 0.0)
             ctx.globalAlpha = 1.0
         }
+    }
 
-        // Logo image
+    private fun addLogoImage() {
         if (config.logoVisible.value) {
-            val w = config.logoWidth.value
-            val h = (w / 796.0) * 164
-            val image = Image(
-                "logo/heavy-melodymatrix.png",
-                w,
-                h,
-                false,
-                true
-            ).apply {
-                opacity = config.logoTransparency.value
-            }
-            ctx.drawImage(image, config.logoLeft.value, config.logoTop.value)
+            ctx.globalAlpha = config.logoTransparency.value
+            ctx.drawImage(
+                logoImage, config.logoLeft.value, config.logoTop.value,
+                config.logoWidth.value, (config.logoWidth.value / 796.0) * 164.0
+            )
+            ctx.globalAlpha = 1.0
         }
     }
 }

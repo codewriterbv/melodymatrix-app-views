@@ -82,7 +82,7 @@ class BackgroundScene(config: PianoConfiguration, licenseStatus: LicenseStatus) 
             val imageAspectRatio = 164.0 / 796.0
             maxProperty().bind(
                 Bindings.subtract(
-                    PIANO_BACKGROUND_HEIGHT - 80,
+                    PIANO_BACKGROUND_HEIGHT,
                     Bindings.multiply(logoWidth.valueProperty(), imageAspectRatio)
                 )
             )
