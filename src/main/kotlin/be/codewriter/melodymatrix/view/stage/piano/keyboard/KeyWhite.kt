@@ -6,7 +6,6 @@ import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView.Companion.PIANO_BLACK_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_WIDTH
-import javafx.geometry.Point2D
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.layout.Region
@@ -17,7 +16,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
 
 
-class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double, val y: Double) :
+class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     Key, Region() {
 
     val key: Shape
@@ -89,8 +88,8 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double, va
         return note
     }
 
-    override fun position(): Point2D {
-        return Point2D(this.x, this.y)
+    override fun keyX(): Double {
+        return x
     }
 
     override fun update(pressed: Boolean) {

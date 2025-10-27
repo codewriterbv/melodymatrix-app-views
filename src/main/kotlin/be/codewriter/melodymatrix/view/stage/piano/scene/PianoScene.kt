@@ -22,6 +22,9 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     private var latestAnimationState: AnimationState? = null
     private var lastFrameTime = 0L
 
+    private var currentBackgroundImage = PianoBackgroundImage.NONE
+    private var backgroundImage: Image? = null
+
     init {
         width = PIANO_WIDTH
         height = PIANO_BACKGROUND_HEIGHT
@@ -55,17 +58,25 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         ctx.clearRect(0.0, 0.0, width, height)
 
         // Background image
-        if (config.backgroundImage.value != PianoBackgroundImage.NONE) {
-            val image = Image(
-                config.backgroundImage.value.file,
-                PIANO_WIDTH,
-                PIANO_BACKGROUND_HEIGHT,
-                false,
-                true
-            ).apply {
-                opacity = config.backgroundImageTransparency.value
+        if (config.backgroundImage.value != currentBackgroundImage) {
+            currentBackgroundImage = config.backgroundImage.value
+            if (currentBackgroundImage == PianoBackgroundImage.NONE) {
+                backgroundImage = null
+            } else {
+                backgroundImage = Image(
+                    config.backgroundImage.value.file,
+                    PIANO_WIDTH,
+                    PIANO_BACKGROUND_HEIGHT,
+                    false,
+                    true
+                )
             }
-            ctx.drawImage(image, 0.0, 0.0)
+        }
+
+        if (backgroundImage != null) {
+            ctx.globalAlpha = config.backgroundImageTransparency.value
+            ctx.drawImage(backgroundImage, 0.0, 0.0)
+            ctx.globalAlpha = 1.0
         }
 
         // Logo image
