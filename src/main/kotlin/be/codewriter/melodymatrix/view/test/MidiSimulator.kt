@@ -3,12 +3,11 @@ package be.codewriter.melodymatrix.view.test
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.definition.Note
-import com.almasb.fxgl.dsl.random
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-
+import kotlin.random.Random
 
 class MidiSimulator {
 
@@ -54,7 +53,7 @@ class MidiSimulator {
                 byteArrayOf(
                     "10010000".toInt(2).toByte(),
                     notes[idx].byteValue.toByte(),
-                    random(40, 127).toByte()
+                    Random.nextInt(40, 127).toByte()
                 )
             )
         )

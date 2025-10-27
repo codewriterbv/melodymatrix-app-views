@@ -18,9 +18,10 @@
         <!-- Dependency versions -->
         <atlantafx.version>2.1.0</atlantafx.version>
         <charts.version>21.0.25</charts.version>
-        <fxgl.version>21.1</fxgl.version>
         <javafx.version>24.0.2</javafx.version>
         <jserial.version>2.11.0</jserial.version>
+        <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
+        <kotlin.serialization.version>1.9.0</kotlin.serialization.version>
         <log4j.version>2.23.1</log4j.version>
 
         <!-- Test dependency versions -->
@@ -68,17 +69,16 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- FXGL (contains JavaFX, but probably different version) -->
+        <!-- Kotlin Coroutines and Serialization -->
         <dependency>
-            <groupId>com.github.almasb</groupId>
-            <artifactId>fxgl</artifactId>
-            <version>${fxgl.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-fxml</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>${kotlin.coroutines.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${kotlin.serialization.version}</version>
         </dependency>
 
         <!-- Charts -->
@@ -96,6 +96,11 @@
         </dependency>
 
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
@@ -125,46 +130,6 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <args>
-                        <arg>-Xjsr305=strict</arg>
-                        <arg>-opt-in=kotlin.ExperimentalStdlibApi</arg>
-                    </args>
-                    <compilerPlugins>
-                        <plugin>kotlinx-serialization</plugin>
-                    </compilerPlugins>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-maven-serialization</artifactId>
-                        <version>${kotlin.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-
-            <!-- Shade/Shadow jar plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shade.version}</version>
             </plugin>
 
             <!-- JavaFX Maven Plugin -->
@@ -175,6 +140,13 @@
                 <configuration>
                     <mainClass>be.codewriter.melodymatrix.view.TestLauncher</mainClass>
                 </configuration>
+            </plugin>
+
+            <!-- Shade/Shadow jar plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.version}</version>
             </plugin>
         </plugins>
     </build>

@@ -29,7 +29,7 @@ class TestViewStages(
             Label("Open one or more views"),
             createButton("Midi") { MidiStage() },
             createButton("Piano") {
-                PianoStage(licenseStatus, DummyVideoRecorder())
+                PianoStage(licenseStatus, DummyVideoRecorder(), true)
             },
             createButton("Charts") { ChartsStage() },
             createButton("Scale") { ScaleStage() },
