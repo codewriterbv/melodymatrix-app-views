@@ -3,11 +3,10 @@ package be.codewriter.melodymatrix.view.stage.piano.scene
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationCalculator
-import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationState
-import be.codewriter.melodymatrix.view.stage.piano.animation.ParticleEmitter
-import be.codewriter.melodymatrix.view.stage.piano.animation.ParticleEmitters
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitter
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitters
 import javafx.animation.AnimationTimer
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
@@ -20,15 +19,12 @@ import javafx.scene.paint.Color
 import javafx.util.Duration
 import kotlin.random.Random
 
-class PianoScene(val config: PianoConfiguration) : Canvas() {
+class PianoScene(val config: PianoConfiguration, val animationCalculator: AnimationCalculator) : Canvas() {
 
     // Animation calculator with virtual thread
-    private var animationCalculator: AnimationCalculator? = null
     private var ctx: GraphicsContext
     private val animationTimer: AnimationTimer
 
-    @Volatile
-    private var latestAnimationState: AnimationState? = null
     private var lastFrameTime = 0L
 
     private var currentBackgroundImage = PianoBackgroundImage.NONE
@@ -53,10 +49,6 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         ctx = graphicsContext2D
 
         // Start animation calculator
-        animationCalculator = AnimationCalculator { state ->
-            latestAnimationState = state
-        }
-        animationCalculator?.start()
 
         // Create animation timer for 60 FPS updates
         animationTimer = object : AnimationTimer() {
@@ -83,7 +75,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
 
     private fun update(deltaTime: Double) {
         // Read latest calculated state
-        latestAnimationState ?: return
+        // animationCalculator.state ?: return
 
         // Apply state to visual elements
         ctx.clearRect(0.0, 0.0, width, height)
@@ -91,7 +83,6 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         addBackgroundImage()
         addLogoImage()
         addKeyEffect(deltaTime)
-
     }
 
     private fun addKeyEffect(deltaTime: Double) {

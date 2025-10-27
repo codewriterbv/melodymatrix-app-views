@@ -2,8 +2,7 @@ package be.codewriter.melodymatrix.view.stage.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
-import javafx.geometry.Point2D
-import javafx.scene.paint.Color
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitter
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -21,8 +20,12 @@ class AnimationCalculator(
     private var lastUpdateTime = System.nanoTime()
 
     // State tracking
-    private val activeParticles = mutableListOf<ParticleInfo>()
+    private val particleEmitters = mutableListOf<ParticleEmitter>()
     private val activeKeys = mutableMapOf<Note, KeyAnimationInfo>()
+
+    fun addEmitter(emitter: ParticleEmitter) {
+        particleEmitters.add(emitter)
+    }
 
     fun start() {
         if (isRunning.compareAndSet(false, true)) {
@@ -55,7 +58,7 @@ class AnimationCalculator(
         // Create immutable state snapshot
         val state = AnimationState(
             timestamp = currentTime,
-            particlePositions = activeParticles.map { it.toData() },
+            particleEmitters = particleEmitters,
             fireEmitterState = calculateFireState(),
             keyStates = activeKeys.mapValues { it.value.toState() }
         )
@@ -64,30 +67,9 @@ class AnimationCalculator(
         updateCallback(state)
     }
 
-    fun addParticle(x: Double, y: Double, velocity: Point2D, color: Color, lifespan: Double) {
-        activeParticles.add(ParticleInfo(x, y, velocity, color, lifespan))
-    }
-
-    fun updateKeyPress(note: Note, isPressed: Boolean) {
-        if (isPressed) {
-            activeKeys[note] = KeyAnimationInfo(note, isPressed = true)
-        } else {
-            activeKeys[note]?.isPressed = false
-        }
-    }
 
     private fun updateParticles(deltaTime: Double) {
-        activeParticles.removeIf { particle ->
-            particle.age += deltaTime
-            particle.age >= particle.lifespan
-        }
 
-        activeParticles.forEach { particle ->
-            // Physics calculations
-            particle.x += particle.velocity.x * deltaTime
-            particle.y += particle.velocity.y * deltaTime
-            particle.velocity = particle.velocity.add(0.0, 9.8 * deltaTime) // Gravity
-        }
     }
 
     private fun updateKeyAnimations(deltaTime: Double) {
@@ -107,18 +89,6 @@ class AnimationCalculator(
     private fun calculateFireState(): FireState {
         // Simplified fire state calculation
         return FireState(0.0, PIANO_BACKGROUND_HEIGHT - 5.0, 1.0)
-    }
-
-    // Helper classes
-    data class ParticleInfo(
-        var x: Double,
-        var y: Double,
-        var velocity: Point2D,
-        val color: Color,
-        val lifespan: Double,
-        var age: Double = 0.0
-    ) {
-        fun toData() = ParticleData(x, y, color, 5.0)
     }
 
     data class KeyAnimationInfo(

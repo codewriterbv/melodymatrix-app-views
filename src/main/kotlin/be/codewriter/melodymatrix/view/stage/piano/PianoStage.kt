@@ -5,6 +5,8 @@ import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationCalculator
+import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationState
 import be.codewriter.melodymatrix.view.stage.piano.configurator.*
 import be.codewriter.melodymatrix.view.stage.piano.data.KeyColors
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
@@ -32,11 +34,15 @@ class PianoStage(
     private val licenseStatus: LicenseStatus,
     private val videoRecorder: VideoRecorder,
     private val testMode: Boolean = false
-) :
-    VisualizerStage() {
+) : VisualizerStage() {
 
     private val holder = BorderPane()
     private val config = PianoConfiguration()
+
+    private val animationCalculator: AnimationCalculator
+
+    @Volatile
+    private var latestAnimationState: AnimationState? = null
 
     private val pianoScene: PianoScene
     private val keyboardView: KeyboardView
@@ -48,7 +54,12 @@ class PianoStage(
     private var lastTime = 0L
 
     init {
-        pianoScene = PianoScene(config)
+        animationCalculator = AnimationCalculator { state ->
+            latestAnimationState = state
+        }
+        animationCalculator.start()
+
+        pianoScene = PianoScene(config, animationCalculator)
         keyboardView = KeyboardView(config)
 
         var pianoView = VBox().apply {

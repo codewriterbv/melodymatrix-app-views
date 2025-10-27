@@ -1,4 +1,4 @@
-package be.codewriter.melodymatrix.view.stage.piano.animation
+package be.codewriter.melodymatrix.view.stage.piano.particle
 
 import javafx.scene.paint.Color
 import kotlin.random.Random

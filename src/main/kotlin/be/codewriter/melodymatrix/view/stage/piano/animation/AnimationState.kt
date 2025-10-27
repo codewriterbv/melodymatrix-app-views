@@ -1,11 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitter
 import javafx.scene.paint.Color
 
 data class AnimationState(
     val timestamp: Long,
-    val particlePositions: List<ParticleData>,
+    val particleEmitters: List<ParticleEmitter>,
     val fireEmitterState: FireState,
     val keyStates: Map<Note, KeyState>
 )
