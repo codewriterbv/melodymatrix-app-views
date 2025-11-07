@@ -178,7 +178,7 @@ class PianoStage(
             )
 
             keyboardView.playNote(midiData)
-            //pianoGenerator.playNote(midiData)
+            animationCalculator.playNote(midiData, config)
         }
     }
 
@@ -195,5 +195,7 @@ class PianoStage(
         const val PIANO_HEIGHT = PIANO_BACKGROUND_HEIGHT + PIANO_KEYBOARD_HEIGHT
     }
 }
+
+
 
 

@@ -1,8 +1,9 @@
 package be.codewriter.melodymatrix.view.stage.piano.animation
 
-import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
-import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitter
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEmitters
+import be.codewriter.melodymatrix.view.stage.piano.particle.ParticleEngine
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -20,12 +21,7 @@ class AnimationCalculator(
     private var lastUpdateTime = System.nanoTime()
 
     // State tracking
-    private val particleEmitters = mutableListOf<ParticleEmitter>()
-    private val activeKeys = mutableMapOf<Note, KeyAnimationInfo>()
-
-    fun addEmitter(emitter: ParticleEmitter) {
-        particleEmitters.add(emitter)
-    }
+    private val particleEngine = ParticleEngine()
 
     fun start() {
         if (isRunning.compareAndSet(false, true)) {
@@ -51,51 +47,21 @@ class AnimationCalculator(
         lastUpdateTime = currentTime
 
         // Perform heavy calculations here
-        updateParticles(deltaTime)
-        updateKeyAnimations(deltaTime)
-        updateFireEffect(deltaTime)
-
-        // Create immutable state snapshot
-        val state = AnimationState(
-            timestamp = currentTime,
-            particleEmitters = particleEmitters,
-            fireEmitterState = calculateFireState(),
-            keyStates = activeKeys.mapValues { it.value.toState() }
-        )
-
-        // Send to JavaFX thread
-        updateCallback(state)
+        particleEngine.update(deltaTime)
     }
 
-
-    private fun updateParticles(deltaTime: Double) {
-
-    }
-
-    private fun updateKeyAnimations(deltaTime: Double) {
-        activeKeys.values.forEach { key ->
-            key.animationProgress += deltaTime * 5.0 // Animation speed
-            if (!key.isPressed && key.animationProgress >= 1.0) {
-                key.animationProgress = 0.0
-            }
+    fun playNote(midiData: MidiData, config: PianoConfiguration) {
+        if (config.explosionEnabled.get()) {
+            var emittor =
+                ParticleEmitters.newFireEmitter(config.explosionColor.get(), config.explosionColor.get()).apply {
+                    startColor = config.aboveKeyColorStart.value
+                    endColor = config.aboveKeyColorEnd.value
+                    emissionRate = 80.0
+                    minVelocityY = -100.0
+                    maxVelocityY = -60.0
+                    opacity = 0.0
+                }
+            particleEngine.add(emittor)
         }
-    }
-
-    private fun updateFireEffect(deltaTime: Double): FireState {
-        // Calculate fire animation state
-        return FireState(0.0, 0.0, 1.0)
-    }
-
-    private fun calculateFireState(): FireState {
-        // Simplified fire state calculation
-        return FireState(0.0, PIANO_BACKGROUND_HEIGHT - 5.0, 1.0)
-    }
-
-    data class KeyAnimationInfo(
-        val note: Note,
-        var isPressed: Boolean,
-        var animationProgress: Double = 0.0
-    ) {
-        fun toState() = KeyState(isPressed, animationProgress)
     }
 }
