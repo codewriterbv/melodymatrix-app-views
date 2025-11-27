@@ -13,9 +13,7 @@ class ParticleEngine {
 
     private var emitters: List<ParticleEmitter> = mutableListOf()
 
-    public fun add(emitter: ParticleEmitter) {
-
-
+    fun add(emitter: ParticleEmitter) {
         // Position the emitter
         //val randomYOffset = Random.nextDouble(-10.0, 10.0)
         //emitter?.x = width / 2.0 // Center horizontally
@@ -38,10 +36,10 @@ class ParticleEngine {
         startFireStateUpdates()
 
         // Add to list
-        emitters.
+        emitters.add(emitter)
     }
 
-     fun update(deltaTime: Double) {
+    fun update(deltaTime: Double) {
         if (emitters.isEmpty()) {
             return
         }
@@ -60,7 +58,7 @@ class ParticleEngine {
         }
     }
 
-    fun render(ctx : GraphicsContext) {
+    fun render(ctx: GraphicsContext) {
         if (emitters.isEmpty()) {
             return
         }
