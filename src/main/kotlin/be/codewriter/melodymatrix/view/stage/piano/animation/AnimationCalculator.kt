@@ -8,11 +8,40 @@ import javafx.scene.paint.Color
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AnimationCalculator(
     private val updateCallback: (AnimationState) -> Unit
 ) {
+    private sealed interface AnimationCommand {
+        data class KeyPress(val note: Note, val isPressed: Boolean) : AnimationCommand
+        data class Explosion(
+            val x: Double,
+            val y: Double,
+            val velocity: Int,
+            val radius: Double,
+            val color: Color,
+            val particleCount: Int,
+            val particleSize: Double,
+            val randomColor: Boolean
+        ) : AnimationCommand
+
+        data class Fireworks(
+            val x: Double,
+            val y: Double,
+            val velocity: Int,
+            val radius: Double,
+            val color: Color,
+            val particleCount: Int,
+            val particleSize: Double,
+            val randomColor: Boolean,
+            val tailParticleCount: Int,
+            val launchHeightMultiplier: Double,
+            val explosionType: FireworksExplosionType
+        ) : AnimationCommand
+    }
+
     private val executor: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { task ->
             Thread.ofVirtual().name("animation-calculator").unstarted(task)
@@ -21,6 +50,7 @@ class AnimationCalculator(
     private val isRunning = AtomicBoolean(false)
     private val stateLock = Any()
     private var lastUpdateTime = System.nanoTime()
+    private val commandQueue = ConcurrentLinkedQueue<AnimationCommand>()
 
     // State tracking
     private val activeParticles = mutableListOf<ParticleInfo>()
@@ -54,6 +84,7 @@ class AnimationCalculator(
         lastUpdateTime = currentTime
 
         val state = synchronized(stateLock) {
+            drainQueuedCommands()
             // Perform heavy calculations here
             updateParticles(deltaTime)
             updateKeyAnimations(deltaTime)
@@ -80,13 +111,7 @@ class AnimationCalculator(
     }
 
     fun updateKeyPress(note: Note, isPressed: Boolean) {
-        synchronized(stateLock) {
-            if (isPressed) {
-                activeKeys[note] = KeyAnimationInfo(note, isPressed = true)
-            } else {
-                activeKeys[note]?.isPressed = false
-            }
-        }
+        commandQueue.add(AnimationCommand.KeyPress(note, isPressed))
     }
 
     fun updateAboveKeyEffect(enabled: Boolean, startColor: Color, endColor: Color) {
@@ -105,20 +130,18 @@ class AnimationCalculator(
         particleSize: Double,
         randomColor: Boolean
     ) {
-        synchronized(stateLock) {
-            activeParticles.addAll(
-                explosionGenerator.generate(
-                    x = x,
-                    y = y,
-                    velocity = velocity,
-                    radius = radius,
-                    color = color,
-                    particleCount = particleCount,
-                    particleSize = particleSize,
-                    randomColor = randomColor
-                )
+        commandQueue.add(
+            AnimationCommand.Explosion(
+                x = x,
+                y = y,
+                velocity = velocity,
+                radius = radius,
+                color = color,
+                particleCount = particleCount,
+                particleSize = particleSize,
+                randomColor = randomColor
             )
-        }
+        )
     }
 
     fun addFireworks(
@@ -134,22 +157,68 @@ class AnimationCalculator(
         launchHeightMultiplier: Double,
         explosionType: FireworksExplosionType
     ) {
-        synchronized(stateLock) {
-            activeParticles.addAll(
-                fireworksGenerator.generate(
-                    x = x,
-                    y = y,
-                    velocity = velocity,
-                    radius = radius,
-                    color = color,
-                    particleCount = particleCount,
-                    particleSize = particleSize,
-                    randomColor = randomColor,
-                    tailParticleCount = tailParticleCount,
-                    launchHeightMultiplier = launchHeightMultiplier,
-                    explosionType = explosionType
-                )
+        commandQueue.add(
+            AnimationCommand.Fireworks(
+                x = x,
+                y = y,
+                velocity = velocity,
+                radius = radius,
+                color = color,
+                particleCount = particleCount,
+                particleSize = particleSize,
+                randomColor = randomColor,
+                tailParticleCount = tailParticleCount,
+                launchHeightMultiplier = launchHeightMultiplier,
+                explosionType = explosionType
             )
+        )
+    }
+
+    private fun drainQueuedCommands() {
+        while (true) {
+            val command = commandQueue.poll() ?: break
+            when (command) {
+                is AnimationCommand.KeyPress -> {
+                    if (command.isPressed) {
+                        activeKeys[command.note] = KeyAnimationInfo(command.note, isPressed = true)
+                    } else {
+                        activeKeys[command.note]?.isPressed = false
+                    }
+                }
+
+                is AnimationCommand.Explosion -> {
+                    activeParticles.addAll(
+                        explosionGenerator.generate(
+                            x = command.x,
+                            y = command.y,
+                            velocity = command.velocity,
+                            radius = command.radius,
+                            color = command.color,
+                            particleCount = command.particleCount,
+                            particleSize = command.particleSize,
+                            randomColor = command.randomColor
+                        )
+                    )
+                }
+
+                is AnimationCommand.Fireworks -> {
+                    activeParticles.addAll(
+                        fireworksGenerator.generate(
+                            x = command.x,
+                            y = command.y,
+                            velocity = command.velocity,
+                            radius = command.radius,
+                            color = command.color,
+                            particleCount = command.particleCount,
+                            particleSize = command.particleSize,
+                            randomColor = command.randomColor,
+                            tailParticleCount = command.tailParticleCount,
+                            launchHeightMultiplier = command.launchHeightMultiplier,
+                            explosionType = command.explosionType
+                        )
+                    )
+                }
+            }
         }
     }
 

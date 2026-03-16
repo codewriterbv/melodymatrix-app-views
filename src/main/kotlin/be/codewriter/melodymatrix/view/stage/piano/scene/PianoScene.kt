@@ -13,7 +13,10 @@ import javafx.animation.AnimationTimer
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.Color
+import javafx.scene.paint.RadialGradient
+import javafx.scene.paint.Stop
 
 class PianoScene(val config: PianoConfiguration) : Canvas() {
 
@@ -157,19 +160,38 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     }
 
     private fun drawSoftParticle(x: Double, y: Double, size: Double, color: Color, opacity: Double) {
-        val layers = listOf(
-            Triple(1.45, opacity * 0.18, 0.22),
-            Triple(1.15, opacity * 0.28, 0.14),
-            Triple(0.90, opacity * 0.42, 0.08),
-            Triple(0.65, opacity * 0.60, 0.03)
+        val cloudLayers = listOf(
+            Triple(1.55, opacity * 0.16, 0.25),
+            Triple(1.25, opacity * 0.24, 0.16),
+            Triple(0.98, opacity * 0.34, 0.10),
+            Triple(0.78, opacity * 0.46, 0.05)
         )
 
-        layers.forEach { (scale, alpha, offsetFactor) ->
+        cloudLayers.forEachIndexed { idx, (scale, alpha, offsetFactor) ->
             val scaledSize = size * scale
             val offset = size * offsetFactor
-            ctx.fill = Color.color(color.red, color.green, color.blue, alpha.coerceIn(0.0, 1.0))
-            ctx.fillOval(x - scaledSize / 2, y - scaledSize / 2 - offset, scaledSize, scaledSize * 0.72)
-            ctx.fillOval(x - scaledSize * 0.45, y - scaledSize * 0.28, scaledSize * 0.92, scaledSize * 0.54)
+            val xDrift = kotlin.math.sin((x + y) * 0.011 + idx) * size * 0.09
+            val yDrift = kotlin.math.cos((x - y) * 0.009 + idx) * size * 0.06
+
+            val gradient = RadialGradient(
+                0.0,
+                0.0,
+                x + xDrift,
+                y - offset + yDrift,
+                scaledSize * 0.55,
+                false,
+                CycleMethod.NO_CYCLE,
+                listOf(
+                    Stop(0.0, Color.color(color.red, color.green, color.blue, (alpha * 1.05).coerceIn(0.0, 1.0))),
+                    Stop(0.45, Color.color(color.red, color.green, color.blue, (alpha * 0.45).coerceIn(0.0, 1.0))),
+                    Stop(1.0, Color.color(color.red, color.green, color.blue, 0.0))
+                )
+            )
+
+            ctx.fill = gradient
+            // Two shifted ellipses per layer to create a soft amorphous cloud silhouette.
+            ctx.fillOval(x - scaledSize * 0.58 + xDrift, y - scaledSize * 0.48 - offset + yDrift, scaledSize, scaledSize * 0.72)
+            ctx.fillOval(x - scaledSize * 0.14 - xDrift * 0.35, y - scaledSize * 0.31 - offset * 0.55, scaledSize * 0.78, scaledSize * 0.52)
         }
     }
 }
