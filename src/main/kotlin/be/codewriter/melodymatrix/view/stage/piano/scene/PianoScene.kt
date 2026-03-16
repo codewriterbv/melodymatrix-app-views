@@ -25,6 +25,10 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     private var ctx: GraphicsContext
     private val animationTimer: AnimationTimer
 
+    // Cached images to avoid recreating them on every frame
+    private val backgroundImageCache = mutableMapOf<PianoBackgroundImage, Image>()
+    private var cachedLogoImage: Image? = null
+
     @Volatile
     private var latestAnimationState: AnimationState? = null
 
