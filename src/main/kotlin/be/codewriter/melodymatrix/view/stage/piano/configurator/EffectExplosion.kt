@@ -6,6 +6,8 @@ import javafx.geometry.HorizontalDirection
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
 class EffectExplosion(config: PianoConfiguration) : VBox() {
@@ -24,6 +26,11 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
         val numParticles = Slider().apply {
             min = 80.0
             max = 150.0
+            isShowTickMarks = true
+            isShowTickLabels = true
+            majorTickUnit = 10.0
+            minorTickCount = 9
+            isSnapToTicks = true
             valueProperty().bindBidirectional(config.explosionNumberOfParticles)
         }
         val particleSize = Slider().apply {
@@ -38,10 +45,10 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
         val color = ColorPicker().apply {
             valueProperty().bindBidirectional(config.explosionColor)
         }
-        val tailNumParticles = Slider().apply {
-            min = 0.9
-            max = 3.0
-            valueProperty().bindBidirectional(config.explosionTailNumberOfParticles)
+        val tailNumParticles = Spinner<Int>().apply {
+            val initialValue = config.explosionTailNumberOfParticles.get()
+            valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, initialValue)
+            valueProperty().bindBidirectional(config.explosionTailNumberOfParticles.asObject())
         }
 
         children.addAll(
