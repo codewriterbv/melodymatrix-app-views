@@ -83,7 +83,9 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
                 particleCount = config.fireworksNumberOfParticles.value,
                 particleSize = config.fireworksParticleSize.value,
                 randomColor = config.fireworksRandomColor.value,
-                tailParticleCount = config.fireworksTailNumberOfParticles.value
+                tailParticleCount = config.fireworksTailNumberOfParticles.value,
+                launchHeightMultiplier = config.fireworksLaunchHeightMultiplier.value,
+                explosionType = config.fireworksExplosionType.value
             )
         }
     }

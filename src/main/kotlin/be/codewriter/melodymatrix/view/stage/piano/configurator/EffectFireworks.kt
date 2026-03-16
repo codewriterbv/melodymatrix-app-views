@@ -1,9 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.stage.piano.data.FireworksExplosionType
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
+import javafx.collections.FXCollections
 import javafx.geometry.HorizontalDirection
 import javafx.scene.control.ColorPicker
+import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
@@ -43,12 +46,34 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
             max = 3.0
             valueProperty().bindBidirectional(config.fireworksTailNumberOfParticles)
         }
+        val launchHeightMultiplier = Slider().apply {
+            min = 0.6
+            max = 2.4
+            valueProperty().bindBidirectional(config.fireworksLaunchHeightMultiplier)
+        }
+        val explosionType = ComboBox<FireworksExplosionType>(
+            FXCollections.observableArrayList(FireworksExplosionType.values().toList())
+        ).apply {
+            value = config.fireworksExplosionType.value
+            valueProperty().addListener { _, _, newValue ->
+                if (newValue != null) {
+                    config.fireworksExplosionType.value = newValue
+                }
+            }
+            config.fireworksExplosionType.addListener { _, _, newValue ->
+                if (newValue != null && value != newValue) {
+                    value = newValue
+                }
+            }
+        }
 
         children.addAll(
             Label("Show Fireworks"), fireworksVisible,
             Label("fireworks Radius"), fireworksRadius,
             Label("Number of Particles"), numParticles,
             Label("Number of Tail Particles"), tailNumParticles,
+            Label("Launch Height"), launchHeightMultiplier,
+            Label("Explosion Type"), explosionType,
             Label("Particle Size"), particleSize,
             Label("Random Color"), randomColor,
             Label("Fixed Color"), color

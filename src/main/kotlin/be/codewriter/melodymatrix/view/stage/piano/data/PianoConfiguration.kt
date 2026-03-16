@@ -25,6 +25,8 @@ class PianoConfiguration {
     var fireworksNumberOfParticles = SimpleIntegerProperty(30)
     var fireworksParticleSize = SimpleDoubleProperty(5.0)
     var fireworksTailNumberOfParticles = SimpleIntegerProperty(10)
+    var fireworksLaunchHeightMultiplier = SimpleDoubleProperty(1.0)
+    var fireworksExplosionType = SimpleObjectProperty(FireworksExplosionType.CLASSIC)
 
     // Explosion settings
     var explosionEnabled = SimpleBooleanProperty(false)
