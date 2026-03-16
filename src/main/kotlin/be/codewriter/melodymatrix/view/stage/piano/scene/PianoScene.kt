@@ -50,6 +50,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     }
 
     fun stop() {
+        animationTimer.stop()
         animationCalculator?.stop()
     }
 
