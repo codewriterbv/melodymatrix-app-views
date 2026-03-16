@@ -8,7 +8,6 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import kotlin.system.exitProcess
 
 class TestApp : Application() {
     fun run() {
@@ -24,7 +23,6 @@ class TestApp : Application() {
             setOnCloseRequest {
                 logger.warn("Closing application...")
                 Platform.exit()
-                exitProcess(0)
             }
             show()
         }

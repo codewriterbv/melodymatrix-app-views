@@ -17,9 +17,21 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     init {
         spacing = 10.0
 
+        val slider = Slider().apply {
+            min = 250.0
+            max = 1000.0
+            value = 500.0
+            blockIncrement = 5.0
+            isShowTickMarks = true
+            isShowTickLabels = true
+            valueProperty().addListener { _: ObservableValue<out Number>?, _: Number, newValue: Number ->
+                midiSimulator.setDelay(newValue.toLong())
+            }
+        }
+
         children.setAll(
             Label("Midi events selection"),
-            createDurationSlider(),
+            slider,
             createButton(
                 "Play all notes (repeat)", Note.entries
                     .toList()
@@ -35,7 +47,8 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                 Collections.singletonList(Note.C5),
                 false
             ),
-            createButton("Play all from octave 5 (repeat)",
+            createButton(
+                "Play all from octave 5 (repeat)",
                 Note.entries.stream()
                     .filter { n -> n.octave == Octave.OCTAVE_5 }
                     .toList()
@@ -58,22 +71,20 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             createButton(
                 "Send pitch bend message",
                 MidiData(byteArrayOf("11100000".toInt(2).toByte(), 0x00, 0x60))
-            )
-        )
-    }
-
-    private fun createDurationSlider(): Slider {
-        return Slider().apply {
-            min = 250.0
-            max = 1000.0
-            value = 500.0
-            blockIncrement = 5.0
-            isShowTickMarks = true
-            isShowTickLabels = true
-            valueProperty().addListener { _: ObservableValue<out Number>?, _: Number, newValue: Number ->
-                midiSimulator.setDelay(newValue.toLong())
+            ),
+            Button("Start FPS test").apply {
+                minWidth = 200.0
+                setOnMouseClicked { _ ->
+                    midiSimulator.setNotes(
+                        Note.entries
+                            .toList()
+                            .shuffled(), true
+                    )
+                    slider.value = 300.0
+                    midiSimulator.setDelay(slider.value.toLong())
+                }
             }
-        }
+        )
     }
 
     private fun createButton(
