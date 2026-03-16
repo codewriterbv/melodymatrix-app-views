@@ -116,9 +116,10 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             val image = backgroundImageCache.getOrPut(config.backgroundImage.value) {
                 Image(config.backgroundImage.value.file, PIANO_WIDTH, PIANO_BACKGROUND_HEIGHT, false, true)
             }
+            val previousAlpha = ctx.globalAlpha
             ctx.globalAlpha = config.backgroundImageTransparency.value
             ctx.drawImage(image, 0.0, 0.0)
-            ctx.globalAlpha = 1.0
+            ctx.globalAlpha = previousAlpha
         }
 
         state?.let(::drawAboveKeyParticles)
@@ -131,9 +132,10 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             val image = cachedLogoImage ?: Image("logo/heavy-melodymatrix.png").also {
                 cachedLogoImage = it
             }
+            val previousAlpha = ctx.globalAlpha
             ctx.globalAlpha = config.logoTransparency.value
             ctx.drawImage(image, config.logoLeft.value, config.logoTop.value, w, h)
-            ctx.globalAlpha = 1.0
+            ctx.globalAlpha = previousAlpha
         }
     }
 
