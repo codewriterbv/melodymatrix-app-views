@@ -9,8 +9,8 @@ import javafx.scene.paint.Color
 class PianoConfiguration {
     // Above Key settings
     var aboveKeyEnabled = SimpleBooleanProperty(true)
-    var aboveKeyColorStart = SimpleObjectProperty(Color.rgb(255, 0, 0))
-    var aboveKeyColorEnd = SimpleObjectProperty(Color.rgb(0, 0, 2))
+    var aboveKeyColorStart = SimpleObjectProperty(Color.RED)
+    var aboveKeyColorEnd = SimpleObjectProperty(Color.YELLOW)
 
     // Background settings
     var backgroundColor = SimpleObjectProperty(Color.BLACK)

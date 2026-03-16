@@ -2,19 +2,26 @@ package be.codewriter.melodymatrix.view.stage.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
 import javafx.geometry.Point2D
 import javafx.scene.paint.Color
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.random.Random
 
 class AnimationCalculator(
     private val updateCallback: (AnimationState) -> Unit
 ) {
+    private data class AboveKeyEffectConfig(
+        val enabled: Boolean = true,
+        val startColor: Color = Color.rgb(255, 0, 0),
+        val endColor: Color = Color.rgb(0, 0, 2)
+    )
+
     private val executor: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { task ->
             Thread.ofVirtual().name("animation-calculator").unstarted(task)
@@ -26,7 +33,9 @@ class AnimationCalculator(
 
     // State tracking
     private val activeParticles = mutableListOf<ParticleInfo>()
+    private val aboveKeyParticles = mutableListOf<AboveKeyParticleInfo>()
     private val activeKeys = mutableMapOf<Note, KeyAnimationInfo>()
+    private var aboveKeyConfig = AboveKeyEffectConfig()
 
     fun start() {
         if (isRunning.compareAndSet(false, true)) {
@@ -61,6 +70,7 @@ class AnimationCalculator(
             AnimationState(
                 timestamp = currentTime,
                 particlePositions = activeParticles.map { it.toData() },
+                aboveKeyParticles = aboveKeyParticles.map { it.toData() },
                 fireEmitterState = calculateFireState(),
                 keyStates = activeKeys.mapValues { it.value.toState() }
             )
@@ -82,6 +92,22 @@ class AnimationCalculator(
                 activeKeys[note] = KeyAnimationInfo(note, isPressed = true)
             } else {
                 activeKeys[note]?.isPressed = false
+            }
+        }
+    }
+
+    fun updateAboveKeyEffect(enabled: Boolean, startColor: Color, endColor: Color) {
+        synchronized(stateLock) {
+            val previousEnabled = aboveKeyConfig.enabled
+            val previousStart = aboveKeyConfig.startColor
+            val previousEnd = aboveKeyConfig.endColor
+
+            aboveKeyConfig = AboveKeyEffectConfig(enabled, startColor, endColor)
+
+            if (!enabled) {
+                aboveKeyParticles.clear()
+            } else if (!previousEnabled || previousStart != startColor || previousEnd != endColor) {
+                seedAboveKeyParticles()
             }
         }
     }
@@ -174,6 +200,54 @@ class AnimationCalculator(
         }
     }
 
+    private fun updateAboveKeyParticles(deltaTime: Double) {
+        if (!aboveKeyConfig.enabled) {
+            aboveKeyParticles.clear()
+            return
+        }
+
+        if (aboveKeyParticles.isEmpty()) {
+            seedAboveKeyParticles()
+        }
+
+        // Animate color transitions for smoke particles near played keys
+        val activeKeyXs = activeKeys.filter { it.value.isPressed }.map { noteInfo ->
+            // Map note to x position (approximate)
+            val note = noteInfo.key
+            val idx = note.ordinal // Assuming Note is enum
+            val totalKeys = 88 // Standard piano
+            val x = (idx.toDouble() / totalKeys) * PIANO_WIDTH
+            x
+        }
+
+        aboveKeyParticles.forEach { particle ->
+            particle.x += particle.driftSpeed * deltaTime
+            particle.phase += deltaTime * particle.phaseSpeed
+            particle.opacityPhase += deltaTime * particle.opacitySpeed
+
+            if (particle.x < -particle.size) {
+                particle.x = PIANO_WIDTH + particle.size * 0.5
+            } else if (particle.x > PIANO_WIDTH + particle.size) {
+                particle.x = -particle.size * 0.5
+            }
+
+            particle.y = particle.baseY + sin(particle.phase) * particle.wobbleAmplitude
+            particle.opacity = (particle.baseOpacity + sin(particle.opacityPhase) * 0.035).coerceIn(0.04, 0.22)
+
+            // If near a pressed key, animate color toward endColor
+            val proximity = activeKeyXs.any { keyX -> Math.abs(particle.x - keyX) < 80.0 }
+            if (proximity) {
+                // Blend color toward endColor
+                val blendFactor = 0.12
+                particle.color = blend(particle.color, aboveKeyConfig.endColor, blendFactor)
+            } else {
+                // Slowly revert to startColor
+                val blendFactor = 0.04
+                particle.color = blend(particle.color, aboveKeyConfig.startColor, blendFactor)
+            }
+        }
+    }
+
     private fun updateKeyAnimations(deltaTime: Double) {
         activeKeys.values.forEach { key ->
             key.animationProgress += deltaTime * 5.0 // Animation speed
@@ -184,6 +258,7 @@ class AnimationCalculator(
     }
 
     private fun updateFireEffect(deltaTime: Double): FireState {
+        updateAboveKeyParticles(deltaTime)
         // Calculate fire animation state
         return FireState(0.0, 0.0, 1.0)
     }
@@ -205,6 +280,44 @@ class AnimationCalculator(
         )
     }
 
+    private fun seedAboveKeyParticles() {
+        aboveKeyParticles.clear()
+        // Increase particle count for denser smoke
+        repeat(32) {
+            aboveKeyParticles.add(createAboveKeyParticle(Random.nextDouble(0.0, PIANO_WIDTH)))
+        }
+    }
+
+    private fun createAboveKeyParticle(initialX: Double): AboveKeyParticleInfo {
+        val size = Random.nextDouble(100.0, 220.0) // Larger, more irregular
+        return AboveKeyParticleInfo(
+            x = initialX,
+            y = 0.0,
+            baseY = Random.nextDouble(PIANO_BACKGROUND_HEIGHT - 50.0, PIANO_BACKGROUND_HEIGHT - 15.0),
+            size = size,
+            color = blend(aboveKeyConfig.startColor, aboveKeyConfig.endColor, Random.nextDouble(0.0, 1.0)),
+            opacity = Random.nextDouble(0.06, 0.18),
+            baseOpacity = Random.nextDouble(0.06, 0.18),
+            driftSpeed = Random.nextDouble(-22.0, 22.0),
+            phase = Random.nextDouble(0.0, Math.PI * 2),
+            phaseSpeed = Random.nextDouble(0.22, 0.55),
+            wobbleAmplitude = Random.nextDouble(8.0, 22.0),
+            opacityPhase = Random.nextDouble(0.0, Math.PI * 2),
+            opacitySpeed = Random.nextDouble(0.18, 0.45)
+        ).apply {
+            y = baseY + sin(phase) * wobbleAmplitude
+        }
+    }
+
+    private fun blend(startColor: Color, endColor: Color, factor: Double): Color {
+        val clampedFactor = factor.coerceIn(0.0, 1.0)
+        return Color.color(
+            startColor.red + (endColor.red - startColor.red) * clampedFactor,
+            startColor.green + (endColor.green - startColor.green) * clampedFactor,
+            startColor.blue + (endColor.blue - startColor.blue) * clampedFactor
+        )
+    }
+
     // Helper classes
     data class ParticleInfo(
         var x: Double,
@@ -216,6 +329,24 @@ class AnimationCalculator(
         var age: Double = 0.0
     ) {
         fun toData() = ParticleData(x, y, color, size, (1.0 - (age / lifespan)).coerceIn(0.0, 1.0))
+    }
+
+    data class AboveKeyParticleInfo(
+        var x: Double,
+        var y: Double,
+        val baseY: Double,
+        val size: Double,
+        var color: Color,
+        var opacity: Double,
+        val baseOpacity: Double,
+        val driftSpeed: Double,
+        var phase: Double,
+        val phaseSpeed: Double,
+        val wobbleAmplitude: Double,
+        var opacityPhase: Double,
+        val opacitySpeed: Double
+    ) {
+        fun toData() = AboveKeyParticleData(x, y, color, size, opacity)
     }
 
     data class KeyAnimationInfo(

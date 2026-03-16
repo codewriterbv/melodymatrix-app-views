@@ -91,6 +91,12 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     private fun update() {
         val state = latestAnimationState
 
+        animationCalculator?.updateAboveKeyEffect(
+            enabled = config.aboveKeyEnabled.value,
+            startColor = config.aboveKeyColorStart.value,
+            endColor = config.aboveKeyColorEnd.value
+        )
+
         // Apply state to visual elements
         ctx.clearRect(0.0, 0.0, width, height)
         ctx.fill = config.backgroundColor.value
@@ -110,6 +116,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             ctx.drawImage(image, 0.0, 0.0)
         }
 
+        state?.let(::drawAboveKeyParticles)
         state?.let(::drawParticles)
 
         // Logo image
@@ -138,6 +145,29 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
                 particle.opacity
             )
             ctx.fillOval(particle.x, particle.y, particle.size, particle.size)
+        }
+    }
+
+    private fun drawAboveKeyParticles(state: AnimationState) {
+        state.aboveKeyParticles.forEach { particle ->
+            drawSoftParticle(particle.x, particle.y, particle.size, particle.color, particle.opacity)
+        }
+    }
+
+    private fun drawSoftParticle(x: Double, y: Double, size: Double, color: Color, opacity: Double) {
+        val layers = listOf(
+            Triple(1.45, opacity * 0.18, 0.22),
+            Triple(1.15, opacity * 0.28, 0.14),
+            Triple(0.90, opacity * 0.42, 0.08),
+            Triple(0.65, opacity * 0.60, 0.03)
+        )
+
+        layers.forEach { (scale, alpha, offsetFactor) ->
+            val scaledSize = size * scale
+            val offset = size * offsetFactor
+            ctx.fill = Color.color(color.red, color.green, color.blue, alpha.coerceIn(0.0, 1.0))
+            ctx.fillOval(x - scaledSize / 2, y - scaledSize / 2 - offset, scaledSize, scaledSize * 0.72)
+            ctx.fillOval(x - scaledSize * 0.45, y - scaledSize * 0.28, scaledSize * 0.92, scaledSize * 0.54)
         }
     }
 }
