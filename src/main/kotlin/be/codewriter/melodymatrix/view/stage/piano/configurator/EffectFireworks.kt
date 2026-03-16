@@ -21,7 +21,7 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
         }
         val fireworksRadius = Slider().apply {
             min = 2.0
-            max = 9.5
+            max = 50.0
             valueProperty().bindBidirectional(config.fireworksRadius)
         }
         val numParticles = Slider().apply {

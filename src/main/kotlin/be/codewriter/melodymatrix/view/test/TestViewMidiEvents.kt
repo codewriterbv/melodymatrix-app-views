@@ -17,7 +17,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     init {
         spacing = 10.0
 
-        var slider = Slider().apply {
+        val slider = Slider().apply {
             min = 250.0
             max = 1000.0
             value = 500.0

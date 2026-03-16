@@ -1,4 +1,4 @@
-package be.codewriter.melodymatrix.view.stage.piano.data
+package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
 import javafx.geometry.HorizontalDirection
