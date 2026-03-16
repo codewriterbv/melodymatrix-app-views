@@ -112,9 +112,10 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         ctx.fillRect(0.0, 0.0, width, height)
 
         // Background image
-        if (config.backgroundImage.value != PianoBackgroundImage.NONE) {
-            val image = backgroundImageCache.getOrPut(config.backgroundImage.value) {
-                Image(config.backgroundImage.value.file, PIANO_WIDTH, PIANO_BACKGROUND_HEIGHT, false, true)
+        val bg = config.backgroundImage.value
+        if (bg != PianoBackgroundImage.NONE) {
+            val image = backgroundImageCache.getOrPut(bg) {
+                Image(bg.file, PIANO_WIDTH, PIANO_BACKGROUND_HEIGHT, false, true)
             }
             val previousAlpha = ctx.globalAlpha
             ctx.globalAlpha = config.backgroundImageTransparency.value
