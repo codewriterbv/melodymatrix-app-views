@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.geometry.HorizontalDirection
 import javafx.geometry.Pos
 import javafx.scene.control.ColorPicker
@@ -41,13 +42,13 @@ class KeyColors(val config: PianoConfiguration) : VBox() {
                 spacing = 5.0
                 alignment = Pos.CENTER_LEFT
             },
-            Label("Key note name"),
-            HBox(keyNameColor, keyNameVisible).apply {
+            Label("Black key"),
+            HBox(blackKeyColor, blackKeyActiveColor).apply {
                 spacing = 5.0
                 alignment = Pos.CENTER_LEFT
             },
-            Label("Black key"),
-            HBox(blackKeyColor, blackKeyActiveColor).apply {
+            Label("Key note name"),
+            HBox(keyNameColor, keyNameVisible).apply {
                 spacing = 5.0
                 alignment = Pos.CENTER_LEFT
             }

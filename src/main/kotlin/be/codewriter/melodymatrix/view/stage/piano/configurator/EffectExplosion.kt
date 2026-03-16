@@ -3,11 +3,7 @@ package be.codewriter.melodymatrix.view.stage.piano.configurator
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.geometry.HorizontalDirection
-import javafx.scene.control.ColorPicker
-import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 
 class EffectExplosion(config: PianoConfiguration) : VBox() {
@@ -48,7 +44,7 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
         val tailNumParticles = Spinner<Int>().apply {
             val initialValue = config.explosionTailNumberOfParticles.get()
             valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, initialValue)
-            valueProperty().bindBidirectional(config.explosionTailNumberOfParticles.asObject())
+            config.explosionTailNumberOfParticles.bind(valueFactory.valueProperty())
         }
 
         children.addAll(

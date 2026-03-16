@@ -1,20 +1,20 @@
 package be.codewriter.melodymatrix.view.stage.piano.scene
 
+import be.codewriter.melodymatrix.view.data.MidiData
+import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationCalculator
 import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationState
-import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
-import javafx.geometry.Point2D
+import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.animation.AnimationTimer
+import javafx.geometry.Point2D
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
-import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.Color
+import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import javafx.scene.paint.Stop
 
@@ -27,7 +27,6 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
 
     // Cached images to avoid recreating them on every frame
     private val backgroundImageCache = mutableMapOf<PianoBackgroundImage, Image>()
-    private var cachedLogoImage: Image? = null
 
     @Volatile
     private var latestAnimationState: AnimationState? = null
@@ -210,8 +209,18 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
 
             ctx.fill = gradient
             // Two shifted ellipses per layer to create a soft amorphous cloud silhouette.
-            ctx.fillOval(x - scaledSize * 0.58 + xDrift, y - scaledSize * 0.48 - offset + yDrift, scaledSize, scaledSize * 0.72)
-            ctx.fillOval(x - scaledSize * 0.14 - xDrift * 0.35, y - scaledSize * 0.31 - offset * 0.55, scaledSize * 0.78, scaledSize * 0.52)
+            ctx.fillOval(
+                x - scaledSize * 0.58 + xDrift,
+                y - scaledSize * 0.48 - offset + yDrift,
+                scaledSize,
+                scaledSize * 0.72
+            )
+            ctx.fillOval(
+                x - scaledSize * 0.14 - xDrift * 0.35,
+                y - scaledSize * 0.31 - offset * 0.55,
+                scaledSize * 0.78,
+                scaledSize * 0.52
+            )
         }
     }
 }

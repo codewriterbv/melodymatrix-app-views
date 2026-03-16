@@ -1,64 +1,39 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
-import be.codewriter.melodymatrix.view.stage.midi.MidiStage
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage
-import be.codewriter.melodymatrix.view.video.DummyVideoRecorder
-import javafx.scene.Node
-import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
-import javafx.stage.Stage
-import stage.drum.DrumStage
-import stage.ledstrip.LedStripStage
-import stage.scale.ScaleStage
-
 
 class TestViewStages(
-    val parentStage: Stage,
-    val midiSimulator: MidiSimulator,
-    licenseStatus: LicenseStatus
+    stageLabels: List<String>,
+    private val onStageToggle: (String, Boolean) -> Unit
 ) : VBox() {
+
+    private val togglesByLabel: MutableMap<String, CheckBox> = linkedMapOf()
 
     init {
         spacing = 10.0
 
-        children.setAll(
-            Label("Open one or more views"),
-            createButton("Midi") { MidiStage() },
-            createButton("Piano") {
-                PianoStage(licenseStatus, DummyVideoRecorder(), true)
-            },
-            createButton("Charts") { ChartsStage() },
-            createButton("Scale") { ScaleStage() },
-            createButton("Drum") { DrumStage() },
-            createButton("LED Strip") { LedStripStage() }
-        )
-    }
-
-    private fun createButton(
-        label: String,
-        stageSupplier: () -> VisualizerStage
-    ): Node {
-        val view = Button(label).apply {
-            minWidth = 200.0
-            setOnMouseClicked { _ ->
-                val stage = stageSupplier()
-                midiSimulator.registerListener(stage)
-
-                val onClose = stage.onCloseRequest
-                stage.setOnCloseRequest {
-                    midiSimulator.removeListener(stage)
-                    onClose.handle(it)
+        val toggles = stageLabels.map { label ->
+            CheckBox(label).apply {
+                minWidth = 220.0
+                selectedProperty().addListener { _, _, isSelected ->
+                    onStageToggle(label, isSelected)
                 }
-
-                stage.initOwner(parentStage)
-                stage.show()
+                togglesByLabel[label] = this
             }
         }
 
-        return view
+        children.setAll(
+            Label("Select visualizer tabs for the main view"),
+            *toggles.toTypedArray()
+        )
+    }
+
+    fun setSelected(label: String, selected: Boolean) {
+        val toggle = togglesByLabel[label] ?: return
+        if (toggle.isSelected != selected) {
+            toggle.isSelected = selected
+        }
     }
 }

@@ -16,12 +16,16 @@ class TestApp : Application() {
 
     override fun start(stage: Stage) {
         setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
+
+        val testView = TestView()
+
         with(stage) {
-            scene = Scene(TestView(stage), 800.0, 600.0)
+            scene = Scene(testView, 2600.0, 1000.0)
             title = "Test application for the MelodyMatrix Viewers"
 
             setOnCloseRequest {
                 logger.warn("Closing application...")
+                testView.shutdown()
                 Platform.exit()
             }
             show()

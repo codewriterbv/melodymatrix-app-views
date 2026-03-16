@@ -47,6 +47,13 @@
             <version>${atlantafx.version}</version>
         </dependency>
 
+        <!-- BentoFX -->
+        <dependency>
+            <groupId>software.coley</groupId>
+            <artifactId>bento-fx</artifactId>
+            <version>0.15.1</version>
+        </dependency>
+
         <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>

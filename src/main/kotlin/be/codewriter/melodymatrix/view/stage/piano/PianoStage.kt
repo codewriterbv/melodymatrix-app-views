@@ -6,7 +6,6 @@ import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.stage.piano.configurator.*
-import be.codewriter.melodymatrix.view.stage.piano.data.KeyColors
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView
 import be.codewriter.melodymatrix.view.stage.piano.scene.PianoScene
