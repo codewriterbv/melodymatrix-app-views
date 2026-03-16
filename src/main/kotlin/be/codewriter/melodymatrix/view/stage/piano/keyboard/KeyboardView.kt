@@ -19,25 +19,22 @@ class KeyboardView(config: PianoConfiguration) : StackPane() {
         Note.pianoKeys().forEach { note ->
             if (note.mainNote.isSharp) {
                 val x = previousWhiteKeyX + PIANO_WHITE_KEY_WIDTH - (PIANO_BLACK_KEY_WIDTH / 2)
-                val y = PIANO_BLACK_KEY_HEIGHT - PIANO_WHITE_KEY_HEIGHT
-                val key = KeyBlack(config, note, x, y)
+                val key = KeyBlack(config, note, x)
                 keys[note] = key
-                addUINode(key, x, y)
+                addUINode(key, x)
             } else {
                 val x = counterWhiteKeys * PIANO_WHITE_KEY_WIDTH
-                val y = PIANO_BLACK_KEY_HEIGHT - PIANO_WHITE_KEY_HEIGHT
-                val key = KeyWhite(config, note, x, y)
+                val key = KeyWhite(config, note, x)
                 keys[note] = key
-                addUINode(key, x, y)
+                addUINode(key, x)
                 counterWhiteKeys++
                 previousWhiteKeyX = x
             }
         }
     }
 
-    private fun addUINode(key: Node, x: Double, y: Double) {
+    private fun addUINode(key: Node, x: Double) {
         key.translateX = x
-        key.translateY = y
         children.add(key)
     }
 
@@ -57,10 +54,9 @@ class KeyboardView(config: PianoConfiguration) : StackPane() {
     }
 
     companion object {
-
         const val PIANO_WHITE_KEY_WIDTH = 24.66
         const val PIANO_WHITE_KEY_HEIGHT = 120.0
-        const val PIANO_BLACK_KEY_WIDTH = 16.0
+        const val PIANO_BLACK_KEY_WIDTH = 18.0
         const val PIANO_BLACK_KEY_HEIGHT = 80.0
     }
 }

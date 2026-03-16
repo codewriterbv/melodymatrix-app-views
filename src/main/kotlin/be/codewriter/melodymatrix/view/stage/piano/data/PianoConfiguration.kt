@@ -46,9 +46,9 @@ class PianoConfiguration {
 
     // Piano Key settings
     var pianoWhiteKeyColor = SimpleObjectProperty(Color.WHITE)
-    var pianoWhiteKeyActiveColor = SimpleObjectProperty(Color.LIGHTGRAY)
+    var pianoWhiteKeyActiveColor = SimpleObjectProperty(Color.RED)
     var pianoBlackKeyColor = SimpleObjectProperty(Color.BLACK)
-    var pianoBlackKeyActiveColor = SimpleObjectProperty(Color.DARKGRAY)
+    var pianoBlackKeyActiveColor = SimpleObjectProperty(Color.YELLOW)
     var pianoKeyNameColor = SimpleObjectProperty(Color.BLACK)
     var pianoKeyNameVisible = SimpleBooleanProperty(false)
 }
