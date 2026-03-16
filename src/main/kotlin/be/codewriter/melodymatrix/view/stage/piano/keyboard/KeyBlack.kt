@@ -16,6 +16,10 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double, va
         fill = config.pianoBlackKeyColor.value
     }
 
+    init {
+        children.add(key)
+    }
+
     override fun note(): Note {
         return note
     }
