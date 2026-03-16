@@ -45,12 +45,12 @@ class KeyboardView(config: PianoConfiguration) : StackPane() {
 
     fun getEffectOrigin(note: Note): Point2D? {
         val key = keys[note] ?: return null
-        val centerX = key.position().x + if (note.mainNote.isSharp) {
+        val centerX = key.keyX() + if (note.mainNote.isSharp) {
             PIANO_BLACK_KEY_WIDTH / 2
         } else {
             PIANO_WHITE_KEY_WIDTH / 2
         }
-        return Point2D(centerX, key.position().y)
+        return Point2D(centerX, 0.0)
     }
 
     companion object {
