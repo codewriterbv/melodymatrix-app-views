@@ -123,17 +123,74 @@ class AnimationCalculator(
         randomColor: Boolean
     ) {
         synchronized(stateLock) {
-            repeat(particleCount.coerceAtLeast(1)) {
-                val angle = Random.nextDouble(0.0, Math.PI * 2)
-                val speed = Random.nextDouble(radius * 5.0, radius * 11.0) * (0.35 + velocity.coerceAtLeast(1) / 127.0)
+            val clampedVelocity = velocity.coerceAtLeast(1)
+            val intensity = clampedVelocity / 127.0
+            val effectiveCount = particleCount.coerceAtLeast(1)
+            val effectiveRadius = radius.coerceAtLeast(1.0)
+            val baseSize = particleSize.coerceAtLeast(1.0)
+            val palette = buildExplosionPalette(color, randomColor)
+            val baseLift = 1.0 + (intensity * intensity) * 2.8
+            val epicPhase = ((intensity - 0.55) / 0.45).coerceIn(0.0, 1.0)
+            val epicBoost = 1.0 + (epicPhase * epicPhase) * 1.2
+            val velocityLift = baseLift * epicBoost
+
+            val coreCount = (effectiveCount * 0.45).toInt().coerceAtLeast(1)
+            val sparkCount = (effectiveCount * 0.30).toInt().coerceAtLeast(1)
+            val mistCount = (effectiveCount - coreCount - sparkCount).coerceAtLeast(1)
+
+            // Bright center bloom: short-lived, larger particles near the key.
+            repeat(coreCount) {
+                val speed = Random.nextDouble(effectiveRadius * 1.6, effectiveRadius * 4.4) * (0.50 + intensity * 0.70)
+                val angle = Random.nextDouble(-Math.PI * 0.85, -Math.PI * 0.15)
+                activeParticles.add(
+                    ParticleInfo(
+                        x = x + Random.nextDouble(-3.0, 3.0),
+                        y = y + Random.nextDouble(-2.0, 2.0),
+                        velocity = Point2D(
+                            cos(angle) * speed,
+                            sin(angle) * speed - Random.nextDouble(24.0, 46.0) * (0.95 + velocityLift * 0.85)
+                        ),
+                        color = blend(palette.random(), Color.WHITE, Random.nextDouble(0.35, 0.62)),
+                        lifespan = Random.nextDouble(0.28, 0.58) + intensity * 0.18,
+                        size = baseSize * Random.nextDouble(1.25, 1.95)
+                    )
+                )
+            }
+
+            // Directional sparks: narrower upward cone for cleaner cinematic arcs.
+            repeat(sparkCount) {
+                val speed = Random.nextDouble(effectiveRadius * 4.8, effectiveRadius * 10.8) * (0.52 + intensity * 0.95)
+                val angle = Random.nextDouble(-Math.PI * 0.72, -Math.PI * 0.28)
                 activeParticles.add(
                     ParticleInfo(
                         x = x,
                         y = y,
-                        velocity = Point2D(cos(angle) * speed, sin(angle) * speed - Random.nextDouble(30.0, 80.0)),
-                        color = resolveColor(color, randomColor),
-                        lifespan = Random.nextDouble(0.45, 1.2),
-                        size = particleSize
+                        velocity = Point2D(
+                            cos(angle) * speed,
+                            sin(angle) * speed - Random.nextDouble(12.0, 40.0) * (0.9 + velocityLift * 1.15)
+                        ),
+                        color = jitterColor(palette.random()),
+                        lifespan = Random.nextDouble(0.42, 0.88) + intensity * 0.22,
+                        size = baseSize * Random.nextDouble(0.62, 1.12)
+                    )
+                )
+            }
+
+            // Soft mist layer: slower and larger particles to fake blur with circle rendering.
+            repeat(mistCount) {
+                val speed = Random.nextDouble(effectiveRadius * 1.1, effectiveRadius * 3.5) * (0.36 + intensity * 0.52)
+                val angle = Random.nextDouble(-Math.PI * 0.92, -Math.PI * 0.08)
+                activeParticles.add(
+                    ParticleInfo(
+                        x = x + Random.nextDouble(-7.0, 7.0),
+                        y = y + Random.nextDouble(-4.0, 2.0),
+                        velocity = Point2D(
+                            cos(angle) * speed,
+                            sin(angle) * speed - Random.nextDouble(18.0, 34.0) * (0.9 + velocityLift * 0.95)
+                        ),
+                        color = blend(palette.first(), palette.last(), Random.nextDouble(0.18, 0.78)),
+                        lifespan = Random.nextDouble(0.72, 1.35) + intensity * 0.28,
+                        size = baseSize * Random.nextDouble(1.45, 2.5)
                     )
                 )
             }
@@ -278,6 +335,32 @@ class AnimationCalculator(
             Random.nextDouble(0.4, 1.0),
             Random.nextDouble(0.4, 1.0)
         )
+    }
+
+    private fun buildExplosionPalette(baseColor: Color, randomColor: Boolean): List<Color> {
+        if (!randomColor) {
+            return listOf(
+                blend(baseColor, Color.WHITE, 0.55),
+                baseColor,
+                blend(baseColor, Color.color(0.0, 0.0, 0.0), 0.30)
+            )
+        }
+
+        val cinematicPalettes = listOf(
+            listOf(Color.rgb(66, 214, 255), Color.rgb(167, 102, 255), Color.rgb(255, 80, 176)),
+            listOf(Color.rgb(74, 255, 185), Color.rgb(54, 170, 255), Color.rgb(147, 92, 255)),
+            listOf(Color.rgb(255, 170, 76), Color.rgb(255, 92, 129), Color.rgb(182, 96, 255))
+        )
+        val palette = cinematicPalettes.random()
+        return palette.map { blend(it, baseColor, 0.18) }
+    }
+
+    private fun jitterColor(color: Color): Color {
+        val amount = 0.09
+        fun jitter(value: Double): Double {
+            return (value + Random.nextDouble(-amount, amount)).coerceIn(0.0, 1.0)
+        }
+        return Color.color(jitter(color.red), jitter(color.green), jitter(color.blue))
     }
 
     private fun seedAboveKeyParticles() {
