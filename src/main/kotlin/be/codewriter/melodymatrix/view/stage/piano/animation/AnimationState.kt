@@ -10,6 +10,6 @@ data class AnimationState(
     val keyStates: Map<Note, KeyState>
 )
 
-data class ParticleData(val x: Double, val y: Double, val color: Color, val size: Double)
+data class ParticleData(val x: Double, val y: Double, val color: Color, val size: Double, val opacity: Double)
 data class FireState(val x: Double, val y: Double, val intensity: Double)
 data class KeyState(val isPressed: Boolean, val animationProgress: Double)

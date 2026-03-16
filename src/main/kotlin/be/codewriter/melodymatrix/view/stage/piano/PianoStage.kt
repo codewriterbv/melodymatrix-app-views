@@ -167,7 +167,9 @@ class PianoStage(
             )
 
             keyboardView.playNote(midiData)
-            //pianoGenerator.playNote(midiData)
+            keyboardView.getEffectOrigin(midiData.note)?.let { keyOrigin ->
+                pianoScene.playNote(midiData, keyOrigin)
+            }
         }
     }
 
