@@ -28,11 +28,29 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     @Volatile
     private var latestAnimationState: AnimationState? = null
 
+    // Cached images to avoid recreating them every frame
+    private var cachedBackgroundImage: Image? = null
+    private var cachedBackgroundImageKey: PianoBackgroundImage? = null
+    private var cachedLogoImage: Image? = null
+    private var cachedLogoWidth: Double = -1.0
+
     init {
         width = PIANO_WIDTH
         height = PIANO_BACKGROUND_HEIGHT
 
         ctx = graphicsContext2D
+
+        // Invalidate cached background image when the source changes
+        config.backgroundImage.addListener { _, _, _ ->
+            cachedBackgroundImage = null
+            cachedBackgroundImageKey = null
+        }
+
+        // Invalidate cached logo image when the width changes (affects rendered size)
+        config.logoWidth.addListener { _, _, _ ->
+            cachedLogoImage = null
+            cachedLogoWidth = -1.0
+        }
 
         // Start animation calculator
         animationCalculator = AnimationCalculator { state ->
@@ -110,16 +128,15 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
 
         // Background image
         if (config.backgroundImage.value != PianoBackgroundImage.NONE) {
-            val image = Image(
-                config.backgroundImage.value.file,
-                PIANO_WIDTH,
-                PIANO_BACKGROUND_HEIGHT,
-                false,
-                true
-            ).apply {
-                opacity = config.backgroundImageTransparency.value
+            val bgKey = config.backgroundImage.value
+            if (cachedBackgroundImage == null || cachedBackgroundImageKey != bgKey) {
+                cachedBackgroundImageKey = bgKey
+                cachedBackgroundImage = Image(bgKey.file, PIANO_WIDTH, PIANO_BACKGROUND_HEIGHT, false, true)
             }
-            ctx.drawImage(image, 0.0, 0.0)
+            val savedAlpha = ctx.globalAlpha
+            ctx.globalAlpha = config.backgroundImageTransparency.value
+            ctx.drawImage(cachedBackgroundImage, 0.0, 0.0)
+            ctx.globalAlpha = savedAlpha
         }
 
         state?.let(::drawAboveKeyParticles)
@@ -129,16 +146,14 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         if (config.logoVisible.value) {
             val w = config.logoWidth.value
             val h = (w / 796.0) * 164
-            val image = Image(
-                "logo/heavy-melodymatrix.png",
-                w,
-                h,
-                false,
-                true
-            ).apply {
-                opacity = config.logoTransparency.value
+            if (cachedLogoImage == null || cachedLogoWidth != w) {
+                cachedLogoWidth = w
+                cachedLogoImage = Image("logo/heavy-melodymatrix.png", w, h, false, true)
             }
-            ctx.drawImage(image, config.logoLeft.value, config.logoTop.value)
+            val savedAlpha = ctx.globalAlpha
+            ctx.globalAlpha = config.logoTransparency.value
+            ctx.drawImage(cachedLogoImage, config.logoLeft.value, config.logoTop.value)
+            ctx.globalAlpha = savedAlpha
         }
     }
 
