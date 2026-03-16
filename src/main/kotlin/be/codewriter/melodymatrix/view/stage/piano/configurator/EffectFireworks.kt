@@ -5,15 +5,20 @@ import be.codewriter.melodymatrix.view.stage.piano.data.FireworksExplosionType
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.collections.FXCollections
 import javafx.geometry.HorizontalDirection
+import javafx.scene.Node
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
 class EffectFireworks(config: PianoConfiguration) : VBox() {
 
     init {
+        spacing = 5.0
+
         val fireworksVisible = ToggleSwitch().apply {
             textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
             labelPosition = HorizontalDirection.RIGHT
@@ -40,11 +45,17 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
         }
         val color = ColorPicker().apply {
             valueProperty().bindBidirectional(config.fireworksColor)
+            disableProperty().bind(randomColor.selectedProperty())
         }
-        val tailNumParticles = Slider().apply {
-            min = 0.9
-            max = 3.0
-            valueProperty().bindBidirectional(config.fireworksTailNumberOfParticles)
+        val tailNumParticles = Spinner<Int>().apply {
+            isEditable = true
+            valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(
+                0,
+                100,
+                config.fireworksTailNumberOfParticles.get()
+            ).also { factory ->
+                factory.valueProperty().bindBidirectional(config.fireworksTailNumberOfParticles.asObject())
+            }
         }
         val launchHeightMultiplier = Slider().apply {
             min = 0.6
@@ -52,33 +63,28 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
             valueProperty().bindBidirectional(config.fireworksLaunchHeightMultiplier)
         }
         val explosionType = ComboBox<FireworksExplosionType>(
-            FXCollections.observableArrayList(FireworksExplosionType.values().toList())
+            FXCollections.observableArrayList(FireworksExplosionType.entries)
         ).apply {
-            value = config.fireworksExplosionType.value
-            valueProperty().addListener { _, _, newValue ->
-                if (newValue != null) {
-                    config.fireworksExplosionType.value = newValue
-                }
-            }
-            config.fireworksExplosionType.addListener { _, _, newValue ->
-                if (newValue != null && value != newValue) {
-                    value = newValue
-                }
-            }
+            valueProperty().bindBidirectional(config.fireworksExplosionType)
         }
 
         children.addAll(
-            Label("Show Fireworks"), fireworksVisible,
-            Label("fireworks Radius"), fireworksRadius,
-            Label("Number of Particles"), numParticles,
-            Label("Number of Tail Particles"), tailNumParticles,
-            Label("Launch Height"), launchHeightMultiplier,
-            Label("Explosion Type"), explosionType,
-            Label("Particle Size"), particleSize,
-            Label("Random Color"), randomColor,
-            Label("Fixed Color"), color
+            labeledControl("Show Fireworks", fireworksVisible),
+            labeledControl("Fireworks Radius", fireworksRadius),
+            labeledControl("Number of Particles", numParticles),
+            labeledControl("Number of Tail Particles", tailNumParticles),
+            labeledControl("Launch Height", launchHeightMultiplier),
+            labeledControl("Explosion Type", explosionType),
+            labeledControl("Particle Size", particleSize),
+            labeledControl("Random Color", randomColor),
+            labeledControl("Fixed Color", color)
         )
+    }
 
-        spacing = 5.0
+    private fun labeledControl(title: String, control: Node) = VBox(2.0).apply {
+        children.addAll(
+            Label(title),
+            control
+        )
     }
 }

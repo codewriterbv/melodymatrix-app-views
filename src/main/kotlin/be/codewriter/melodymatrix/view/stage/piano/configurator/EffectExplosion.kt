@@ -3,12 +3,19 @@ package be.codewriter.melodymatrix.view.stage.piano.configurator
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.geometry.HorizontalDirection
-import javafx.scene.control.*
+import javafx.scene.Node
+import javafx.scene.control.ColorPicker
+import javafx.scene.control.Label
+import javafx.scene.control.Slider
+import javafx.scene.control.Spinner
+import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
 class EffectExplosion(config: PianoConfiguration) : VBox() {
 
     init {
+        spacing = 5.0
+
         val explosionVisible = ToggleSwitch().apply {
             textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
             labelPosition = HorizontalDirection.RIGHT
@@ -40,23 +47,34 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
         }
         val color = ColorPicker().apply {
             valueProperty().bindBidirectional(config.explosionColor)
+            disableProperty().bind(randomColor.selectedProperty())
         }
         val tailNumParticles = Spinner<Int>().apply {
-            val initialValue = config.explosionTailNumberOfParticles.get()
-            valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, initialValue)
-            config.explosionTailNumberOfParticles.bind(valueFactory.valueProperty())
+            isEditable = true
+            valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(
+                0,
+                100,
+                config.explosionTailNumberOfParticles.get()
+            ).also { factory ->
+                factory.valueProperty().bindBidirectional(config.explosionTailNumberOfParticles.asObject())
+            }
         }
 
         children.addAll(
-            Label("Show Explosion"), explosionVisible,
-            Label("Explosion Radius"), explosionRadius,
-            Label("Number of Particles"), numParticles,
-            Label("Number of Tail Particles"), tailNumParticles,
-            Label("Particle Size"), particleSize,
-            Label("Random Color"), randomColor,
-            Label("Fixed Color"), color
+            labeledControl("Show Explosion", explosionVisible),
+            labeledControl("Explosion Radius", explosionRadius),
+            labeledControl("Number of Particles", numParticles),
+            labeledControl("Number of Tail Particles", tailNumParticles),
+            labeledControl("Particle Size", particleSize),
+            labeledControl("Random Color", randomColor),
+            labeledControl("Fixed Color", color)
         )
+    }
 
-        spacing = 5.0
+    private fun labeledControl(title: String, control: Node) = VBox(2.0).apply {
+        children.addAll(
+            Label(title),
+            control
+        )
     }
 }

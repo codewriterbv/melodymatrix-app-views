@@ -5,22 +5,22 @@ import javafx.scene.control.Label
 import javafx.scene.layout.VBox
 
 class TestViewStages(
-    stageLabels: List<String>,
+    stageOptions: List<Option>,
     private val onStageToggle: (String, Boolean) -> Unit
 ) : VBox() {
 
-    private val togglesByLabel: MutableMap<String, CheckBox> = linkedMapOf()
+    private val togglesById: MutableMap<String, CheckBox> = linkedMapOf()
 
     init {
         spacing = 10.0
 
-        val toggles = stageLabels.map { label ->
-            CheckBox(label).apply {
+        val toggles = stageOptions.map { option ->
+            CheckBox(option.label).apply {
                 minWidth = 220.0
                 selectedProperty().addListener { _, _, isSelected ->
-                    onStageToggle(label, isSelected)
+                    onStageToggle(option.id, isSelected)
                 }
-                togglesByLabel[label] = this
+                togglesById[option.id] = this
             }
         }
 
@@ -30,10 +30,15 @@ class TestViewStages(
         )
     }
 
-    fun setSelected(label: String, selected: Boolean) {
-        val toggle = togglesByLabel[label] ?: return
+    fun setSelected(id: String, selected: Boolean) {
+        val toggle = togglesById[id] ?: return
         if (toggle.isSelected != selected) {
             toggle.isSelected = selected
         }
     }
+
+    data class Option(
+        val id: String,
+        val label: String
+    )
 }

@@ -1,6 +1,9 @@
 package be.codewriter.melodymatrix.view.component
 
+import be.codewriter.melodymatrix.view.VisualizerStage
 import javafx.scene.Node
+import javafx.scene.Scene
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
 import javafx.scene.transform.Scale
 
@@ -52,4 +55,36 @@ class ScaledContentPane(
     override fun computePrefHeight(width: Double) = computeMinHeight(width)
     override fun computeMinWidth(height: Double) = 100.0
     override fun computeMinHeight(width: Double) = 50.0
+
+    companion object {
+        /**
+         * Detaches the root node from a [VisualizerStage]'s scene and wraps it in a
+         * [ScaledContentPane] so it can be embedded safely in a Bento tab.
+         */
+        fun fromStage(stage: VisualizerStage): Node {
+            val scene = stage.scene
+                ?: throw IllegalStateException("Visualizer stage ${stage::class.simpleName} did not initialize a scene")
+
+            val content = scene.root
+            val naturalWidth = scene.resolveNaturalWidth()
+            val naturalHeight = scene.resolveNaturalHeight()
+
+            // Detach the original content so it can be re-hosted elsewhere.
+            scene.root = Pane()
+
+            return ScaledContentPane(content, naturalWidth, naturalHeight)
+        }
+
+        private fun Scene.resolveNaturalWidth(): Double {
+            return width.takeIf { it > 0.0 }
+                ?: root.layoutBounds.width.takeIf { it > 0.0 }
+                ?: 1.0
+        }
+
+        private fun Scene.resolveNaturalHeight(): Double {
+            return height.takeIf { it > 0.0 }
+                ?: root.layoutBounds.height.takeIf { it > 0.0 }
+                ?: 1.0
+        }
+    }
 }

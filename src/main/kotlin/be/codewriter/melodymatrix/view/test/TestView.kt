@@ -11,7 +11,6 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.Node
-import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.stage.WindowEvent
 import software.coley.bentofx.Bento
@@ -42,9 +41,12 @@ class TestView : VBox() {
         StageOption("LED Strip", "tab-led-strip") { LedStripStage() }
     )
 
-    private val optionsByLabel = stageOptions.associateBy { it.label }
+    private val optionsById = stageOptions.associateBy { it.id }
     private val activeVisualizers: MutableMap<String, ActiveVisualizer> = linkedMapOf()
-    private val stageSelector = TestViewStages(stageOptions.map { it.label }, ::toggleVisualizer)
+    private val stageSelector = TestViewStages(
+        stageOptions.map { TestViewStages.Option(it.id, it.label) },
+        ::toggleVisualizer
+    )
 
     init {
         spacing = 10.0
@@ -124,8 +126,8 @@ class TestView : VBox() {
         midiSimulator.scheduler.shutdownNow()
     }
 
-    private fun toggleVisualizer(label: String, selected: Boolean) {
-        val option = optionsByLabel[label] ?: return
+    private fun toggleVisualizer(id: String, selected: Boolean) {
+        val option = optionsById[id] ?: return
         if (selected) {
             openVisualizer(option)
         } else {
@@ -141,7 +143,7 @@ class TestView : VBox() {
         ensureVisualizerLeafAttached()
 
         val stage = option.stageSupplier()
-        val content = extractStageContent(stage)
+        val content = ScaledContentPane.fromStage(stage)
         val closeHandler = stage.onCloseRequest
 
         val dockable: Dockable = bento.dockBuilding().dockable(option.id).apply {
@@ -152,7 +154,7 @@ class TestView : VBox() {
                 val removed = activeVisualizers.remove(option.id)
                 if (removed != null) {
                     disposeVisualizer(removed)
-                    stageSelector.setSelected(option.label, false)
+                    stageSelector.setSelected(option.id, false)
                 }
             }
         }
@@ -188,15 +190,6 @@ class TestView : VBox() {
         }
     }
 
-    private fun extractStageContent(stage: VisualizerStage): Node {
-        val scene = stage.scene
-            ?: throw IllegalStateException("Visualizer stage ${stage::class.simpleName} did not initialize a scene")
-        val naturalW = scene.width
-        val naturalH = scene.height
-        val content = scene.root
-        scene.root = Pane() // Detach original content so it can be embedded in Bento tabs.
-        return ScaledContentPane(content, naturalW, naturalH)
-    }
 
     private fun disposeVisualizer(active: ActiveVisualizer) {
         midiSimulator.removeListener(active.stage)
