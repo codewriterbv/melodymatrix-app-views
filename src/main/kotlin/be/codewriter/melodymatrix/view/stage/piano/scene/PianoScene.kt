@@ -25,6 +25,10 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
     private var ctx: GraphicsContext
     private val animationTimer: AnimationTimer
 
+    // Cached images to avoid recreating them on every frame
+    private val backgroundImageCache = mutableMapOf<PianoBackgroundImage, Image>()
+    private var cachedLogoImage: Image? = null
+
     @Volatile
     private var latestAnimationState: AnimationState? = null
 
@@ -109,16 +113,12 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
 
         // Background image
         if (config.backgroundImage.value != PianoBackgroundImage.NONE) {
-            val image = Image(
-                config.backgroundImage.value.file,
-                PIANO_WIDTH,
-                PIANO_BACKGROUND_HEIGHT,
-                false,
-                true
-            ).apply {
-                opacity = config.backgroundImageTransparency.value
+            val image = backgroundImageCache.getOrPut(config.backgroundImage.value) {
+                Image(config.backgroundImage.value.file, PIANO_WIDTH, PIANO_BACKGROUND_HEIGHT, false, true)
             }
+            ctx.globalAlpha = config.backgroundImageTransparency.value
             ctx.drawImage(image, 0.0, 0.0)
+            ctx.globalAlpha = 1.0
         }
 
         state?.let(::drawAboveKeyParticles)
@@ -128,16 +128,12 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         if (config.logoVisible.value) {
             val w = config.logoWidth.value
             val h = (w / 796.0) * 164
-            val image = Image(
-                "logo/heavy-melodymatrix.png",
-                w,
-                h,
-                false,
-                true
-            ).apply {
-                opacity = config.logoTransparency.value
+            val image = cachedLogoImage ?: Image("logo/heavy-melodymatrix.png").also {
+                cachedLogoImage = it
             }
-            ctx.drawImage(image, config.logoLeft.value, config.logoTop.value)
+            ctx.globalAlpha = config.logoTransparency.value
+            ctx.drawImage(image, config.logoLeft.value, config.logoTop.value, w, h)
+            ctx.globalAlpha = 1.0
         }
     }
 
