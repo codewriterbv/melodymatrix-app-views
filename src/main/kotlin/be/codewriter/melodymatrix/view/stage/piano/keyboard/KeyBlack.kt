@@ -8,7 +8,7 @@ import javafx.scene.layout.Region
 import javafx.scene.shape.Rectangle
 
 class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
-    Key, Region() {
+    Region(), Key {
 
     private var key: Rectangle = Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
         fill = config.pianoBlackKeyColor.value
