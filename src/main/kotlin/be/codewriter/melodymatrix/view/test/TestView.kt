@@ -4,6 +4,7 @@ import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.component.ScaledContentPane
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
+import be.codewriter.melodymatrix.view.stage.chord.ChordStage
 import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.video.DummyVideoRecorder
@@ -35,6 +36,7 @@ class TestView : VBox() {
     private val stageOptions = listOf(
         StageOption("Midi", "tab-midi") { MidiStage() },
         StageOption("Piano", "tab-piano") { PianoStage(licenseStatus, DummyVideoRecorder(), true) },
+        StageOption("Chord", "tab-chord") { ChordStage() },
         StageOption("Charts", "tab-charts") { ChartsStage() },
         StageOption("Scale", "tab-scale") { ScaleStage() },
         StageOption("Drum", "tab-drum") { DrumStage() },

@@ -10,9 +10,18 @@ import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
 import java.util.*
-
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
+
+    private val random = Random(System.currentTimeMillis())
+    private val randomChordScheduler = Executors.newSingleThreadScheduledExecutor()
+    private var randomChordTask: ScheduledFuture<*>? = null
+    private var activeChordNotes: List<Note> = emptyList()
+    private var chordDelayMillis: Long = 500
 
     init {
         spacing = 10.0
@@ -25,7 +34,9 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             isShowTickMarks = true
             isShowTickLabels = true
             valueProperty().addListener { _: ObservableValue<out Number>?, _: Number, newValue: Number ->
-                midiSimulator.setDelay(newValue.toLong())
+                chordDelayMillis = newValue.toLong()
+                midiSimulator.setDelay(chordDelayMillis)
+                restartRandomChordPlaybackIfRunning()
             }
         }
 
@@ -42,6 +53,13 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                     .toList()
                     .shuffled(), true
             ),
+            Button("Play random chords (repeat)").apply {
+                minWidth = 200.0
+                setOnMouseClicked { _ ->
+                    midiSimulator.stop()
+                    startRandomChordPlayback()
+                }
+            },
             createButton(
                 "Play C5 only (once)",
                 Collections.singletonList(Note.C5),
@@ -55,7 +73,13 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                     .sortedBy { it.mainNote.sortingKey },
                 true
             ),
-            createButton("Stop notes"),
+            Button("Stop notes").apply {
+                minWidth = 200.0
+                setOnMouseClicked { _ ->
+                    midiSimulator.stop()
+                    stopRandomChordPlayback()
+                }
+            },
             createButton(
                 "Set instrument 5",
                 MidiData(byteArrayOf("11000100".toInt(2).toByte(), 0x05, 0x00))
@@ -75,6 +99,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             Button("Start FPS test").apply {
                 minWidth = 200.0
                 setOnMouseClicked { _ ->
+                    stopRandomChordPlayback()
                     midiSimulator.setNotes(
                         Note.entries
                             .toList()
@@ -95,6 +120,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->
+                stopRandomChordPlayback()
                 midiSimulator.setNotes(notes, repeat)
             }
         }
@@ -106,6 +132,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->
+                stopRandomChordPlayback()
                 midiSimulator.notifyListeners(midiData)
             }
         }
@@ -113,14 +140,71 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         return view
     }
 
-    private fun createButton(label: String): Node {
-        val view = Button(label).apply {
-            minWidth = 200.0
-            setOnMouseClicked { _ ->
-                midiSimulator.stop()
-            }
-        }
+    private fun startRandomChordPlayback() {
+        stopRandomChordPlayback()
+        playRandomChord()
+        randomChordTask = randomChordScheduler.scheduleAtFixedRate(
+            { playRandomChord() },
+            chordDelayMillis,
+            chordDelayMillis,
+            TimeUnit.MILLISECONDS
+        )
+    }
 
-        return view
+    private fun restartRandomChordPlaybackIfRunning() {
+        if (randomChordTask != null) {
+            startRandomChordPlayback()
+        }
+    }
+
+    private fun stopRandomChordPlayback() {
+        randomChordTask?.cancel(false)
+        randomChordTask = null
+        sendChordOff(activeChordNotes)
+        activeChordNotes = emptyList()
+    }
+
+    private fun playRandomChord() {
+        sendChordOff(activeChordNotes)
+        val nextChord = randomTriad()
+        sendChordOn(nextChord)
+        activeChordNotes = nextChord
+    }
+
+    private fun randomTriad(): List<Note> {
+        val root = 48 + random.nextInt(12)
+        val intervals = if (random.nextBoolean()) listOf(0, 4, 7) else listOf(0, 3, 7)
+        return intervals.mapNotNull { interval ->
+            val candidate = Note.from((root + interval).toByte())
+            if (candidate == Note.UNDEFINED) null else candidate
+        }
+    }
+
+    private fun sendChordOn(notes: List<Note>) {
+        notes.forEach { note ->
+            midiSimulator.notifyListeners(
+                MidiData(
+                    byteArrayOf(
+                        "10010000".toInt(2).toByte(),
+                        note.byteValue.toByte(),
+                        random.nextInt(60, 127).toByte()
+                    )
+                )
+            )
+        }
+    }
+
+    private fun sendChordOff(notes: List<Note>) {
+        notes.forEach { note ->
+            midiSimulator.notifyListeners(
+                MidiData(
+                    byteArrayOf(
+                        "10000000".toInt(2).toByte(),
+                        note.byteValue.toByte(),
+                        0
+                    )
+                )
+            )
+        }
     }
 }
