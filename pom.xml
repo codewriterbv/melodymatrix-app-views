@@ -11,18 +11,18 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
-        <kotlin.version>2.2.0</kotlin.version>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <kotlin.version>2.3.20</kotlin.version>
 
         <!-- Dependency versions -->
         <atlantafx.version>2.1.0</atlantafx.version>
-        <charts.version>21.0.25</charts.version>
-        <javafx.version>24.0.2</javafx.version>
+        <charts.version>21.0.27</charts.version>
+        <javafx.version>25.0.2</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
         <kotlin.serialization.version>1.9.0</kotlin.serialization.version>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
 
         <!-- Test dependency versions -->
         <junit.version>5.10.2</junit.version>
@@ -106,11 +106,6 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
@@ -137,6 +132,39 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <args>
+                        <arg>-Xjsr305=strict</arg>
+                        <arg>-opt-in=kotlin.ExperimentalStdlibApi</arg>
+                    </args>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <!-- JavaFX Maven Plugin -->
