@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.piano.keyboard
 
-import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.geometry.Point2D
 import javafx.scene.Node
@@ -38,9 +38,9 @@ class KeyboardView(config: PianoConfiguration) : StackPane() {
         children.add(key)
     }
 
-    fun playNote(midiData: MidiData) {
-        val key = keys[midiData.note] ?: return
-        key.update(midiData.event == MidiEvent.NOTE_ON)
+    fun playNote(midiDataEvent: MidiDataEvent) {
+        val key = keys[midiDataEvent.note] ?: return
+        key.update(midiDataEvent.event == MidiEvent.NOTE_ON)
     }
 
     fun getEffectOrigin(note: Note): Point2D? {

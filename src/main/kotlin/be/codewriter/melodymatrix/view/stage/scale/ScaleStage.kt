@@ -1,10 +1,11 @@
 package stage.scale
 
 import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -96,26 +97,37 @@ class ScaleStage : VisualizerStage() {
         return label
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        Platform.runLater {
-            val note = midiData.note
-            val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
-            if (label != null) {
-                if (midiData.event == MidiEvent.NOTE_ON) {
-                    if (note.mainNote.isSharp) {
-                        label.style = "-fx-text-fill: blue; -fx-background-color: green;"
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                Platform.runLater {
+                    val note = midiDataEvent.note
+                    val label = if (note.mainNote.isSharp) notes[note.parentNote!!] else notes[note]
+                    if (label != null) {
+                        if (midiDataEvent.event == MidiEvent.NOTE_ON) {
+                            if (note.mainNote.isSharp) {
+                                label.style = "-fx-text-fill: blue; -fx-background-color: green;"
+                            } else {
+                                label.style = "-fx-text-fill: red; -fx-background-color: yellow;"
+                            }
+                        } else {
+                            label.style = ""
+                        }
                     } else {
-                        label.style = "-fx-text-fill: red; -fx-background-color: yellow;"
+                        // No UI note to update
                     }
-                } else {
-                    label.style = ""
                 }
             }
-        }
-    }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
+
+            MmxEventType.CHORD -> {
+                // Not needed here
+            }
+        }
     }
 
     companion object {

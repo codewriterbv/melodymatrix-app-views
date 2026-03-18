@@ -1,4 +1,4 @@
-package be.codewriter.melodymatrix.view.data
+package be.codewriter.melodymatrix.view.event
 
 import be.codewriter.melodymatrix.view.definition.Note
 import javafx.util.Duration
@@ -14,4 +14,8 @@ data class PlayEvent(
     val startTime: Long,
     val duration: Duration,
     val velocity: Int
-)
+) : MmxEvent {
+    override val timestamp: Long
+        get() = startTime
+    override val type: MmxEventType = MmxEventType.PLAY
+}

@@ -20,7 +20,7 @@ class TestApp : Application() {
         val testView = TestView()
 
         with(stage) {
-            scene = Scene(testView, 2600.0, 1000.0)
+            scene = Scene(testView, 1600.0, 1000.0)
             title = "Test application for the MelodyMatrix Viewers"
 
             setOnCloseRequest {

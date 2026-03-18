@@ -2,10 +2,11 @@ package stage.ledstrip
 
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
@@ -324,14 +325,23 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        if (midiData.event == MidiEvent.NOTE_ON) {
-            highlightBox(midiData.note)
-        }
-    }
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                if (midiDataEvent.event == MidiEvent.NOTE_ON) {
+                    highlightBox(midiDataEvent.note)
+                }
+            }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not need in this viewer
+            MmxEventType.PLAY -> {
+                // Not need in this viewer
+            }
+
+            MmxEventType.CHORD -> {
+                // Not needed in this viewer
+            }
+        }
     }
 
     companion object {

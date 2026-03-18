@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.data
 
-interface MmxEventHandler {
-    fun onMidiData(midiData: MidiData)
+import be.codewriter.melodymatrix.view.event.MmxEvent
 
-    fun onPlayEvent(playEvent: PlayEvent)
+interface MmxEventHandler {
+    fun onEvent(event: MmxEvent)
 }

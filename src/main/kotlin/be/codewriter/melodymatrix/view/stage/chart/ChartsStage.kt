@@ -1,9 +1,10 @@
 package be.codewriter.melodymatrix.view.stage.chart
 
 import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -77,16 +78,25 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        if (midiData.event != MidiEvent.NOTE_ON) {
-            return
-        }
-        val note = midiData.note
-        chartHolders.stream().forEach { v -> v.chart.onNote(note) }
-    }
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                if (midiDataEvent.event != MidiEvent.NOTE_ON) {
+                    return
+                }
+                val note = midiDataEvent.note
+                chartHolders.stream().forEach { v -> v.chart.onNote(note) }
+            }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
+
+            MmxEventType.CHORD -> {
+                // Not needed here
+            }
+        }
     }
 
     companion object {

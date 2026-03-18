@@ -22,6 +22,14 @@ import stage.scale.ScaleStage
 
 class TestView : VBox() {
 
+    private val stageSelectorWidth = 260.0
+    private val visualizerWidth = 1660.0
+    private val rightColumnWidth = 430.0
+    private val mainSectionTotalWidth = stageSelectorWidth + visualizerWidth + rightColumnWidth
+    private val firstDividerPosition = stageSelectorWidth / mainSectionTotalWidth
+    private val secondDividerPosition = (stageSelectorWidth + visualizerWidth) / mainSectionTotalWidth
+    private val rightColumnDividerPosition = 0.66
+
     private val midiSimulator = MidiSimulator()
     private val licenseStatus = LicenseStatus()
 
@@ -52,7 +60,7 @@ class TestView : VBox() {
 
     init {
         spacing = 10.0
-        padding = Insets(20.0)
+        padding = Insets(10.0)
 
         setupDockLayout()
         bento.registerRoot(rootContainer)
@@ -82,12 +90,13 @@ class TestView : VBox() {
         rightColumnBranch.orientation = Orientation.VERTICAL
         rightColumnBranch.setPruneWhenEmpty(false)
         rightColumnBranch.addContainers(midiEventsLeaf, licenseLeaf)
-        rightColumnBranch.setDividerPositions(0.66)
+        rightColumnBranch.setDividerPositions(rightColumnDividerPosition)
 
         visualizerTabs.setPruneWhenEmpty(false)
         rootContainer.addContainers(stageSelectorLeaf, visualizerTabs, rightColumnBranch)
         rootContainer.setPruneWhenEmpty(false)
-        rootContainer.setDividerPositions(0.1, 0.85)
+        // left ~260 / (260 + 1660 + 430) ≈ 0.11, left+center ≈ 0.82
+        rootContainer.setDividerPositions(firstDividerPosition, secondDividerPosition)
 
         stageSelectorLeaf.addDockable(stageSelectorDockable)
         stageSelectorLeaf.selectDockable(stageSelectorDockable)
@@ -98,11 +107,12 @@ class TestView : VBox() {
         licenseLeaf.addDockable(licenseDockable)
         licenseLeaf.selectDockable(licenseDockable)
 
-        stageSelectorLeaf.prefWidth = 260.0
-        rightColumnBranch.prefWidth = 430.0
-        visualizerTabs.minWidth = 1800.0
-        visualizerTabs.prefWidth = 1800.0
-        rootContainer.prefHeight = 900.0
+        stageSelectorLeaf.minWidth = 260.0
+        stageSelectorLeaf.prefWidth = stageSelectorWidth
+        visualizerTabs.minWidth = 300.0
+        rightColumnBranch.minWidth = 320.0
+        rightColumnBranch.prefWidth = rightColumnWidth
+        rootContainer.prefHeight = 800.0
     }
 
     private fun createFixedDockable(
@@ -179,7 +189,7 @@ class TestView : VBox() {
 
         // If Bento pruned the center leaf after the last tab closed, restore it in the middle slot.
         rootContainer.addContainer(1, visualizerTabs)
-        rootContainer.setDividerPositions(0.1, 0.85)
+        rootContainer.setDividerPositions(firstDividerPosition, secondDividerPosition)
     }
 
     private fun closeVisualizer(option: StageOption) {

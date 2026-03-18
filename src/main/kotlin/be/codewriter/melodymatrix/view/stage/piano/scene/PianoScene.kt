@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.stage.piano.scene
 
-import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.animation.AnimationCalculator
@@ -75,11 +75,11 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         animationCalculator?.stop()
     }
 
-    fun playNote(midiData: MidiData, keyOrigin: Point2D) {
-        val isPressed = midiData.event == MidiEvent.NOTE_ON
+    fun playNote(midiDataEvent: MidiDataEvent, keyOrigin: Point2D) {
+        val isPressed = midiDataEvent.event == MidiEvent.NOTE_ON
         val sceneY = PIANO_BACKGROUND_HEIGHT + keyOrigin.y
 
-        animationCalculator?.updateKeyPress(midiData.note, isPressed)
+        animationCalculator?.updateKeyPress(midiDataEvent.note, isPressed)
 
         if (!isPressed) {
             return
@@ -89,7 +89,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             animationCalculator?.addExplosion(
                 x = keyOrigin.x,
                 y = sceneY,
-                velocity = midiData.velocity,
+                velocity = midiDataEvent.velocity,
                 radius = config.explosionRadius.value,
                 color = config.explosionColor.value,
                 particleCount = config.explosionNumberOfParticles.value,
@@ -102,7 +102,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
             animationCalculator?.addFireworks(
                 x = keyOrigin.x,
                 y = sceneY,
-                velocity = midiData.velocity,
+                velocity = midiDataEvent.velocity,
                 radius = config.fireworksRadius.value,
                 color = config.fireworksColor.value,
                 particleCount = config.fireworksNumberOfParticles.value,

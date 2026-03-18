@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
@@ -49,7 +49,7 @@ class MidiSimulator {
             }
         }
         notifyListeners(
-            MidiData(
+            MidiDataEvent(
                 byteArrayOf(
                     "10010000".toInt(2).toByte(),
                     notes[idx].byteValue.toByte(),
@@ -74,7 +74,7 @@ class MidiSimulator {
             return
         }
         notifyListeners(
-            MidiData(
+            MidiDataEvent(
                 byteArrayOf(
                     "10000000".toInt(2).toByte(),
                     notes[idx].byteValue.toByte(),
@@ -84,9 +84,9 @@ class MidiSimulator {
         )
     }
 
-    fun notifyListeners(midiData: MidiData) {
+    fun notifyListeners(midiDataEvent: MidiDataEvent) {
         for (listener in registeredListeners) {
-            listener.onMidiData(midiData)
+            listener.onEvent(midiDataEvent)
         }
     }
 

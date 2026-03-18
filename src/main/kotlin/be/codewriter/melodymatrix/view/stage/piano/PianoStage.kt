@@ -2,9 +2,10 @@ package be.codewriter.melodymatrix.view.stage.piano
 
 import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.stage.piano.configurator.*
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView
@@ -157,23 +158,32 @@ class PianoStage(
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        Platform.runLater {
-            logger.debug(
-                "Received note {} {}",
-                midiData.note,
-                (if (midiData.event == MidiEvent.NOTE_ON) "ON" else "OFF")
-            )
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                Platform.runLater {
+                    logger.debug(
+                        "Received note {} {}",
+                        midiDataEvent.note,
+                        (if (midiDataEvent.event == MidiEvent.NOTE_ON) "ON" else "OFF")
+                    )
 
-            keyboardView.playNote(midiData)
-            keyboardView.getEffectOrigin(midiData.note)?.let { keyOrigin ->
-                pianoScene.playNote(midiData, keyOrigin)
+                    keyboardView.playNote(midiDataEvent)
+                    keyboardView.getEffectOrigin(midiDataEvent.note)?.let { keyOrigin ->
+                        pianoScene.playNote(midiDataEvent, keyOrigin)
+                    }
+                }
+            }
+
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
+
+            MmxEventType.CHORD -> {
+                // Not needed here
             }
         }
-    }
-
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
     }
 
     companion object {

@@ -1,9 +1,10 @@
 package stage.drum
 
 import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -40,13 +41,22 @@ class DrumStage : VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        Platform.runLater {
-            // TODO
-        }
-    }
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                Platform.runLater {
+                    // TODO
+                }
+            }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
+
+            MmxEventType.CHORD -> {
+                // Not needed here
+            }
+        }
     }
 }

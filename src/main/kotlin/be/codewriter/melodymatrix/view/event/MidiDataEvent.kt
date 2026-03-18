@@ -1,9 +1,7 @@
-package be.codewriter.melodymatrix.view.data
+package be.codewriter.melodymatrix.view.event
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 
 /**
  * MIDI data is the "raw" data sent between music instruments and the computer. It contains notes that are being
@@ -23,8 +21,11 @@ import org.apache.logging.log4j.Logger
  *    * Velocity is 0 also means NOTE OFF
  */
 
-open class MidiData(val bytes: ByteArray) {
-    private val logger: Logger = LogManager.getLogger(MidiData::class.java.name)
+open class MidiDataEvent(
+    val bytes: ByteArray,
+    override val timestamp: Long = System.currentTimeMillis()
+) : MmxEvent {
+    override val type: MmxEventType = MmxEventType.MIDI
 
     var event: MidiEvent = MidiEvent.UNDEFINED
     var note: Note = Note.UNDEFINED

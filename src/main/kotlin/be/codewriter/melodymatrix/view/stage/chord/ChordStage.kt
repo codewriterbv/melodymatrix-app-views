@@ -1,10 +1,13 @@
 package be.codewriter.melodymatrix.view.stage.chord
 
 import be.codewriter.melodymatrix.view.VisualizerStage
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
+import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.ChordEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -16,15 +19,11 @@ import javafx.scene.text.Font
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.InputStream
-import java.util.*
 
 class ChordStage : VisualizerStage() {
 
-    private data class TimedNoteOn(val note: Note, val timestampMillis: Long)
-
     val notes: MutableMap<Note, Label> = mutableMapOf()
     private val activeNotes: MutableSet<Note> = mutableSetOf()
-    private val recentNoteOnEvents: ArrayDeque<TimedNoteOn> = ArrayDeque()
     private val chordLabel = Label("Chord: -")
 
     init {
@@ -102,27 +101,39 @@ class ChordStage : VisualizerStage() {
         return label
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        if (midiData.isDrum || midiData.note == Note.UNDEFINED) {
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                handleMidiEvent(midiDataEvent)
+            }
+
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
+
+            MmxEventType.CHORD -> {
+                val chordEvent = event as? ChordEvent ?: return
+                Platform.runLater {
+                    chordLabel.text = if (chordEvent.chord == Chord.UNDEFINED) "Chord: -"
+                    else "Chord: ${chordEvent.chord.label}"
+                }
+            }
+        }
+    }
+
+    private fun handleMidiEvent(midiDataEvent: MidiDataEvent) {
+        if (midiDataEvent.isDrum || midiDataEvent.note == Note.UNDEFINED) {
             return
         }
 
         Platform.runLater {
-            val now = System.currentTimeMillis()
-
-            when (midiData.event) {
-                MidiEvent.NOTE_ON -> {
-                    activeNotes.add(midiData.note)
-                    recentNoteOnEvents.addLast(TimedNoteOn(midiData.note, now))
-                }
-
-                MidiEvent.NOTE_OFF -> activeNotes.remove(midiData.note)
+            when (midiDataEvent.event) {
+                MidiEvent.NOTE_ON -> activeNotes.add(midiDataEvent.note)
+                MidiEvent.NOTE_OFF -> activeNotes.remove(midiDataEvent.note)
                 else -> return@runLater
             }
-
-            pruneOldNoteOnEvents(now)
             updateHighlightedNotes()
-            updateDetectedChord(now)
         }
     }
 
@@ -139,37 +150,6 @@ class ChordStage : VisualizerStage() {
         }
     }
 
-    private fun updateDetectedChord(now: Long) {
-        val groupedRecentEvents = groupedRecentNoteOnEvents(now)
-        val groupedRootPriority = groupedRecentEvents
-            .asReversed()
-            .map { noteToPitchClass(it.note) }
-            .distinct()
-
-        val detectedChord = ChordDetector.detect(activeNotes, groupedRootPriority)
-        chordLabel.text = detectedChord?.let { "Chord: ${it.label}" } ?: "Chord: -"
-    }
-
-    private fun groupedRecentNoteOnEvents(now: Long): List<TimedNoteOn> {
-        pruneOldNoteOnEvents(now)
-        if (recentNoteOnEvents.isEmpty()) {
-            return emptyList()
-        }
-
-        val newestTimestamp = recentNoteOnEvents.last.timestampMillis
-        return recentNoteOnEvents
-            .filter { newestTimestamp - it.timestampMillis <= CHORD_GROUP_WINDOW_MILLIS }
-            .filter { activeNotes.contains(it.note) }
-    }
-
-    private fun pruneOldNoteOnEvents(now: Long) {
-        while (recentNoteOnEvents.isNotEmpty() &&
-            now - recentNoteOnEvents.first.timestampMillis > NOTE_EVENT_RETENTION_MILLIS
-        ) {
-            recentNoteOnEvents.removeFirst()
-        }
-    }
-
     private fun noteToVisibleLabel(note: Note): Label? {
         return if (note.mainNote.isSharp) {
             notes[note.parentNote]
@@ -178,17 +158,7 @@ class ChordStage : VisualizerStage() {
         }
     }
 
-    private fun noteToPitchClass(note: Note): Int {
-        return note.byteValue % 12
-    }
-
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
-    }
-
     companion object {
-        private const val CHORD_GROUP_WINDOW_MILLIS: Long = 220
-        private const val NOTE_EVENT_RETENTION_MILLIS: Long = 1000
         private val logger: Logger = LogManager.getLogger(ChordStage::class.java.name)
     }
 }

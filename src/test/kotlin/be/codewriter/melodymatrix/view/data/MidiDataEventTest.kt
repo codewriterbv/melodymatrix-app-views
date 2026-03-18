@@ -1,38 +1,39 @@
 package be.codewriter.melodymatrix.view.data
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class MidiDataTest {
+class MidiDataEventTest {
 
     @Test
     fun `test midi not is on or off`() {
-        val midi = MidiData(byteArrayOf("10010000".toInt(2).toByte(), 50, 48))
+        val midi = MidiDataEvent(byteArrayOf("10010000".toInt(2).toByte(), 50, 48))
         assertEquals(
             MidiEvent.NOTE_ON,
             midi.event,
             "Should return controller"
         )
 
-        val midiDataOnAndOther = MidiData(byteArrayOf(0x91.toByte(), 0x00, 0x01))
+        val midiDataEventOnAndOther = MidiDataEvent(byteArrayOf(0x91.toByte(), 0x00, 0x01))
         assertEquals(
             MidiEvent.NOTE_ON,
-            midiDataOnAndOther.event,
+            midiDataEventOnAndOther.event,
             "First test value with extra data should return note on"
         )
-        val midiDataOff = MidiData(byteArrayOf(0x80.toByte(), 0x00, 0x00))
+        val midiDataEventOff = MidiDataEvent(byteArrayOf(0x80.toByte(), 0x00, 0x00))
         assertEquals(
             MidiEvent.NOTE_OFF,
-            midiDataOff.event,
+            midiDataEventOff.event,
             "Second test value should return not note on"
         )
-        val midiDataOnNoVelocity = MidiData(byteArrayOf(0x91.toByte(), 0x00, 0x00))
+        val midiDataEventOnNoVelocity = MidiDataEvent(byteArrayOf(0x91.toByte(), 0x00, 0x00))
         assertEquals(
             MidiEvent.NOTE_OFF,
-            midiDataOnNoVelocity.event,
+            midiDataEventOnNoVelocity.event,
             "Second test value with no velocity should return not note on"
         )
     }
@@ -40,7 +41,7 @@ class MidiDataTest {
     @Test
     fun `test instrument change`() {
         val data = byteArrayOf("11000100".toInt(2).toByte(), 0x05, 0x00)
-        val midi = MidiData(data)
+        val midi = MidiDataEvent(data)
 
         assertEquals(
             MidiEvent.SELECT_INSTRUMENT,
@@ -55,7 +56,7 @@ class MidiDataTest {
     @Test
     fun `test if drum note is recognized and note is on`() {
         val data = byteArrayOf(0x99.toByte(), 0x23, 0x40)
-        val midi = MidiData(data)
+        val midi = MidiDataEvent(data)
 
         assertEquals(MidiEvent.NOTE_ON, midi.event, "Should return note on")
         assertTrue(midi.isDrum, "Should return drum as true")
@@ -64,7 +65,7 @@ class MidiDataTest {
     @Test
     fun `test if drum note is recognized and note is off`() {
         val data = byteArrayOf(0x89.toByte(), 0x23, 0x00)
-        val midi = MidiData(data)
+        val midi = MidiDataEvent(data)
 
         assertEquals(
             MidiEvent.NOTE_OFF,
@@ -77,7 +78,7 @@ class MidiDataTest {
     @Test
     fun `test if controller data is correct`() {
         val data = byteArrayOf("10110010".toInt(2).toByte(), 64, 99)
-        val midi = MidiData(data)
+        val midi = MidiDataEvent(data)
 
         assertEquals(
             MidiEvent.CONTROLLER,
@@ -93,7 +94,7 @@ class MidiDataTest {
     @Test
     fun `test if pitch bend data is correct`() {
         val data1 = byteArrayOf("11100010".toInt(2).toByte(), 0x00, 0x60)
-        val midi1 = MidiData(data1)
+        val midi1 = MidiDataEvent(data1)
 
         assertEquals(
             MidiEvent.PITCH_BEND,
@@ -103,7 +104,7 @@ class MidiDataTest {
         assertFalse(midi1.isDrum, "Should return drum as false")
         assertEquals(0x3000, midi1.pitch, "Should return correct pitch value")
 
-        val midi2 = MidiData(byteArrayOf("11100010".toInt(2).toByte(), 0x08, 0x60))
+        val midi2 = MidiDataEvent(byteArrayOf("11100010".toInt(2).toByte(), 0x08, 0x60))
         assertEquals(0x3008, midi2.pitch, "Should return correct pitch value")
     }
 }

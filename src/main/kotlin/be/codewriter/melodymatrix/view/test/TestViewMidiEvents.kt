@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.data.MidiData
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.Octave
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.control.Button
@@ -82,19 +82,19 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             },
             createButton(
                 "Set instrument 5",
-                MidiData(byteArrayOf("11000100".toInt(2).toByte(), 0x05, 0x00))
+                MidiDataEvent(byteArrayOf("11000100".toInt(2).toByte(), 0x05, 0x00))
             ),
             createButton(
                 "Set instrument 9",
-                MidiData(byteArrayOf("11000100".toInt(2).toByte(), 0x09, 0x00))
+                MidiDataEvent(byteArrayOf("11000100".toInt(2).toByte(), 0x09, 0x00))
             ),
             createButton(
                 "Send controller message",
-                MidiData(byteArrayOf("10110000".toInt(2).toByte(), 0x21, 0x34))
+                MidiDataEvent(byteArrayOf("10110000".toInt(2).toByte(), 0x21, 0x34))
             ),
             createButton(
                 "Send pitch bend message",
-                MidiData(byteArrayOf("11100000".toInt(2).toByte(), 0x00, 0x60))
+                MidiDataEvent(byteArrayOf("11100000".toInt(2).toByte(), 0x00, 0x60))
             ),
             Button("Start FPS test").apply {
                 minWidth = 200.0
@@ -128,12 +128,12 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         return view
     }
 
-    private fun createButton(label: String, midiData: MidiData): Node {
+    private fun createButton(label: String, midiDataEvent: MidiDataEvent): Node {
         val view = Button(label).apply {
             minWidth = 200.0
             setOnMouseClicked { _ ->
                 stopRandomChordPlayback()
-                midiSimulator.notifyListeners(midiData)
+                midiSimulator.notifyListeners(midiDataEvent)
             }
         }
 
@@ -183,7 +183,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private fun sendChordOn(notes: List<Note>) {
         notes.forEach { note ->
             midiSimulator.notifyListeners(
-                MidiData(
+                MidiDataEvent(
                     byteArrayOf(
                         "10010000".toInt(2).toByte(),
                         note.byteValue.toByte(),
@@ -197,7 +197,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private fun sendChordOff(notes: List<Note>) {
         notes.forEach { note ->
             midiSimulator.notifyListeners(
-                MidiData(
+                MidiDataEvent(
                     byteArrayOf(
                         "10000000".toInt(2).toByte(),
                         note.byteValue.toByte(),

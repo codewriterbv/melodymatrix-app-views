@@ -1,8 +1,9 @@
 package be.codewriter.melodymatrix.view.stage.midi
 
-import be.codewriter.melodymatrix.view.data.MidiData
-import be.codewriter.melodymatrix.view.data.PlayEvent
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.MmxEventType
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
@@ -22,7 +23,7 @@ import org.apache.logging.log4j.Logger
 
 class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
-    val midiDataList: ObservableList<MidiData> = FXCollections.observableArrayList()
+    val midiDataEventList: ObservableList<MidiDataEvent> = FXCollections.observableArrayList()
     val midiData0Value: StringProperty = SimpleStringProperty("")
     val midiData0Bits: StringProperty = SimpleStringProperty("")
     val midiDataEventValue: StringProperty = SimpleStringProperty(MidiEvent.UNDEFINED.name)
@@ -42,21 +43,21 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
     val controllerValueBits: StringProperty = SimpleStringProperty("")
     val pitchBendValue: StringProperty = SimpleStringProperty("")
     val pitchBendValueBits: StringProperty = SimpleStringProperty("")
-    val table: TableView<MidiData> = TableView<MidiData>()
+    val table: TableView<MidiDataEvent> = TableView<MidiDataEvent>()
 
     init {
         table.apply {
-            items = midiDataList
+            items = midiDataEventList
             columns.addAll(
-                TableColumn<MidiData, String>("Event").apply {
+                TableColumn<MidiDataEvent, String>("Event").apply {
                     cellValueFactory = PropertyValueFactory("event")
                     prefWidth = 200.0
                 },
-                TableColumn<MidiData, String>("Note").apply {
+                TableColumn<MidiDataEvent, String>("Note").apply {
                     cellValueFactory = PropertyValueFactory("note")
                     prefWidth = 150.0
                 },
-                TableColumn<MidiData, String>("Velocity").apply {
+                TableColumn<MidiDataEvent, String>("Velocity").apply {
                     cellValueFactory = PropertyValueFactory("velocity")
                     prefWidth = 100.0
                 }
@@ -81,7 +82,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
             add(Button("Clear table").apply {
                 setOnMouseClicked { _ ->
-                    midiDataList.clear()
+                    midiDataEventList.clear()
                 }
             }, 0, 0, 3, 1)
 
@@ -241,47 +242,57 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-    override fun onMidiData(midiData: MidiData) {
-        Platform.runLater {
-            midiDataList.addFirst(midiData)
-            table.selectionModel.selectFirst()
-        }
-    }
+    override fun onEvent(event: MmxEvent) {
+        when (event.type) {
+            MmxEventType.MIDI -> {
+                val midiDataEvent = event as? MidiDataEvent ?: return
+                Platform.runLater {
+                    midiDataEventList.addFirst(midiDataEvent)
+                    table.selectionModel.selectFirst()
+                }
+            }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun showValues(midiData: MidiData) {
-        Platform.runLater {
-            midiData0Value.set(midiData.bytes[0].toString())
-            midiData0Bits.set(byteToBitsString(midiData.bytes[0]))
-            midiDataEventValue.set(midiData.event.name)
-            midiDataChannelValue.set(midiData.channel.toString())
-            midiData1Value.set(midiData.bytes[1].toString())
-            midiData1Bits.set(byteToBitsString(midiData.bytes[1]))
-            midiData2Value.set(midiData.bytes[2].toString())
-            midiData2Bits.set(byteToBitsString(midiData.bytes[2]))
+            MmxEventType.PLAY -> {
+                // Not needed here
+            }
 
-            if (midiData.event == MidiEvent.NOTE_ON || midiData.event == MidiEvent.NOTE_OFF) {
-                noteValue.set(midiData.note.name)
-                noteValueBits.set(byteToBitsString(midiData.bytes[1]))
-                noteVelocityValue.set(midiData.velocity.toString())
-                noteVelocityValueBits.set(byteToBitsString(midiData.bytes[2]))
-            } else if (midiData.event == MidiEvent.SELECT_INSTRUMENT) {
-                lastInstrument.set(midiData.instrument.toString())
-            } else if (midiData.event == MidiEvent.CONTROLLER) {
-                controllerNumber.set(midiData.controllerNumber.toString())
-                controllerNumberBits.set(byteToBitsString(midiData.bytes[1]))
-                controllerValue.set(midiData.controllerValue.toString())
-                controllerValueBits.set(byteToBitsString(midiData.bytes[2]))
-            } else if (midiData.event == MidiEvent.PITCH_BEND) {
-                pitchBendValue.set(midiData.pitch.toString())
-                pitchBendValueBits.set(byteToBitsString(midiData.bytes[1]) + " " + byteToBitsString(midiData.bytes[2]))
+            MmxEventType.CHORD -> {
+                // Not needed here
             }
         }
     }
 
-    override fun onPlayEvent(playEvent: PlayEvent) {
-        // Not needed here
+    @OptIn(ExperimentalStdlibApi::class)
+    fun showValues(midiDataEvent: MidiDataEvent) {
+        Platform.runLater {
+            midiData0Value.set(midiDataEvent.bytes[0].toString())
+            midiData0Bits.set(byteToBitsString(midiDataEvent.bytes[0]))
+            midiDataEventValue.set(midiDataEvent.event.name)
+            midiDataChannelValue.set(midiDataEvent.channel.toString())
+            midiData1Value.set(midiDataEvent.bytes[1].toString())
+            midiData1Bits.set(byteToBitsString(midiDataEvent.bytes[1]))
+            midiData2Value.set(midiDataEvent.bytes[2].toString())
+            midiData2Bits.set(byteToBitsString(midiDataEvent.bytes[2]))
+
+            if (midiDataEvent.event == MidiEvent.NOTE_ON || midiDataEvent.event == MidiEvent.NOTE_OFF) {
+                noteValue.set(midiDataEvent.note.name)
+                noteValueBits.set(byteToBitsString(midiDataEvent.bytes[1]))
+                noteVelocityValue.set(midiDataEvent.velocity.toString())
+                noteVelocityValueBits.set(byteToBitsString(midiDataEvent.bytes[2]))
+            } else if (midiDataEvent.event == MidiEvent.SELECT_INSTRUMENT) {
+                lastInstrument.set(midiDataEvent.instrument.toString())
+            } else if (midiDataEvent.event == MidiEvent.CONTROLLER) {
+                controllerNumber.set(midiDataEvent.controllerNumber.toString())
+                controllerNumberBits.set(byteToBitsString(midiDataEvent.bytes[1]))
+                controllerValue.set(midiDataEvent.controllerValue.toString())
+                controllerValueBits.set(byteToBitsString(midiDataEvent.bytes[2]))
+            } else if (midiDataEvent.event == MidiEvent.PITCH_BEND) {
+                pitchBendValue.set(midiDataEvent.pitch.toString())
+                pitchBendValueBits.set(byteToBitsString(midiDataEvent.bytes[1]) + " " + byteToBitsString(midiDataEvent.bytes[2]))
+            }
+        }
     }
+
 
     fun byteToBitsString(byte: Byte): String {
         val bits = String
