@@ -18,6 +18,17 @@ import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import java.io.InputStream
 
+/**
+ * Visualizer stage that displays notes on a two-octave music staff and shows the detected chord.
+ *
+ * Renders a simplified treble and bass staff using a music font (Musiqwik). Each note position
+ * on the staff is backed by a [Label]; when a MIDI note is pressed the corresponding label is
+ * highlighted. The current chord name and active notes are also shown as text labels.
+ *
+ * @see VisualizerStage
+ * @see ChordEvent
+ * @see MidiDataEvent
+ */
 class ChordStage : VisualizerStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
@@ -86,6 +97,14 @@ class ChordStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Creates a styled music-font label and optionally registers it for a specific note.
+     *
+     * @param musicFont The music font to apply, or null to use the default font
+     * @param content The text content (music font character) to display
+     * @param note The note this label represents, or null for decorative staff elements
+     * @return A [Label] configured with the given font and text
+     */
     private fun getLabel(
         musicFont: Font?,
         content: String,
@@ -101,6 +120,14 @@ class ChordStage : VisualizerStage() {
         return label
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Routes MIDI events to [handleMidiEvent] and CHORD events to update the chord label.
+     * PLAY events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {
@@ -123,6 +150,13 @@ class ChordStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Processes a MIDI event by updating the set of active notes and refreshing the staff display.
+     *
+     * Drum notes and undefined notes are ignored.
+     *
+     * @param midiDataEvent The MIDI data event to handle
+     */
     private fun handleMidiEvent(midiDataEvent: MidiDataEvent) {
         if (midiDataEvent.isDrum || midiDataEvent.note == Note.UNDEFINED) {
             return
@@ -139,6 +173,11 @@ class ChordStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Builds a formatted string listing all currently active notes sorted by pitch.
+     *
+     * @return A string in the form "Notes: C4, E4, G4", or "Notes: -" when no notes are active
+     */
     private fun notesText(): String {
         val labels = activeNotes
             .asSequence()
@@ -150,6 +189,11 @@ class ChordStage : VisualizerStage() {
         return if (labels.isEmpty()) "Notes: -" else "Notes: ${labels.joinToString(", ")}"
     }
 
+    /**
+     * Refreshes the visual highlighting of note labels based on the current active notes.
+     *
+     * Natural notes are highlighted yellow/red; sharp notes are highlighted green/blue.
+     */
     private fun updateHighlightedNotes() {
         notes.values.forEach { it.style = "" }
 
@@ -163,6 +207,15 @@ class ChordStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Resolves the visible staff label for the given note.
+     *
+     * Sharp notes share a visual position with their parent (natural) note,
+     * so this method returns the parent's label for sharps.
+     *
+     * @param note The note whose label should be returned
+     * @return The label for the note, or null if the note has no label in the staff
+     */
     private fun noteToVisibleLabel(note: Note): Label? {
         return if (note.mainNote.isSharp) {
             notes[note.parentNote]

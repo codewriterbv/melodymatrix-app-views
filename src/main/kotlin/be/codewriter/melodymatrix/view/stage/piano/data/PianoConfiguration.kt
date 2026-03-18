@@ -6,6 +6,25 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.paint.Color
 
+/**
+ * Observable configuration model for the piano visualizer stage.
+ *
+ * All properties are JavaFX observable so that UI controls in the settings accordion
+ * (background, key colours, effects) can bind to them directly. Changes made in the
+ * settings panel are automatically reflected in the piano scene and keyboard view.
+ *
+ * Groups of settings:
+ * - **Above-key effect** – smoke/steam particles that rise above pressed keys
+ * - **Background** – solid colour or image displayed behind the piano
+ * - **Fireworks** – particle fireworks triggered on key press
+ * - **Explosion** – radial explosion particles triggered on key press
+ * - **Logo** – optional overlay logo image
+ * - **Piano keys** – colours for white/black keys in normal and pressed states
+ *
+ * @see PianoStage
+ * @see PianoBackgroundImage
+ * @see FireworksExplosionType
+ */
 class PianoConfiguration {
     // Above Key settings
     var aboveKeyEnabled = SimpleBooleanProperty(true)

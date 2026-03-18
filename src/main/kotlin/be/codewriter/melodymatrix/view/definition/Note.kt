@@ -1,6 +1,24 @@
 package be.codewriter.melodymatrix.view.definition
 
 
+/**
+ * Represents a specific musical note with its octave and MIDI byte value.
+ *
+ * This enum contains all 88 notes playable on a standard piano, from A0 to C8.
+ * Each note is identified by a main note (C, D, E, etc.), an octave, and a MIDI byte value.
+ * Some notes are enharmonic equivalents (e.g., C# = Db) and have a parent note reference.
+ * Notes can be filtered to show only those displayable on a piano keyboard via the showOnPiano property.
+ *
+ * @property mainNote The base note name without octave
+ * @property parentNote The enharmonic equivalent note, if this is an accidental (sharp/flat)
+ * @property octave The octave number (0-8)
+ * @property byteValue The MIDI byte value (0-127)
+ * @property showOnPiano Whether this note should be displayed on a piano keyboard
+ *
+ * @see MainNote
+ * @see Octave
+ * @see PlayEvent
+ */
 enum class Note(
     val mainNote: MainNote,
     val parentNote: Note? = null,

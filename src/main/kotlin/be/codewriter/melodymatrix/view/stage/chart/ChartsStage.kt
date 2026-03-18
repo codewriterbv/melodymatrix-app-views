@@ -13,6 +13,20 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 
 
+/**
+ * Visualizer stage that displays multiple musical chart visualizations.
+ *
+ * Shows a row of chart selection buttons at the top of the window. Clicking a button
+ * expands the corresponding chart into the central area. All charts are kept in sync
+ * with MIDI note-on events received via [onEvent].
+ *
+ * Available chart types: bar chart, concentric chart, Cox-comb chart, ridge-line chart,
+ * and radar chart.
+ *
+ * @see VisualizerStage
+ * @see ChartVisualizer
+ * @see ChartHolder
+ */
 class ChartsStage : VisualizerStage() {
 
     init {
@@ -40,6 +54,14 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Creates a [ChartHolder] for the given label and chart, and registers it
+     * in the [chartHolders] list so it can receive note events.
+     *
+     * @param label The button label shown for this chart
+     * @param chart The chart visualizer instance
+     * @return A [BorderPane]-based [ChartHolder] wrapping the chart
+     */
     fun createChartSelection(
         label: String,
         chart: ChartVisualizer
@@ -49,6 +71,15 @@ class ChartsStage : VisualizerStage() {
         return chartHolder
     }
 
+    /**
+     * A selectable chart panel combining a title button with a [ChartVisualizer].
+     *
+     * Clicking the button expands this chart into the central area of [ChartsStage]
+     * and resets all other holders to their compact preview size.
+     *
+     * @property label The display label used for the selection button
+     * @property chart The chart visualizer displayed in this holder
+     */
     class ChartHolder(
         val label: String,
         val chart: ChartVisualizer
@@ -70,6 +101,11 @@ class ChartsStage : VisualizerStage() {
             resetView()
         }
 
+        /**
+         * Resets this chart holder to its compact preview size (200×200 px).
+         *
+         * Called when another chart is expanded to the full central area.
+         */
         fun resetView() {
             center = (chart as Node).apply {
                 prefWidth = 200.0
@@ -78,6 +114,14 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Forwards NOTE_ON MIDI events to all registered chart holders.
+     * PLAY and CHORD events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {

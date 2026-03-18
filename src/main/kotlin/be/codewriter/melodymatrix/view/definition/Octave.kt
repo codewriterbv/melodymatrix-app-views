@@ -3,6 +3,18 @@ package be.codewriter.melodymatrix.view.definition
 import javafx.scene.paint.Color
 import javafx.scene.paint.Stop
 
+/**
+ * Represents musical octaves (0-8) with associated visual gradient information.
+ *
+ * Each octave has a numeric value and gradient stops that define colors for visualization.
+ * The UNDEFINED octave is a sentinel value for cases where octave is not applicable.
+ *
+ * @property octave The numeric octave value (0-8), or 0 for UNDEFINED
+ * @property gradientStops JavaFX gradient stops defining the color gradient for this octave in charts
+ *
+ * @see Note
+ * @see MainNote
+ */
 enum class Octave(val octave: Int, val gradientStops: Array<Stop>) {
     UNDEFINED(0, arrayOf()),
     OCTAVE_0(

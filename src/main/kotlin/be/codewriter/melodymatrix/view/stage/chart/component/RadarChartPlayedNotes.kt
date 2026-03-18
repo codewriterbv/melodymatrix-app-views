@@ -15,12 +15,23 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 
 
+/**
+ * A radar (spider-web) chart that visualises how often each main note has been played, broken down by octave.
+ *
+ * Each spoke of the radar represents a [MainNote]; each octave is rendered as a separate
+ * filled series overlaid on the same chart. Octave series colours are taken from
+ * [Octave.gradientStops] to make them visually distinguishable.
+ *
+ * @see ChartBase
+ * @see ChartVisualizer
+ */
 class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, YSeries<ValueChartItem>> = mutableMapOf()
     private var items: MutableList<ValueChartItem> = mutableListOf()
     private var data: YPane<ValueChartItem>? = null
     private var ychart: YChart<ValueChartItem>? = null
+
 
     init {
         for (octave in Note.usedAndSortedOctaves()) {
@@ -75,6 +86,11 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
+    /**
+     * Increments the radar value for the spoke and octave series matching the played note.
+     *
+     * @param note The note that was played (NOTE_ON)
+     */
     override fun onNote(note: Note) {
         Platform.runLater {
             val series = chords[note.octave]
@@ -89,6 +105,9 @@ class RadarChartPlayedNotes : ChartBase(), ChartVisualizer {
         }
     }
 
+    /**
+     * Resets all radar values to zero across all octave series.
+     */
     override fun reset() {
         Platform.runLater {
             for (chord in chords) {

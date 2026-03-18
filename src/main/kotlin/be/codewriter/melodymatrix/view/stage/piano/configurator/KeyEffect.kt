@@ -11,6 +11,18 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 
+/**
+ * Settings panel for configuring the above-key smoke/steam particle effect.
+ *
+ * Provides a toggle to enable or disable the effect, and colour pickers for the
+ * start (idle) and end (active) smoke colours.
+ * All controls are bidirectionally bound to [PianoConfiguration] above-key properties.
+ *
+ * @param config Observable configuration to bind to
+ * @see PianoStage
+ * @see PianoConfiguration
+ * @see AboveKeySmokeGenerator
+ */
 class KeyEffect(config: PianoConfiguration) : VBox() {
 
     init {

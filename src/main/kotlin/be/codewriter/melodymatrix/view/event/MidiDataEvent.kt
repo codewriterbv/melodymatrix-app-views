@@ -4,6 +4,8 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 
 /**
+ * Represents raw MIDI data received from musical instruments.
+ *
  * MIDI data is the "raw" data sent between music instruments and the computer. It contains notes that are being
  * played (or stopped), but also control info like changing instruments, channel info, etc.
  *
@@ -11,14 +13,21 @@ import be.codewriter.melodymatrix.view.definition.Note
  * https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
  * https://www.songstuff.com/recording/article/midi-message-format/
  *
- * Convert the bytes to usable values, MIDI uses three bytes
- * * Status byte : 1001 CCCC - CCCC is the channel
- *    * 1001 = NOTE ON
- *    * 1000 = NOTE OFF
- *    * 1100 = SELECT INSTRUMENT
- * * Data byte 1 : 0PPP PPPP - PPP PPPP is the pitch value from 0 to 127
- * * Data byte 2 : 0VVV VVVV - VVV VVVV is the velocity value from 0 to 127
- *    * Velocity is 0 also means NOTE OFF
+ * MIDI uses three bytes:
+ * - Status byte: 1001 CCCC (CCCC is the channel)
+ *   - 1001 = NOTE ON
+ *   - 1000 = NOTE OFF
+ *   - 1100 = SELECT INSTRUMENT
+ * - Data byte 1: 0PPP PPPP (P is the pitch value from 0 to 127)
+ * - Data byte 2: 0VVV VVVV (V is the velocity value from 0 to 127)
+ *   - Velocity 0 also means NOTE OFF
+ *
+ * @property bytes The raw MIDI data bytes (must be at least 3 bytes)
+ * @property timestamp The time when this MIDI event was received
+ *
+ * @see MmxEvent
+ * @see MidiEvent
+ * @see Note
  */
 
 open class MidiDataEvent(

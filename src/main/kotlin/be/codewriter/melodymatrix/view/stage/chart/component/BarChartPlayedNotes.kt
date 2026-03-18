@@ -8,6 +8,16 @@ import javafx.scene.chart.NumberAxis
 import javafx.scene.chart.XYChart
 
 
+/**
+ * A bar chart that counts and visualises how many times each main note has been played.
+ *
+ * One bar per [MainNote] is shown on the X-axis; the Y-axis shows the cumulative
+ * count of NOTE_ON events for that note. The chart is initialised with zero values
+ * for every main note used across the full note range.
+ *
+ * @see ChartBase
+ * @see ChartVisualizer
+ */
 class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val xyChartMainNotes: XYChart.Series<String, Number> = XYChart.Series()
@@ -30,6 +40,11 @@ class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
         })
     }
 
+    /**
+     * Increments the bar value for the main note matching the played note.
+     *
+     * @param note The note that was played (NOTE_ON)
+     */
     override fun onNote(note: Note) {
         Platform.runLater {
             xyChartMainNotes.data.forEachIndexed { i, data ->
@@ -40,6 +55,9 @@ class BarChartPlayedNotes : ChartBase(), ChartVisualizer {
         }
     }
 
+    /**
+     * Resets all bar values to zero.
+     */
     override fun reset() {
         Platform.runLater {
             xyChartMainNotes.data.forEachIndexed { i, data ->

@@ -14,6 +14,20 @@ import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
+/**
+ * Settings panel for configuring the fireworks particle effect.
+ *
+ * Provides controls to enable/disable the fireworks, choose the explosion type, colour
+ * (or random palette), burst radius, particle count, particle size, tail particle count,
+ * and launch height multiplier.
+ * All controls are bidirectionally bound to [PianoConfiguration] fireworks properties.
+ *
+ * @param config Observable configuration to bind to
+ * @see PianoStage
+ * @see PianoConfiguration
+ * @see FireworksGenerator
+ * @see FireworksExplosionType
+ */
 class EffectFireworks(config: PianoConfiguration) : VBox() {
 
     init {

@@ -9,11 +9,31 @@ import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
+/**
+ * JavaFX application entry point for the MelodyMatrix test viewer.
+ *
+ * Launches a standalone test window containing the [TestView] layout.
+ * This application is intended for development and testing purposes,
+ * allowing all viewer components to be exercised without the full application stack.
+ *
+ * @see TestView
+ */
 class TestApp : Application() {
+    /**
+     * Convenience method to launch the JavaFX application.
+     */
     fun run() {
         launch()
     }
 
+    /**
+     * Initialises and shows the primary stage of the test application.
+     *
+     * Applies the PrimerLight theme, creates a [TestView] scene, sets the window title,
+     * and registers a close handler that shuts down the view and the JavaFX platform.
+     *
+     * @param stage The primary stage provided by the JavaFX runtime
+     */
     override fun start(stage: Stage) {
         setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
 

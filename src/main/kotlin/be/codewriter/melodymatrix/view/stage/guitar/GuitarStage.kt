@@ -13,6 +13,17 @@ import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 
+/**
+ * Visualizer stage that displays guitar chord fingerings for detected chords.
+ *
+ * Shows a fretboard grid (6 strings × 13 frets) and marks the finger positions
+ * for the current chord. When a chord event arrives the board is updated with the
+ * best available voicing from [GuitarChordVoicing]. A legend explains the fretboard markers.
+ *
+ * @see VisualizerStage
+ * @see GuitarChordVoicing
+ * @see ChordEvent
+ */
 class GuitarStage : VisualizerStage() {
 
     private val chordLabel = Label("Chord: -")
@@ -44,6 +55,15 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Handles incoming events.
+     *
+     * Only CHORD events are processed; MIDI and PLAY events are ignored.
+     * On a chord-on event the fretboard is updated with the matching voicing;
+     * on chord-off the board is cleared.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         if (event.type != MmxEventType.CHORD) {
             return
@@ -66,6 +86,11 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Builds the fretboard [GridPane] with string/fret labels and empty marker cells.
+     *
+     * @return A fully initialised [GridPane] representing the guitar neck
+     */
     private fun createFretboard(): GridPane {
         val grid = GridPane().apply {
             hgap = 6.0
@@ -107,6 +132,13 @@ class GuitarStage : VisualizerStage() {
         return grid
     }
 
+    /**
+     * Creates a centred label styled with [labelStyle] for use in the fretboard grid.
+     *
+     * @param text       The label text
+     * @param labelStyle An inline CSS style string
+     * @return A styled [Label]
+     */
     private fun createGridLabel(text: String, labelStyle: String): Label {
         return Label(text).apply {
             style = labelStyle
@@ -116,12 +148,18 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /** Resets all fretboard marker cells to [Marker.EMPTY]. */
     private fun clearFretboard() {
         fretMarkers.values.forEach { marker ->
             applyMarker(marker, Marker.EMPTY)
         }
     }
 
+    /**
+     * Applies the given [voicing] to the fretboard by setting markers on the correct cells.
+     *
+     * @param voicing The chord voicing to visualise
+     */
     private fun drawVoicing(voicing: GuitarChordVoicing.Voicing) {
         clearFretboard()
 
@@ -141,6 +179,11 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Builds the legend row explaining each [Marker] symbol.
+     *
+     * @return An [HBox] containing the legend items
+     */
     private fun createLegend(): HBox {
         return HBox(
             Label("Legend:").apply {
@@ -156,6 +199,13 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Creates a single legend item composed of a marker label and a description label.
+     *
+     * @param marker      The marker to display
+     * @param description Human-readable description of the marker
+     * @return An [HBox] with the marker and description side by side
+     */
     private fun createLegendItem(marker: Marker, description: String): HBox {
         return HBox(
             Label(marker.symbol).apply { style = marker.style },
@@ -165,15 +215,31 @@ class GuitarStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Applies the symbol and style of [marker] to [label].
+     *
+     * @param label  The label to update
+     * @param marker The marker whose symbol and style to apply
+     */
     private fun applyMarker(label: Label, marker: Marker) {
         label.text = marker.symbol
         label.style = marker.style
     }
 
+    /**
+     * Fretboard position markers with their display symbols and inline CSS styles.
+     */
     private enum class Marker(val symbol: String, val style: String) {
+        /** An unoccupied fret position */
         EMPTY(".", "-fx-font-size: 18; -fx-text-fill: #8f8f8f;"),
+
+        /** A muted (not played) string */
         MUTED("X", "-fx-font-size: 18; -fx-text-fill: #8a1f11; -fx-font-weight: bold;"),
+
+        /** An open (unfretted) string */
         OPEN("O", "-fx-font-size: 18; -fx-text-fill: #1a6f2b; -fx-font-weight: bold;"),
+
+        /** A fretted (pressed) position */
         PRESSED("●", "-fx-font-size: 18; -fx-text-fill: #1f4fa8; -fx-font-weight: bold;")
     }
 

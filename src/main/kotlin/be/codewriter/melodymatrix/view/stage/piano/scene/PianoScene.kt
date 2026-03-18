@@ -18,6 +18,18 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import javafx.scene.paint.Stop
 
+/**
+ * JavaFX [Canvas] that renders the animated piano scene above the keyboard.
+ *
+ * Hosts an [AnimationCalculator] that runs on a virtual thread at ~60 FPS, producing
+ * [AnimationState] snapshots. On each JavaFX pulse an [AnimationTimer] reads the latest
+ * snapshot and redraws the canvas: background colour/image, logo, above-key smoke,
+ * explosion particles, and fireworks particles.
+ *
+ * @param config Observable configuration controlling all visual aspects of the scene
+ * @see PianoStage
+ * @see AnimationCalculator
+ */
 class PianoScene(val config: PianoConfiguration) : Canvas() {
 
     // Animation calculator with virtual thread
@@ -70,11 +82,25 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         animationTimer.start()
     }
 
+    /**
+     * Stops the animation timer and shuts down the background [AnimationCalculator].
+     *
+     * Should be called when the stage is closed to release the virtual-thread executor.
+     */
     fun stop() {
         animationTimer.stop()
         animationCalculator?.stop()
     }
 
+    /**
+     * Reacts to a MIDI note event by forwarding key-press state and spawning particle effects.
+     *
+     * On NOTE_ON, queues an explosion and/or fireworks burst (if enabled in [config]).
+     * On NOTE_OFF only the key-press state is updated.
+     *
+     * @param midiDataEvent The MIDI event to process
+     * @param keyOrigin     The on-screen position of the pressed key (used as effect origin)
+     */
     fun playNote(midiDataEvent: MidiDataEvent, keyOrigin: Point2D) {
         val isPressed = midiDataEvent.event == MidiEvent.NOTE_ON
         val sceneY = PIANO_BACKGROUND_HEIGHT + keyOrigin.y
@@ -115,6 +141,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         }
     }
 
+    /** Redraws the full canvas for the current animation frame. Called by the [AnimationTimer]. */
     private fun update() {
         val state = latestAnimationState
 
@@ -160,6 +187,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         }
     }
 
+    /** Draws all explosion/fireworks particles from the given [AnimationState]. */
     private fun drawParticles(state: AnimationState) {
         state.particlePositions.forEach { particle ->
             ctx.fill = Color.color(
@@ -172,12 +200,24 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
         }
     }
 
+    /** Draws all above-key smoke particles from the given [AnimationState]. */
     private fun drawAboveKeyParticles(state: AnimationState) {
         state.aboveKeyParticles.forEach { particle ->
             drawSoftParticle(particle.x, particle.y, particle.size, particle.color, particle.opacity)
         }
     }
 
+    /**
+     * Draws a multi-layer radial-gradient "cloud" particle at the given position.
+     *
+     * Renders four overlapping ellipses with decreasing opacity to produce a soft, volumetric look.
+     *
+     * @param x       Centre X position
+     * @param y       Centre Y position
+     * @param size    Nominal diameter of the particle cloud
+     * @param color   Base colour for the gradient fills
+     * @param opacity Overall opacity multiplier (0.0–1.0)
+     */
     private fun drawSoftParticle(x: Double, y: Double, size: Double, color: Color, opacity: Double) {
         val cloudLayers = listOf(
             Triple(1.55, opacity * 0.16, 0.25),

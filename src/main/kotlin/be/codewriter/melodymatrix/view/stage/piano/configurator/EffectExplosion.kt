@@ -11,6 +11,18 @@ import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
+/**
+ * Settings panel for configuring the explosion particle effect.
+ *
+ * Provides controls to enable/disable the explosion, choose the colour (or random palette),
+ * and tune the explosion radius, particle count, and particle size.
+ * All controls are bidirectionally bound to [PianoConfiguration] explosion properties.
+ *
+ * @param config Observable configuration to bind to
+ * @see PianoStage
+ * @see PianoConfiguration
+ * @see ExplosionGenerator
+ */
 class EffectExplosion(config: PianoConfiguration) : VBox() {
 
     init {

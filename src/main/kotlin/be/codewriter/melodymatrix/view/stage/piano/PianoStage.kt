@@ -28,6 +28,21 @@ import javafx.scene.text.FontWeight
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
+/**
+ * Visualizer stage that displays an interactive piano keyboard.
+ *
+ * Shows a piano keyboard view and an animated scene above it that reacts to MIDI events.
+ * Supports configurable background, key colours, explosion and fireworks effects,
+ * and optional video recording. When [testMode] is enabled, an FPS counter is overlaid.
+ *
+ * @property licenseStatus The current application license status (used for gated features)
+ * @property videoRecorder The video recorder used for optional screen capture
+ * @property testMode When true, an FPS counter overlay is displayed
+ *
+ * @see VisualizerStage
+ * @see PianoScene
+ * @see KeyboardView
+ */
 class PianoStage(
     private val licenseStatus: LicenseStatus,
     private val videoRecorder: VideoRecorder,
@@ -96,6 +111,12 @@ class PianoStage(
         }
     }
 
+    /**
+     * Starts the FPS counter animation timer.
+     *
+     * Creates and starts an [AnimationTimer] that updates the FPS label every second.
+     * Only called when [testMode] is enabled.
+     */
     private fun startFpsCounter() {
         fpsTimer = object : AnimationTimer() {
             override fun handle(now: Long) {
@@ -119,6 +140,14 @@ class PianoStage(
         fpsTimer?.start()
     }
 
+    /**
+     * Creates the settings accordion panel displayed on the left side of the stage.
+     *
+     * Each pane in the accordion covers a different configuration category:
+     * background, key colours, explosion effect, fireworks effect, key effect, and export.
+     *
+     * @return An [Accordion] containing all piano setting panels
+     */
     private fun getPianoSettingsAccordion(): Accordion {
         return Accordion().apply {
             padding = Insets(0.0)
@@ -158,6 +187,14 @@ class PianoStage(
         }
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Reacts to MIDI events by updating the keyboard view and piano scene.
+     * PLAY and CHORD events are ignored in this stage.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {
@@ -195,5 +232,3 @@ class PianoStage(
         const val PIANO_HEIGHT = PIANO_BACKGROUND_HEIGHT + PIANO_KEYBOARD_HEIGHT
     }
 }
-
-

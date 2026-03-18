@@ -19,7 +19,16 @@ import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
 import javafx.scene.paint.Stop
 
-
+/**
+ * A ridge-line chart that visualises how often each main note has been played, grouped by octave.
+ *
+ * One horizontal ridge line is drawn per octave. Each ridge shows the relative play count for
+ * every [MainNote] along the X-axis. A rainbow-style linear gradient is used to colour the area
+ * under each ridge.
+ *
+ * @see ChartBase
+ * @see ChartVisualizer
+ */
 class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartBox: VBox = VBox().apply {
@@ -86,6 +95,11 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
         addChart(chartBox)
     }
 
+    /**
+     * Increments the ridge-line data point for the main note and octave matching the played note.
+     *
+     * @param note The note that was played (NOTE_ON)
+     */
     override fun onNote(note: Note) {
         Platform.runLater {
             val data = chords[note.octave]
@@ -99,6 +113,9 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
         }
     }
 
+    /**
+     * Resets all ridge-line values to zero across all octaves.
+     */
     override fun reset() {
         Platform.runLater {
             for (chord in chords) {

@@ -6,8 +6,31 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
+/**
+ * Generates radial explosion particle bursts for the piano key-press effect.
+ *
+ * Produces three layers of particles — a dense core, fast sparks, and a diffuse mist —
+ * whose sizes, speeds and directions are scaled by MIDI velocity so louder notes
+ * produce more dramatic explosions.
+ *
+ * @see AnimationCalculator
+ * @see FireworksGenerator
+ */
 class ExplosionGenerator {
 
+    /**
+     * Generates a list of particles for a single explosion event.
+     *
+     * @param x            Horizontal origin of the explosion in scene coordinates
+     * @param y            Vertical origin of the explosion in scene coordinates
+     * @param velocity     MIDI velocity value (1–127); higher values produce stronger bursts
+     * @param radius       Base spread radius for the explosion
+     * @param color        Base colour; may be randomised if [randomColor] is true
+     * @param particleCount Total number of particles to generate
+     * @param particleSize  Base diameter of each particle in pixels
+     * @param randomColor   When true, selects from a cinematic palette instead of [color]
+     * @return A list of [AnimationCalculator.ParticleInfo] representing the explosion particles
+     */
     fun generate(
         x: Double,
         y: Double,
@@ -91,6 +114,13 @@ class ExplosionGenerator {
         return particles
     }
 
+    /**
+     * Builds the colour palette used for explosion particles.
+     *
+     * @param baseColor   The user-configured particle colour
+     * @param randomColor When true, picks a random cinematic palette and tints it with [baseColor]
+     * @return A list of two or three [Color] values used to colour individual particles
+     */
     private fun buildExplosionPalette(baseColor: Color, randomColor: Boolean): List<Color> {
         if (!randomColor) {
             return listOf(
@@ -109,6 +139,12 @@ class ExplosionGenerator {
         return palette.map { blend(it, baseColor, 0.18) }
     }
 
+    /**
+     * Adds a small random offset to each RGB channel of [color].
+     *
+     * @param color The colour to jitter
+     * @return A new [Color] with each channel shifted by ±0.09
+     */
     private fun jitterColor(color: Color): Color {
         val amount = 0.09
         fun jitter(value: Double): Double {
@@ -117,6 +153,14 @@ class ExplosionGenerator {
         return Color.color(jitter(color.red), jitter(color.green), jitter(color.blue))
     }
 
+    /**
+     * Linearly interpolates between two colours.
+     *
+     * @param startColor The colour at factor 0.0
+     * @param endColor   The colour at factor 1.0
+     * @param factor     Blend factor clamped to [0.0, 1.0]
+     * @return The blended [Color]
+     */
     private fun blend(startColor: Color, endColor: Color, factor: Double): Color {
         val clampedFactor = factor.coerceIn(0.0, 1.0)
         return Color.color(

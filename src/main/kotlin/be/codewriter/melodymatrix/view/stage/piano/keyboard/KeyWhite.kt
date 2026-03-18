@@ -16,6 +16,24 @@ import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
 
 
+/**
+ * Visual representation of a white (natural) piano key.
+ *
+ * The key shape is built by subtracting rectangular cutouts from a full-height rectangle
+ * to leave room for adjacent black keys. The exact cutout depends on [PianoKeyType]:
+ * left cutout only, right cutout only, both, or none for the edge keys.
+ *
+ * Fill colour switches between [PianoConfiguration.pianoWhiteKeyColor] and
+ * [PianoConfiguration.pianoWhiteKeyActiveColor] when the key is pressed.
+ * An optional note-name label is displayed at the bottom of the key.
+ *
+ * @param config Observable configuration for colours and label visibility
+ * @param note   The musical note this key represents
+ * @param x      The horizontal position of the key's left edge in keyboard coordinates
+ * @see Key
+ * @see KeyBlack
+ * @see KeyboardView
+ */
 class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     Key, Region() {
 

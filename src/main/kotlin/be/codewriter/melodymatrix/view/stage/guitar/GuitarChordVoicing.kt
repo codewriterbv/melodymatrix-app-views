@@ -6,13 +6,35 @@ import be.codewriter.melodymatrix.view.definition.ChordExtension
 import be.codewriter.melodymatrix.view.definition.ChordQuality
 import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
 
+/**
+ * Resolves a guitar chord [Voicing] for a given [Chord].
+ *
+ * First tries to find a voicing from a CSV fingering database via [ChordFingersLoader].
+ * If none is found, falls back to an automatic tone-based algorithm that maps each chord
+ * tone to the nearest fret on each string.
+ *
+ * @see GuitarStage
+ * @see ChordFingersLoader
+ */
 internal object GuitarChordVoicing {
 
     private val openPitchClassByString = intArrayOf(4, 9, 2, 7, 11, 4)
 
+    /**
+     * Represents a guitar chord voicing as fret numbers for each of the 6 strings.
+     *
+     * A value of -1 means the string is muted; 0 means open string.
+     *
+     * @property fretsByString Array of 6 fret numbers, one per string (low E to high e)
+     */
     data class Voicing(
         val fretsByString: IntArray
     ) {
+        /**
+         * Returns a human-readable rendering of the voicing, e.g. "E: X | A: 3 | D: 2 | …".
+         *
+         * @return Formatted string showing each string's fret or X/O symbol
+         */
         fun render(): String {
             return STRING_LABELS.indices.joinToString(" | ") { idx ->
                 val fret = fretsByString[idx]
@@ -35,17 +57,41 @@ internal object GuitarChordVoicing {
         }
     }
 
+    /**
+     * Returns the best available voicing for [chord].
+     *
+     * Prefers CSV-sourced fingerings; falls back to [autoToneBasedVoicing] if none match.
+     *
+     * @param chord The chord to look up
+     * @return A [Voicing] for the chord; never null (returns muted strings if chord is unknown)
+     */
     fun forChord(chord: Chord): Voicing {
         findCsvVoicing(chord)?.let { return it }
         return autoToneBasedVoicing(chord)
     }
 
+    /**
+     * Looks up a voicing from the CSV fingering database.
+     *
+     * Only returns a voicing if all fret numbers are within 0–[MAX_CSV_FRET].
+     *
+     * @param chord The chord to look up
+     * @return A matching [Voicing], or null if none found in the database
+     */
     private fun findCsvVoicing(chord: Chord): Voicing? {
         return ChordFingersLoader.voicingsFor(chord)
             .firstOrNull { voicing -> voicing.all { it in -1..MAX_CSV_FRET } }
             ?.let(::Voicing)
     }
 
+    /**
+     * Generates a voicing algorithmically by placing each chord tone on the nearest fret.
+     *
+     * Roots the voicing around the low-E string root position calculated from [chord.pitchClass].
+     *
+     * @param chord The chord to voice
+     * @return A [Voicing] computed from chord tones
+     */
     private fun autoToneBasedVoicing(chord: Chord): Voicing {
         val chordTones = chordTonePitchClasses(chord)
         if (chordTones.isEmpty()) {
@@ -78,6 +124,15 @@ internal object GuitarChordVoicing {
         return Voicing(frets)
     }
 
+    /**
+     * Computes the set of pitch classes (0–11) that make up [chord].
+     *
+     * Combines quality intervals, extension intervals, and alteration adjustments,
+     * then transposes them to the chord's root pitch class.
+     *
+     * @param chord The chord whose tones should be returned
+     * @return A [Set] of pitch class integers (0–11)
+     */
     private fun chordTonePitchClasses(chord: Chord): Set<Int> {
         val intervals = mutableSetOf<Int>()
 
@@ -115,6 +170,12 @@ internal object GuitarChordVoicing {
         return intervals.map { (chord.pitchClass + it) % 12 }.toSet()
     }
 
+    /**
+     * Returns the fret number on the low-E string that plays the given [pitchClass].
+     *
+     * @param pitchClass The target pitch class (0–11)
+     * @return Fret number in range 0–11
+     */
     private fun lowERootFret(pitchClass: Int): Int {
         return ((pitchClass - 4) % 12 + 12) % 12
     }
@@ -122,4 +183,3 @@ internal object GuitarChordVoicing {
     private val STRING_LABELS = listOf("E", "A", "D", "G", "B", "e")
     private const val MAX_CSV_FRET = 12
 }
-

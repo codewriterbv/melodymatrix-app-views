@@ -1,5 +1,15 @@
 package be.codewriter.melodymatrix.view.stage.piano.data
 
+/**
+ * Enumeration of background images available for the piano visualizer scene.
+ *
+ * Each entry maps a human-readable label to the classpath resource path of its image file.
+ *
+ * @property label Human-readable display name shown in the settings panel
+ * @property file  Classpath path to the background image resource
+ *
+ * @see PianoConfiguration
+ */
 enum class PianoBackgroundImage(val label: String, val file: String) {
     NONE("None", "/piano/backgrounds/none.png"),
     ABSTRACT_1("Abstract 1", "/piano/backgrounds/abstract-1.png"),

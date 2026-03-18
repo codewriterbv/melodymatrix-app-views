@@ -15,6 +15,16 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.VBox
 
 
+/**
+ * Visualizer stage for drum note display.
+ *
+ * Shows a drum notation reference image and is designed to react to MIDI drum events.
+ * Drum MIDI events arrive on channel 10 (index 9) and use note numbers to identify
+ * individual drum instruments (kick, snare, hi-hat, etc.).
+ *
+ * @see VisualizerStage
+ * @see MidiDataEvent
+ */
 class DrumStage : VisualizerStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
@@ -41,6 +51,13 @@ class DrumStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Currently responds to MIDI events only; PLAY and CHORD events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {

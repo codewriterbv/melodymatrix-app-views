@@ -10,6 +10,19 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
 
+/**
+ * Settings panel for starting and stopping video recording of the piano scene.
+ *
+ * Provides "Record to video" and "Stop recording" buttons wired to [VideoRecorder].
+ * Both buttons are disabled when the license is invalid; the record button is also
+ * disabled while recording is already in progress, and the stop button while idle.
+ *
+ * @param licenseStatus The current license status; recording is only enabled for valid licenses
+ * @param videoRecorder The video recorder implementation to invoke
+ * @param node          The JavaFX node to capture (typically the piano scene canvas)
+ * @see PianoStage
+ * @see VideoRecorder
+ */
 class PianoExport(licenseStatus: LicenseStatus, videoRecorder: VideoRecorder, node: Node) : VBox() {
 
     init {

@@ -20,6 +20,19 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 
 
+/**
+ * Settings panel for configuring the piano scene background and logo overlay.
+ *
+ * Provides controls for solid background colour, background image selection (thumbnail grid),
+ * image transparency, and logo visibility/position/transparency. The image and logo controls
+ * are bidirectionally bound to [PianoConfiguration] properties. Logo controls are disabled
+ * when the license is not valid.
+ *
+ * @param config        Observable configuration to bind to
+ * @param licenseStatus The current license status; used to gate logo settings
+ * @see PianoStage
+ * @see PianoConfiguration
+ */
 class BackgroundScene(config: PianoConfiguration, licenseStatus: LicenseStatus) : VBox() {
 
     init {

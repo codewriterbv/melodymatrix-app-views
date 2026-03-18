@@ -18,6 +18,16 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.InputStream
 
+/**
+ * Visualizer stage that displays notes on a two-octave music staff and highlights them as they are played.
+ *
+ * Similar to [ChordStage] but focused on individual scale/melodic note highlighting rather than
+ * chord detection. Renders treble and bass staves using the Musiqwik music font. Each note label
+ * is highlighted when the corresponding key is pressed and cleared on release.
+ *
+ * @see VisualizerStage
+ * @see MidiDataEvent
+ */
 class ScaleStage : VisualizerStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
@@ -82,6 +92,14 @@ class ScaleStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Creates a styled music-font label and optionally registers it for a specific note.
+     *
+     * @param musicFont The music font to apply, or null for the default font
+     * @param content   The text content (music font character) to display
+     * @param note      The note this label represents, or null for decorative staff elements
+     * @return A [Label] configured with the given font and text
+     */
     private fun getLabel(
         musicFont: Font?,
         content: String,
@@ -97,6 +115,15 @@ class ScaleStage : VisualizerStage() {
         return label
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Highlights the corresponding staff label on NOTE_ON and removes highlighting on NOTE_OFF.
+     * Sharp notes share a visual position with their natural parent note.
+     * PLAY and CHORD events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {

@@ -9,6 +9,16 @@ import javafx.application.Platform
 import javafx.scene.paint.Color
 
 
+/**
+ * A Cox-comb (polar area) chart that counts and visualises how many times each main note has been played.
+ *
+ * Each equal-angle segment represents one [MainNote]. The radius of each segment grows
+ * proportionally to the number of times that note has been played.
+ * Segment colours are taken from [MainNote.chartColor].
+ *
+ * @see ChartBase
+ * @see ChartVisualizer
+ */
 class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
@@ -48,6 +58,11 @@ class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
     }
 
+    /**
+     * Increments the segment value for the main note matching the played note.
+     *
+     * @param note The note that was played (NOTE_ON)
+     */
     override fun onNote(note: Note) {
         Platform.runLater {
             chartItems.forEach { data ->
@@ -58,6 +73,9 @@ class CoxCombPlayedNotes : ChartBase(), ChartVisualizer {
         }
     }
 
+    /**
+     * Resets all segment values to zero.
+     */
     override fun reset() {
         Platform.runLater {
             chartItems.forEach { data ->

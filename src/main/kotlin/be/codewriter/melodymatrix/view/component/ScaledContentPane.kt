@@ -33,6 +33,11 @@ class ScaledContentPane(
         children.add(content)
     }
 
+    /**
+     * Lays out the child by computing a uniform scale factor and applying it via [scaleTransform].
+     *
+     * The scale is capped at 1.0 so the content is never magnified beyond its natural size.
+     */
     override fun layoutChildren() {
         if (naturalWidth <= 0.0 || naturalHeight <= 0.0) return
 
@@ -51,9 +56,16 @@ class ScaledContentPane(
 
     // Return small values so we don't inflate the parent SplitPane/StackPane preferred size.
     // The actual size is driven by the dock container; layoutChildren() scales to fit.
+    /** Returns the minimum width to avoid inflating the parent container's preferred size. */
     override fun computePrefWidth(height: Double) = computeMinWidth(height)
+
+    /** Returns the minimum height to avoid inflating the parent container's preferred size. */
     override fun computePrefHeight(width: Double) = computeMinHeight(width)
+
+    /** Returns a small minimum width (100 px) so the pane can shrink freely. */
     override fun computeMinWidth(height: Double) = 100.0
+
+    /** Returns a small minimum height (50 px) so the pane can shrink freely. */
     override fun computeMinHeight(width: Double) = 50.0
 
     companion object {
@@ -81,6 +93,7 @@ class ScaledContentPane(
                 ?: 1.0
         }
 
+        /** Resolves the natural height of a scene, falling back to the root's layout bounds. */
         private fun Scene.resolveNaturalHeight(): Double {
             return height.takeIf { it > 0.0 }
                 ?: root.layoutBounds.height.takeIf { it > 0.0 }

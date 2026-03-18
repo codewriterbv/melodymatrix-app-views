@@ -3,6 +3,23 @@ package be.codewriter.melodymatrix.view.definition
 import javafx.scene.paint.Color
 
 
+/**
+ * Represents the 12 chromatic notes (C through B) with their visual and keyboard properties.
+ *
+ * Each main note has a sorting key for ordinal comparisons, a label, information about
+ * its piano key type (white key, black key, or both), and color information for charts
+ * and UI display.
+ *
+ * @property sortingKey An integer for ordering notes chromatically (1-12)
+ * @property label The note name as a string (e.g., "C", "C#")
+ * @property pianoKeyType The type of piano key this note corresponds to
+ * @property chartColor The color used to represent this note in charts
+ * @property labelColor The color of the label text on the piano keyboard
+ *
+ * @see Note
+ * @see PianoKeyType
+ * @see Octave
+ */
 enum class MainNote(
     val sortingKey: Int,
     val label: String,

@@ -21,6 +21,17 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 
+/**
+ * Visualizer stage that displays raw MIDI data in a detailed inspector table.
+ *
+ * Maintains a live log of all received [MidiDataEvent] objects in a [TableView].
+ * Selecting a row shows a detailed breakdown of the three MIDI bytes — including
+ * decimal values, binary representations, and parsed fields such as note, velocity,
+ * instrument, controller and pitch-bend information.
+ *
+ * @see VisualizerStage
+ * @see MidiDataEvent
+ */
 class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
 
     val midiDataEventList: ObservableList<MidiDataEvent> = FXCollections.observableArrayList()
@@ -242,6 +253,14 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Prepends MIDI events to the event list and selects the newest row in the table.
+     * PLAY and CHORD events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {
@@ -262,6 +281,15 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
+    /**
+     * Populates the detail panel with the field values of the selected MIDI event.
+     *
+     * Updates all bound [StringProperty] fields so the GridPane labels refresh automatically.
+     * The method is annotated with [ExperimentalStdlibApi] because it relies on experimental
+     * Kotlin standard-library APIs for hex formatting.
+     *
+     * @param midiDataEvent The MIDI event whose values should be displayed
+     */
     @OptIn(ExperimentalStdlibApi::class)
     fun showValues(midiDataEvent: MidiDataEvent) {
         Platform.runLater {
@@ -293,7 +321,14 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         }
     }
 
-
+    /**
+     * Converts a byte to a formatted 8-bit binary string with a space between the nibbles.
+     *
+     * For example, `0x90.toByte()` becomes `"1001 0000"`.
+     *
+     * @param byte The byte to format
+     * @return An 8-character binary string with a space in the middle (e.g., "1001 0000")
+     */
     fun byteToBitsString(byte: Byte): String {
         val bits = String
             .format("%8s", Integer.toBinaryString(byte.toInt() and 0xFF))

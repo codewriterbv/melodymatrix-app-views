@@ -7,7 +7,23 @@ import javafx.scene.paint.Color
 import kotlin.math.sin
 import kotlin.random.Random
 
+/**
+ * Generates and updates the soft smoke/steam particles that drift above the piano keyboard.
+ *
+ * Particles slowly drift horizontally and wobble vertically. When a key is pressed, nearby
+ * particles fade toward the end colour; otherwise they gradually return to the start colour.
+ * The particle field is re-seeded whenever the effect is toggled on or the colours change.
+ *
+ * @see AnimationCalculator
+ */
 class AboveKeySmokeGenerator {
+    /**
+     * Immutable configuration snapshot for the smoke effect.
+     *
+     * @property enabled    Whether the effect is active
+     * @property startColor Base particle colour (also the "idle" colour)
+     * @property endColor   Colour particles shift toward when a nearby key is pressed
+     */
     private data class SmokeConfig(
         val enabled: Boolean = true,
         val startColor: Color = Color.rgb(255, 0, 0),
@@ -16,6 +32,14 @@ class AboveKeySmokeGenerator {
 
     private var config = SmokeConfig()
 
+    /**
+     * Applies a new configuration, clearing or re-seeding the particle list as needed.
+     *
+     * @param enabled   Whether the effect should be active
+     * @param startColor Base/idle particle colour
+     * @param endColor   Colour particles shift toward near active keys
+     * @param particles  The mutable particle list to update in place
+     */
     fun updateConfig(
         enabled: Boolean,
         startColor: Color,
@@ -35,6 +59,16 @@ class AboveKeySmokeGenerator {
         }
     }
 
+    /**
+     * Advances all particles by [deltaTime] seconds.
+     *
+     * Particles drift, wobble, and shift colour based on proximity to active keys.
+     * If the particle list is empty it is re-seeded first.
+     *
+     * @param deltaTime   Elapsed time since last update in seconds
+     * @param activeNotes The set of notes currently held down
+     * @param particles   The mutable particle list to update in place
+     */
     fun update(
         deltaTime: Double,
         activeNotes: Set<Note>,
@@ -78,6 +112,11 @@ class AboveKeySmokeGenerator {
         }
     }
 
+    /**
+     * Populates the particle list with 32 randomly distributed particles spanning the full keyboard width.
+     *
+     * @param particles The list to populate; it is cleared before adding new particles
+     */
     private fun seedParticles(particles: MutableList<AnimationCalculator.AboveKeyParticleInfo>) {
         particles.clear()
         repeat(32) {
@@ -85,6 +124,12 @@ class AboveKeySmokeGenerator {
         }
     }
 
+    /**
+     * Creates a single smoke particle at the given X position with randomised properties.
+     *
+     * @param initialX Starting X position in scene coordinates
+     * @return A fully initialised [AnimationCalculator.AboveKeyParticleInfo]
+     */
     private fun createParticle(initialX: Double): AnimationCalculator.AboveKeyParticleInfo {
         val size = Random.nextDouble(100.0, 220.0)
         return AnimationCalculator.AboveKeyParticleInfo(
@@ -106,6 +151,14 @@ class AboveKeySmokeGenerator {
         }
     }
 
+    /**
+     * Linearly interpolates between two colours.
+     *
+     * @param startColor Colour at factor 0.0
+     * @param endColor   Colour at factor 1.0
+     * @param factor     Blend factor clamped to [0.0, 1.0]
+     * @return The blended [Color]
+     */
     private fun blend(startColor: Color, endColor: Color, factor: Double): Color {
         val clampedFactor = factor.coerceIn(0.0, 1.0)
         return Color.color(

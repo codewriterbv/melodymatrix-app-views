@@ -29,6 +29,21 @@ import java.util.concurrent.Executors
 import kotlin.math.abs
 
 
+/**
+ * Visualizer stage that drives a physical LED strip and an on-screen preview of it.
+ *
+ * Each piano key maps to a rectangle in the on-screen preview and to a corresponding
+ * LED on the strip. When a NOTE_ON event is received the matching LED (and its neighbours
+ * within [effectWidth]) fade from the highlight colour back to the normal colour.
+ *
+ * The LED strip is driven via a Pixelblaze Output Expander connected over a serial port.
+ * A background [BoxUpdater] thread refreshes the fade animation at ~50 fps, and a
+ * [LedStripSender] thread pushes colour data to the hardware at the same rate.
+ *
+ * @see VisualizerStage
+ * @see ColorBox
+ * @see PixelblazeOutputExpanderHelper
+ */
 class LedStripStage : VisualizerStage() {
     init {
         val boxHolder = HBox().apply {
@@ -82,6 +97,14 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Builds the colour configuration panel.
+     *
+     * Creates controls for white key normal/highlight colours, black key normal/highlight colours,
+     * a toggle to mirror white-key colours on black keys, and sliders for effect width and duration.
+     *
+     * @return A [VBox] containing all colour configuration controls
+     */
     fun getColorControls(): VBox {
         colorWhiteKeyNormal.apply {
             value = Color.NAVY
@@ -164,6 +187,14 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Builds the serial port and channel selection panel.
+     *
+     * Creates a [ComboBox] populated with available serial ports and a row of
+     * channel toggle switches (0–7) for the Pixelblaze Output Expander.
+     *
+     * @return An [HBox] containing the serial port selector and channel toggles
+     */
     fun getSerialControls(): HBox {
         serialPort.apply {
             items = getSerialPorts()
@@ -190,6 +221,11 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Retrieves all available serial ports on the current machine.
+     *
+     * @return An observable list of [SerialPort] instances; empty if none are found or an error occurs
+     */
     private fun getSerialPorts(): ObservableList<SerialPort> {
         val serialPorts = FXCollections.observableArrayList<SerialPort>()
         try {
@@ -203,6 +239,11 @@ class LedStripStage : VisualizerStage() {
         return serialPorts
     }
 
+    /**
+     * Background runnable that continuously refreshes the fade animation for all colour boxes.
+     *
+     * Runs in a dedicated thread and calls [ColorBox.update] every 20 ms until interrupted.
+     */
     class BoxUpdater : Runnable {
         override fun run() {
             while (!Thread.interrupted()) {
@@ -214,6 +255,12 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Background runnable that continuously sends the current colour state to the LED strip hardware.
+     *
+     * Runs in a dedicated thread, serialises all [ColorBox] colours into a byte array, and sends
+     * them via [PixelblazeOutputExpanderHelper] every 20 ms while [updateLedStrip] is true.
+     */
     class LedStripSender : Runnable {
         override fun run() {
             while (!Thread.interrupted() && updateLedStrip) {
@@ -228,6 +275,12 @@ class LedStripStage : VisualizerStage() {
             }
         }
 
+        /**
+         * Sends the current colour state of all boxes to the Pixelblaze Output Expander.
+         *
+         * Re-opens the serial connection if the port has changed, then writes RGB byte triplets
+         * for every enabled channel.
+         */
         fun updateLeds() {
             val serialPort = serialPort.value
             if (pixelblazeOutputExpanderHelper == null || pixelblazeOutputExpanderHelper!!.address != serialPort.systemPortName) {
@@ -253,6 +306,14 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Starts the fade animation for the box that corresponds to the given note and its neighbours.
+     *
+     * The number of neighbouring boxes affected is controlled by [effectWidth].
+     * Each neighbour receives a delay proportional to its distance from the played note.
+     *
+     * @param note The note whose corresponding LED box should be highlighted
+     */
     private fun highlightBox(note: Note) {
         val idx = boxes.keys.indexOf(note)
         var start = idx - effectWidth.value.toInt()
@@ -269,6 +330,17 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
+    /**
+     * Represents a single LED / piano-key colour rectangle with a fade animation.
+     *
+     * The box interpolates from the highlight colour back to the normal colour over time.
+     * The animation speed and initial delay depend on [effectSpeed] and the note's distance
+     * from the played note, respectively.
+     *
+     * @property note The piano key this box represents
+     * @property boxWidth The width of the on-screen rectangle in pixels
+     * @property box The JavaFX [Rectangle] used for the on-screen preview
+     */
     class ColorBox(
         val note: Note,
         val boxWidth: Double,
@@ -282,17 +354,30 @@ class LedStripStage : VisualizerStage() {
         var startTimestamp: Long = 0L
         var step: Int = -1
 
+        /**
+         * Schedules this box to begin its fade animation after a delay proportional to [distance].
+         *
+         * @param distance The number of keys away from the played note (used for ripple delay)
+         */
         fun startFade(distance: Int) {
             this.distance = distance
             startTimestamp = System.currentTimeMillis() + (distance * 20)
         }
 
+        /**
+         * Applies [getCurrentColor] to the rectangle on the JavaFX application thread.
+         */
         fun update() {
             Platform.runLater {
                 box.fill = getCurrentColor()
             }
         }
 
+        /**
+         * Calculates the current interpolated colour based on the fade animation state.
+         *
+         * @return The colour the box should display at this moment
+         */
         fun getCurrentColor(): Color {
             var normalColor = colorWhiteKeyNormal.value
             var highlightColor = colorWhiteKeyHighlighted.value
@@ -320,11 +405,23 @@ class LedStripStage : VisualizerStage() {
             return startColor.interpolate(normalColor, step.toDouble() / effectSpeed.value)
         }
 
+        /**
+         * Returns the current fill colour of the rectangle as a [Color].
+         *
+         * @return The current fill colour
+         */
         fun getColor(): Color {
             return (box.fill as Color)
         }
     }
 
+    /**
+     * Handles incoming MelodyMatrix events.
+     *
+     * Triggers [highlightBox] for NOTE_ON MIDI events. PLAY and CHORD events are ignored.
+     *
+     * @param event The MelodyMatrix event to process
+     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {

@@ -18,6 +18,17 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
+/**
+ * Test control panel for emitting simulated MIDI and chord events.
+ *
+ * Provides buttons and sliders to drive [MidiSimulator] with note sequences,
+ * random chords, program changes, controller messages, pitch-bend events,
+ * and a simple high-frequency FPS stress test.
+ *
+ * @property midiSimulator The simulator used to broadcast events to active visualizers
+ * @see MidiSimulator
+ * @see TestView
+ */
 class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
     private val random = Random(System.currentTimeMillis())
@@ -115,6 +126,14 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         )
     }
 
+    /**
+     * Creates a button that, when clicked, starts playback of the provided note list.
+     *
+     * @param label  Button caption
+     * @param notes  Sequence of notes to play
+     * @param repeat Whether the sequence should loop
+     * @return A configured [Button] node
+     */
     private fun createButton(
         label: String,
         notes: List<Note>,
@@ -131,6 +150,13 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         return view
     }
 
+    /**
+     * Creates a button that sends a single raw [MidiDataEvent] when clicked.
+     *
+     * @param label         Button caption
+     * @param midiDataEvent Event to send
+     * @return A configured [Button] node
+     */
     private fun createButton(label: String, midiDataEvent: MidiDataEvent): Node {
         val view = Button(label).apply {
             minWidth = 200.0
@@ -143,6 +169,9 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         return view
     }
 
+    /**
+     * Starts periodic random chord playback at the current [chordDelayMillis] interval.
+     */
     private fun startRandomChordPlayback() {
         stopRandomChordPlayback()
         playRandomChord()
@@ -154,12 +183,20 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         )
     }
 
+    /**
+     * Restarts random chord playback if it is currently active.
+     *
+     * Used when the delay slider changes.
+     */
     private fun restartRandomChordPlaybackIfRunning() {
         if (randomChordTask != null) {
             startRandomChordPlayback()
         }
     }
 
+    /**
+     * Stops random chord playback and sends a chord-off event for the active chord.
+     */
     private fun stopRandomChordPlayback() {
         randomChordTask?.cancel(false)
         randomChordTask = null
@@ -167,6 +204,9 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         activeChord = Chord.UNDEFINED
     }
 
+    /**
+     * Chooses a new random chord and emits chord-off/chord-on transitions.
+     */
     private fun playRandomChord() {
         sendChord(activeChord, false)
         val nextChord = Chord.entries.filter { it != Chord.UNDEFINED }.random(random)
@@ -174,6 +214,14 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         activeChord = nextChord
     }
 
+    /**
+     * Resolves concrete notes for the given chord in the middle register.
+     *
+     * Currently supports major and minor triads for the random-chord tester.
+     *
+     * @param chord The chord to expand
+     * @return Notes that compose the chord
+     */
     private fun chordNotes(chord: Chord): List<Note> {
         if (chord == Chord.UNDEFINED) return emptyList()
 
@@ -190,6 +238,12 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         }
     }
 
+    /**
+     * Emits a [ChordEvent] and corresponding NOTE_ON/NOTE_OFF events for its notes.
+     *
+     * @param chord Chord to emit
+     * @param on    True for chord-on, false for chord-off
+     */
     private fun sendChord(chord: Chord, on: Boolean) {
         midiSimulator.notifyListeners(ChordEvent(chord, on))
         chordNotes(chord).forEach { note ->

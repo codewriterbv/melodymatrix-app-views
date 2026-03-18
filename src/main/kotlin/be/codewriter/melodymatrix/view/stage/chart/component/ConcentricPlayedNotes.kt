@@ -10,6 +10,15 @@ import javafx.application.Platform
 import javafx.scene.paint.Color
 
 
+/**
+ * A concentric ring chart that counts and visualises how many times each main note has been played.
+ *
+ * Each ring segment represents one [MainNote] and grows as the note is played.
+ * Colours are taken from [MainNote.chartColor] to distinguish the notes visually.
+ *
+ * @see ChartBase
+ * @see ChartVisualizer
+ */
 class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
 
     private val chartItems: MutableList<ChartItem> = mutableListOf()
@@ -44,6 +53,11 @@ class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
         )
     }
 
+    /**
+     * Increments the chart segment value for the main note matching the played note.
+     *
+     * @param note The note that was played (NOTE_ON)
+     */
     override fun onNote(note: Note) {
         Platform.runLater {
             chartItems.forEach { data ->
@@ -54,6 +68,9 @@ class ConcentricPlayedNotes : ChartBase(), ChartVisualizer {
         }
     }
 
+    /**
+     * Resets all concentric ring segment values to zero.
+     */
     override fun reset() {
         Platform.runLater {
             chartItems.forEach { data ->
