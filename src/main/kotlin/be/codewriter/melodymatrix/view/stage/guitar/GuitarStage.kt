@@ -8,6 +8,7 @@ import be.codewriter.melodymatrix.view.definition.ChordQuality
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.helper.FileLoader
 import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Insets
@@ -20,7 +21,7 @@ import javafx.scene.layout.VBox
 class GuitarStage : VisualizerStage() {
 
     private val chordLabel = Label("Chord: -")
-    private val voicingLabel = Label("Fingering: -")
+    private val voicingLabel = Label("Finger setting: -")
     private val fretMarkers: MutableMap<Pair<Int, Int>, Label> = mutableMapOf()
 
     init {
@@ -142,7 +143,7 @@ class GuitarStage : VisualizerStage() {
     }
 }
 
-private object GuitarChordVoicing {
+internal object GuitarChordVoicing {
 
     private val openPitchClassByString = intArrayOf(4, 9, 2, 7, 11, 4)
 
@@ -179,77 +180,88 @@ private object GuitarChordVoicing {
     // Key structure: Triple of (ChordQuality, ChordExtension, ChordAlteration)
     private val CHORD_VOICING_DATABASE = mapOf(
         // MAJOR chords
-        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 2, 1, 0)), // Standard major voicing
+        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, 0, 2, 2, 1, 0)), // Standard major voicing
 
         // MINOR chords
-        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 2, 0, -1)), // Standard minor voicing (3 notes)
+        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, 0, 2, 2, 0, -1)), // Standard minor voicing (3 notes)
 
         // DOMINANT 7th chords
-        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 1, 0, -1)), // Dominant 7th voicing
+        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, 0, 2, 1, 0, -1)), // Dominant 7th voicing
 
         // MINOR 7th chords
-        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 0, 0, -1)), // Minor 7th voicing (4 notes)
+        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, 0, 2, 0, 0, -1)), // Minor 7th voicing (4 notes)
 
         // MAJOR 7th chords
-        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 1, 1, 0)), // Major 7th voicing
+        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, 0, 2, 1, 1, 0)), // Major 7th voicing
 
         // DIMINISHED chords
-        Triple(ChordQuality.DIMINISHED, ChordExtension.NONE, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 2, 0, -1)), // Diminished voicing
+        Triple(ChordQuality.DIMINISHED, ChordExtension.NONE, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, -1, 2, 2, 0, -1)), // Diminished voicing
 
         // DIMINISHED 7th chords
-        Triple(ChordQuality.DIMINISHED, ChordExtension.DIMINISHED_SEVENTH, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Diminished 7th voicing
+        Triple(ChordQuality.DIMINISHED, ChordExtension.DIMINISHED_SEVENTH, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Diminished 7th voicing
 
         // HALF-DIMINISHED (minor 7b5) chords
-        Triple(ChordQuality.HALF_DIMINISHED, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Half-diminished voicing
+        Triple(ChordQuality.HALF_DIMINISHED, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE) to
+                VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Half-diminished voicing
 
         // MAJOR with FLAT_FIFTH
-        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.FLAT_FIFTH) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Major flat 5
+        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.FLAT_FIFTH) to
+                VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Major flat 5
 
         // MAJOR with SHARP_FIFTH
-        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.SHARP_FIFTH) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Major sharp 5
+        Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.SHARP_FIFTH) to
+                VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Major sharp 5
 
         // MINOR with FLAT_FIFTH
-        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.FLAT_FIFTH) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Minor flat 5 (diminished)
+        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.FLAT_FIFTH) to
+                VoicingPattern(intArrayOf(0, -1, 2, 1, 0, -1)), // Minor flat 5 (diminished)
 
         // MINOR with SHARP_FIFTH
-        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.SHARP_FIFTH) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Minor sharp 5
+        Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.SHARP_FIFTH) to
+                VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Minor sharp 5
 
         // DOMINANT 7th with FLAT_FIFTH
-        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Dominant 7 flat 5
+        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to
+                VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Dominant 7 flat 5
 
         // DOMINANT 7th with SHARP_FIFTH
-        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 1, 1, -1)), // Dominant 7 sharp 5
+        Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to
+                VoicingPattern(intArrayOf(0, 0, 2, 1, 1, -1)), // Dominant 7 sharp 5
 
         // MAJOR 7th with FLAT_FIFTH
-        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 0, 1, -1)), // Major 7 flat 5
+        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to
+                VoicingPattern(intArrayOf(0, -1, 2, 0, 1, -1)), // Major 7 flat 5
 
         // MAJOR 7th with SHARP_FIFTH
-        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Major 7 sharp 5
+        Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to
+                VoicingPattern(intArrayOf(0, 0, 2, 2, 1, -1)), // Major 7 sharp 5
 
         // MINOR 7th with FLAT_FIFTH
-        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to 
-            VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Minor 7 flat 5 (half-diminished)
+        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.FLAT_FIFTH) to
+                VoicingPattern(intArrayOf(0, -1, 2, 0, 0, -1)), // Minor 7 flat 5 (half-diminished)
 
         // MINOR 7th with SHARP_FIFTH
-        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to 
-            VoicingPattern(intArrayOf(0, 0, 2, 1, 0, -1)), // Minor 7 sharp 5
+        Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.SHARP_FIFTH) to
+                VoicingPattern(intArrayOf(0, 0, 2, 1, 0, -1)), // Minor 7 sharp 5
     )
+
+    private data class CsvChordKey(
+        val pitchClass: Int,
+        val quality: ChordQuality,
+        val extension: ChordExtension,
+        val alteration: ChordAlteration
+    )
+
+    private val csvVoicingsByChord: Map<CsvChordKey, List<Voicing>> by lazy {
+        loadVoicingsFromCsv()
+    }
 
     data class Voicing(
         val fretsByString: IntArray
@@ -277,16 +289,140 @@ private object GuitarChordVoicing {
     }
 
     fun forChord(chord: Chord): Voicing {
+        findCsvVoicing(chord)?.let { return it }
+
         val rootPitchClass = chord.pitchClass
-        
-        // Try to find a standard voicing from the database
         val voicing = findStandardVoicing(rootPitchClass, chord.quality, chord.extension, chord.alteration)
         if (voicing != null) {
             return voicing
         }
 
-        // Fallback to auto voicing if no standard match found
         return autoToneBasedVoicing(chord)
+    }
+
+    private fun findCsvVoicing(chord: Chord): Voicing? {
+        val key = CsvChordKey(chord.pitchClass, chord.quality, chord.extension, chord.alteration)
+        return csvVoicingsByChord[key]
+            ?.firstOrNull { voicing -> voicing.fretsByString.all { it in -1..MAX_CSV_FRET } }
+    }
+
+    private fun loadVoicingsFromCsv(): Map<CsvChordKey, List<Voicing>> {
+        val inputStream = FileLoader.getResource("/guitar/chord-fingers.csv") ?: return emptyMap()
+        val groupedVoicings = linkedMapOf<CsvChordKey, MutableList<Voicing>>()
+
+        inputStream.bufferedReader().useLines { lines ->
+            lines.drop(1).forEach { line ->
+                val columns = parseCsvLine(line)
+                if (columns.size < 4) {
+                    return@forEach
+                }
+
+                val chordKey = toChordKey(columns[0], columns[1]) ?: return@forEach
+                val fretsByString = parseFretsByString(columns[3]) ?: return@forEach
+
+                groupedVoicings.getOrPut(chordKey) { mutableListOf() }.add(Voicing(fretsByString))
+            }
+        }
+
+        return groupedVoicings
+    }
+
+    private fun toChordKey(root: String, chordType: String): CsvChordKey? {
+        val pitchClass = pitchClassFromName(root) ?: return null
+        val signature = when (chordType.trim()) {
+            "maj" -> Triple(ChordQuality.MAJOR, ChordExtension.NONE, ChordAlteration.NONE)
+            "m" -> Triple(ChordQuality.MINOR, ChordExtension.NONE, ChordAlteration.NONE)
+            "7" -> Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE)
+            "m7" -> Triple(ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE)
+            "maj7" -> Triple(ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, ChordAlteration.NONE)
+            "dim" -> Triple(ChordQuality.DIMINISHED, ChordExtension.NONE, ChordAlteration.NONE)
+            "dim7" -> Triple(ChordQuality.DIMINISHED, ChordExtension.DIMINISHED_SEVENTH, ChordAlteration.NONE)
+            "m7b5" -> Triple(ChordQuality.HALF_DIMINISHED, ChordExtension.MINOR_SEVENTH, ChordAlteration.NONE)
+            "7b5" -> Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.FLAT_FIFTH)
+            "7(#5)" -> Triple(ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, ChordAlteration.SHARP_FIFTH)
+            else -> null
+        } ?: return null
+
+        return CsvChordKey(pitchClass, signature.first, signature.second, signature.third)
+    }
+
+    private fun parseFretsByString(rawFingers: String): IntArray? {
+        val tokens = rawFingers.split(",").map { it.trim() }
+        if (tokens.size != 6) {
+            return null
+        }
+
+        val frets = IntArray(tokens.size)
+        tokens.forEachIndexed { index, token ->
+            frets[index] = when {
+                token.equals("x", ignoreCase = true) -> -1
+                else -> token.toIntOrNull() ?: return null
+            }
+        }
+
+        return frets
+    }
+
+    private fun parseCsvLine(line: String): List<String> {
+        val values = mutableListOf<String>()
+        val current = StringBuilder()
+        var inQuotes = false
+        var index = 0
+
+        while (index < line.length) {
+            val char = line[index]
+            when {
+                char == '"' -> {
+                    val hasEscapedQuote = inQuotes && index + 1 < line.length && line[index + 1] == '"'
+                    if (hasEscapedQuote) {
+                        current.append('"')
+                        index++
+                    } else {
+                        inQuotes = !inQuotes
+                    }
+                }
+
+                char == ';' && !inQuotes -> {
+                    values.add(current.toString())
+                    current.clear()
+                }
+
+                else -> current.append(char)
+            }
+            index++
+        }
+
+        values.add(current.toString())
+        return values
+    }
+
+    private fun pitchClassFromName(noteName: String): Int? {
+        val cleaned = noteName.trim()
+        if (cleaned.isEmpty()) {
+            return null
+        }
+
+        val basePitch = when (cleaned[0].uppercaseChar()) {
+            'C' -> 0
+            'D' -> 2
+            'E' -> 4
+            'F' -> 5
+            'G' -> 7
+            'A' -> 9
+            'B' -> 11
+            else -> return null
+        }
+
+        var pitchClass = basePitch
+        for (position in 1 until cleaned.length) {
+            when (cleaned[position]) {
+                '#' -> pitchClass += 1
+                'b', 'B' -> pitchClass -= 1
+                else -> return null
+            }
+        }
+
+        return ((pitchClass % 12) + 12) % 12
     }
 
     private fun findStandardVoicing(
@@ -373,5 +509,5 @@ private object GuitarChordVoicing {
     }
 
     private val STRING_LABELS = listOf("E", "A", "D", "G", "B", "e")
+    private const val MAX_CSV_FRET = 12
 }
-
