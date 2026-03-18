@@ -1,6 +1,9 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.definition.*
+import be.codewriter.melodymatrix.view.definition.Chord
+import be.codewriter.melodymatrix.view.definition.ChordQuality
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.definition.Octave
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
@@ -20,11 +23,6 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private val random = Random(System.currentTimeMillis())
     private val randomChordScheduler = Executors.newSingleThreadScheduledExecutor()
     private var randomChordTask: ScheduledFuture<*>? = null
-    private val randomTriadChords = Chord.entries.filter {
-        it != Chord.UNDEFINED &&
-                it.extension == ChordExtension.NONE &&
-                (it.quality == ChordQuality.MAJOR || it.quality == ChordQuality.MINOR)
-    }
     private var activeChord: Chord = Chord.UNDEFINED
     private var chordDelayMillis: Long = 500
 
@@ -171,7 +169,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
     private fun playRandomChord() {
         sendChord(activeChord, false)
-        val nextChord = randomTriadChords.random(random)
+        val nextChord = Chord.entries.filter { it != Chord.UNDEFINED }.random(random)
         sendChord(nextChord, true)
         activeChord = nextChord
     }
