@@ -1,10 +1,7 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.definition.Chord
-import be.codewriter.melodymatrix.view.definition.ChordExtension
-import be.codewriter.melodymatrix.view.definition.ChordQuality
-import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.definition.Octave
+import be.codewriter.melodymatrix.view.definition.*
+import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
 import javafx.scene.Node
@@ -25,8 +22,8 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private var randomChordTask: ScheduledFuture<*>? = null
     private val randomTriadChords = Chord.entries.filter {
         it != Chord.UNDEFINED &&
-            it.extension == ChordExtension.NONE &&
-            (it.quality == ChordQuality.MAJOR || it.quality == ChordQuality.MINOR)
+                it.extension == ChordExtension.NONE &&
+                (it.quality == ChordQuality.MAJOR || it.quality == ChordQuality.MINOR)
     }
     private var activeChord: Chord = Chord.UNDEFINED
     private var chordDelayMillis: Long = 500
@@ -168,19 +165,15 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private fun stopRandomChordPlayback() {
         randomChordTask?.cancel(false)
         randomChordTask = null
-        sendChordOff(activeChord)
+        sendChord(activeChord, false)
         activeChord = Chord.UNDEFINED
     }
 
     private fun playRandomChord() {
-        sendChordOff(activeChord)
-        val nextChord = randomChord()
-        sendChordOn(nextChord)
+        sendChord(activeChord, false)
+        val nextChord = randomTriadChords.random(random)
+        sendChord(nextChord, true)
         activeChord = nextChord
-    }
-
-    private fun randomChord(): Chord {
-        return randomTriadChords.random(random)
     }
 
     private fun chordNotes(chord: Chord): List<Note> {
@@ -199,28 +192,15 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         }
     }
 
-    private fun sendChordOn(chord: Chord) {
+    private fun sendChord(chord: Chord, on: Boolean) {
+        midiSimulator.notifyListeners(ChordEvent(chord, on))
         chordNotes(chord).forEach { note ->
             midiSimulator.notifyListeners(
                 MidiDataEvent(
                     byteArrayOf(
-                        "10010000".toInt(2).toByte(),
+                        if (on) "10010000".toInt(2).toByte() else "10000000".toInt(2).toByte(),
                         note.byteValue.toByte(),
-                        random.nextInt(60, 127).toByte()
-                    )
-                )
-            )
-        }
-    }
-
-    private fun sendChordOff(chord: Chord) {
-        chordNotes(chord).forEach { note ->
-            midiSimulator.notifyListeners(
-                MidiDataEvent(
-                    byteArrayOf(
-                        "10000000".toInt(2).toByte(),
-                        note.byteValue.toByte(),
-                        0
+                        if (on) random.nextInt(60, 127).toByte() else 0
                     )
                 )
             )

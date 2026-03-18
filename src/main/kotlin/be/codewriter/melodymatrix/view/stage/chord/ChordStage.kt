@@ -16,8 +16,6 @@ import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import java.io.InputStream
 
 class ChordStage : VisualizerStage() {
@@ -25,12 +23,14 @@ class ChordStage : VisualizerStage() {
     val notes: MutableMap<Note, Label> = mutableMapOf()
     private val activeNotes: MutableSet<Note> = mutableSetOf()
     private val chordLabel = Label("Chord: -")
+    private val chordNotesLabel = Label("Notes: -")
 
     init {
         val inputStream: InputStream? = FileLoader.getResource("/fonts/musiqwik/Musiqwik-rvL8.ttf")
         val font = Font.loadFont(inputStream, 40.0)
 
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
+        chordNotesLabel.style = "-fx-font-size: 16;"
 
         val row1 = HBox().apply {
             spacing = 0.0
@@ -76,7 +76,7 @@ class ChordStage : VisualizerStage() {
         }
 
         title = "See your chords..."
-        scene = Scene(VBox(chordLabel, row1, row2).apply {
+        scene = Scene(VBox(chordLabel, chordNotesLabel, row1, row2).apply {
             spacing = 8.0
             padding = Insets(12.0, 0.0, 0.0, 20.0)
         }, 610.0, 220.0)
@@ -115,8 +115,9 @@ class ChordStage : VisualizerStage() {
             MmxEventType.CHORD -> {
                 val chordEvent = event as? ChordEvent ?: return
                 Platform.runLater {
-                    chordLabel.text = if (chordEvent.chord == Chord.UNDEFINED) "Chord: -"
-                    else "Chord: ${chordEvent.chord.label}"
+                    val isChordOn = (chordEvent.chord != Chord.UNDEFINED) && chordEvent.on
+                    chordLabel.text = if (isChordOn) "Chord: ${chordEvent.chord.label}" else "Chord: -"
+                    chordNotesLabel.text = if (isChordOn) notesText() else "Notes: -"
                 }
             }
         }
@@ -134,7 +135,19 @@ class ChordStage : VisualizerStage() {
                 else -> return@runLater
             }
             updateHighlightedNotes()
+            chordNotesLabel.text = notesText()
         }
+    }
+
+    private fun notesText(): String {
+        val labels = activeNotes
+            .asSequence()
+            .filter { it != Note.UNDEFINED }
+            .sortedBy { it.byteValue }
+            .map { "${it.mainNote.label}${it.octave.octave}" }
+            .toList()
+
+        return if (labels.isEmpty()) "Notes: -" else "Notes: ${labels.joinToString(", ")}"
     }
 
     private fun updateHighlightedNotes() {
@@ -156,9 +169,5 @@ class ChordStage : VisualizerStage() {
         } else {
             notes[note]
         }
-    }
-
-    companion object {
-        private val logger: Logger = LogManager.getLogger(ChordStage::class.java.name)
     }
 }

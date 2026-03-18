@@ -7,6 +7,7 @@ import be.codewriter.melodymatrix.view.definition.Chord
  */
 data class ChordEvent(
     val chord: Chord,
+    val on: Boolean,
     override val timestamp: Long = System.currentTimeMillis()
 ) : MmxEvent {
     override val type: MmxEventType = MmxEventType.CHORD

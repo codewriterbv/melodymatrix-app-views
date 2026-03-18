@@ -3,6 +3,7 @@ package be.codewriter.melodymatrix.view.test
 import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
@@ -84,9 +85,9 @@ class MidiSimulator {
         )
     }
 
-    fun notifyListeners(midiDataEvent: MidiDataEvent) {
+    fun notifyListeners(mmxEvent: MmxEvent) {
         for (listener in registeredListeners) {
-            listener.onEvent(midiDataEvent)
+            listener.onEvent(mmxEvent)
         }
     }
 
