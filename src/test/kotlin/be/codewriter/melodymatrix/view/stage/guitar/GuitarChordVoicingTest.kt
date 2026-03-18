@@ -1,8 +1,10 @@
 package be.codewriter.melodymatrix.view.stage.guitar
 
 import be.codewriter.melodymatrix.view.definition.Chord
+import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
+import kotlin.test.assertTrue
 
 class GuitarChordVoicingTest {
 
@@ -26,5 +28,13 @@ class GuitarChordVoicingTest {
 
         assertContentEquals(intArrayOf(-1, 1, 2, 1, 1, -1), voicing.fretsByString)
     }
-}
 
+    @Test
+    fun `every defined chord resolves from the CSV loader`() {
+        val missing = Chord.entries
+            .filterNot { it == Chord.UNDEFINED }
+            .filter { chord -> ChordFingersLoader.voicingsFor(chord).isEmpty() }
+
+        assertTrue(missing.isEmpty(), "Missing CSV voicings for: ${missing.joinToString { it.name }}")
+    }
+}
