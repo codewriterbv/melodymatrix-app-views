@@ -1,5 +1,8 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.definition.Chord
+import be.codewriter.melodymatrix.view.definition.ChordExtension
+import be.codewriter.melodymatrix.view.definition.ChordQuality
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.Octave
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
@@ -20,7 +23,12 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private val random = Random(System.currentTimeMillis())
     private val randomChordScheduler = Executors.newSingleThreadScheduledExecutor()
     private var randomChordTask: ScheduledFuture<*>? = null
-    private var activeChordNotes: List<Note> = emptyList()
+    private val randomTriadChords = Chord.entries.filter {
+        it != Chord.UNDEFINED &&
+            it.extension == ChordExtension.NONE &&
+            (it.quality == ChordQuality.MAJOR || it.quality == ChordQuality.MINOR)
+    }
+    private var activeChord: Chord = Chord.UNDEFINED
     private var chordDelayMillis: Long = 500
 
     init {
@@ -160,28 +168,39 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     private fun stopRandomChordPlayback() {
         randomChordTask?.cancel(false)
         randomChordTask = null
-        sendChordOff(activeChordNotes)
-        activeChordNotes = emptyList()
+        sendChordOff(activeChord)
+        activeChord = Chord.UNDEFINED
     }
 
     private fun playRandomChord() {
-        sendChordOff(activeChordNotes)
-        val nextChord = randomTriad()
+        sendChordOff(activeChord)
+        val nextChord = randomChord()
         sendChordOn(nextChord)
-        activeChordNotes = nextChord
+        activeChord = nextChord
     }
 
-    private fun randomTriad(): List<Note> {
-        val root = 48 + random.nextInt(12)
-        val intervals = if (random.nextBoolean()) listOf(0, 4, 7) else listOf(0, 3, 7)
+    private fun randomChord(): Chord {
+        return randomTriadChords.random(random)
+    }
+
+    private fun chordNotes(chord: Chord): List<Note> {
+        if (chord == Chord.UNDEFINED) return emptyList()
+
+        val intervals = when (chord.quality) {
+            ChordQuality.MAJOR -> listOf(0, 4, 7)
+            ChordQuality.MINOR -> listOf(0, 3, 7)
+            else -> return emptyList()
+        }
+
+        val root = 48 + chord.pitchClass
         return intervals.mapNotNull { interval ->
             val candidate = Note.from((root + interval).toByte())
             if (candidate == Note.UNDEFINED) null else candidate
         }
     }
 
-    private fun sendChordOn(notes: List<Note>) {
-        notes.forEach { note ->
+    private fun sendChordOn(chord: Chord) {
+        chordNotes(chord).forEach { note ->
             midiSimulator.notifyListeners(
                 MidiDataEvent(
                     byteArrayOf(
@@ -194,8 +213,8 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         }
     }
 
-    private fun sendChordOff(notes: List<Note>) {
-        notes.forEach { note ->
+    private fun sendChordOff(chord: Chord) {
+        chordNotes(chord).forEach { note ->
             midiSimulator.notifyListeners(
                 MidiDataEvent(
                     byteArrayOf(
