@@ -24,7 +24,7 @@ import javafx.scene.layout.*
  * @see GuitarChordVoicing
  * @see ChordEvent
  */
-class GuitarStage : VisualizerStage() {
+class GuitarChordStage : VisualizerStage() {
 
     private val chordLabel = Label("Chord: -")
     private val voicingLabel = Label("Finger setting: -")

@@ -4,8 +4,9 @@ import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.component.ScaledContentPane
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.stage.chart.ChartsStage
+import be.codewriter.melodymatrix.view.stage.chord.ChordRelationStage
 import be.codewriter.melodymatrix.view.stage.chord.ChordStage
-import be.codewriter.melodymatrix.view.stage.guitar.GuitarStage
+import be.codewriter.melodymatrix.view.stage.guitar.GuitarChordStage
 import be.codewriter.melodymatrix.view.stage.midi.MidiStage
 import be.codewriter.melodymatrix.view.stage.piano.PianoStage
 import be.codewriter.melodymatrix.view.video.DummyVideoRecorder
@@ -61,7 +62,8 @@ class TestView : VBox() {
         StageOption("Midi", "tab-midi") { MidiStage() },
         StageOption("Piano", "tab-piano") { PianoStage(licenseStatus, DummyVideoRecorder(), true) },
         StageOption("Chord", "tab-chord") { ChordStage() },
-        StageOption("Guitar", "tab-guitar") { GuitarStage() },
+        StageOption("Chord Relations", "tab-chord") { ChordRelationStage() },
+        StageOption("Guitar Chord", "tab-guitar") { GuitarChordStage() },
         StageOption("Charts", "tab-charts") { ChartsStage() },
         StageOption("Scale", "tab-scale") { ScaleStage() },
         StageOption("Drum", "tab-drum") { DrumStage() },

@@ -5,6 +5,8 @@ import be.codewriter.melodymatrix.view.definition.ChordAlteration
 import be.codewriter.melodymatrix.view.definition.ChordExtension
 import be.codewriter.melodymatrix.view.definition.ChordQuality
 import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
+import be.codewriter.melodymatrix.view.stage.guitar.GuitarChordVoicing.MAX_CSV_FRET
+import be.codewriter.melodymatrix.view.stage.guitar.GuitarChordVoicing.autoToneBasedVoicing
 
 /**
  * Resolves a guitar chord [Voicing] for a given [Chord].
@@ -13,7 +15,7 @@ import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
  * If none is found, falls back to an automatic tone-based algorithm that maps each chord
  * tone to the nearest fret on each string.
  *
- * @see GuitarStage
+ * @see GuitarChordStage
  * @see ChordFingersLoader
  */
 internal object GuitarChordVoicing {
