@@ -1,14 +1,15 @@
-package be.codewriter.melodymatrix.view.stage.chord
+package be.codewriter.melodymatrix.view.helper
 
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.ChordExtension
 import be.codewriter.melodymatrix.view.definition.ChordQuality
+import be.codewriter.melodymatrix.view.definition.RelationshipType
 
 /**
- * Computes the harmonically related chords for any given [Chord].
+ * Computes the harmonically related chords for any given [be.codewriter.melodymatrix.view.definition.Chord].
  *
- * All relationships are derived from the chord's [Chord.pitchClass] (0-11) and [Chord.quality]
- * using standard Western tonal harmony rules – no additional data needs to be stored on [Chord].
+ * All relationships are derived from the chord's [be.codewriter.melodymatrix.view.definition.Chord.pitchClass] (0-11) and [be.codewriter.melodymatrix.view.definition.Chord.quality]
+ * using standard Western tonal harmony rules – no additional data needs to be stored on [be.codewriter.melodymatrix.view.definition.Chord].
  *
  * The returned list uses **clockwise-from-top** placement angles so the caller can position
  * nodes in a radial layout without further computation:
@@ -24,10 +25,10 @@ import be.codewriter.melodymatrix.view.definition.ChordQuality
 object ChordRelationMap {
 
     /**
-     * Returns a list of [RelatedChord]s arranged at fixed angular positions.
+     * Returns a list of [be.codewriter.melodymatrix.view.definition.RelatedChord]s arranged at fixed angular positions.
      *
      * Results include all qualitative flavours (major, minor, diminished) so the caller
-     * can decide which to display.  An empty list is returned for [Chord.UNDEFINED].
+     * can decide which to display.  An empty list is returned for [be.codewriter.melodymatrix.view.definition.Chord.UNDEFINED].
      */
     fun getRelatedChords(chord: Chord): List<RelatedChord> {
         if (chord == Chord.UNDEFINED) return emptyList()
@@ -114,4 +115,3 @@ object ChordRelationMap {
         return if (chord != Chord.UNDEFINED) RelatedChord(chord, type, angle) else null
     }
 }
-

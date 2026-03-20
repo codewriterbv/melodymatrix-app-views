@@ -1,6 +1,5 @@
-package be.codewriter.melodymatrix.view.stage.chord
+package be.codewriter.melodymatrix.view.definition
 
-import be.codewriter.melodymatrix.view.definition.Chord
 import javafx.scene.paint.Color
 
 /**
@@ -54,17 +53,4 @@ enum class RelationshipType(
     /** Flat-sixth major (♭VI) – borrowed from parallel minor. */
     FLAT_SIXTH("♭VI", "Flat 6th", Color.web("#2DD4BF")),          // cyan
 }
-
-/**
- * A single chord that is harmonically related to the current (center) chord.
- *
- * @property chord       The related [Chord] to display.
- * @property relationship The type of harmonic relationship.
- * @property angleDeg    Placement angle in **clockwise degrees from 12 o'clock** (top = 0°).
- */
-data class RelatedChord(
-    val chord: Chord,
-    val relationship: RelationshipType,
-    val angleDeg: Double
-)
 

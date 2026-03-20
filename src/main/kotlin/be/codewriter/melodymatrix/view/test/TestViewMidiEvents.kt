@@ -1,9 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
-import be.codewriter.melodymatrix.view.definition.Chord
-import be.codewriter.melodymatrix.view.definition.ChordQuality
-import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.definition.Octave
+import be.codewriter.melodymatrix.view.definition.*
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
@@ -12,6 +9,8 @@ import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
@@ -31,18 +30,43 @@ import kotlin.random.Random
  */
 class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
+    private val logger: Logger = LogManager.getLogger(TestViewMidiEvents::class.java.name)
+
+    private enum class ChordPlaybackMode { NONE, RANDOM, RELATED }
+
     private val random = Random(System.currentTimeMillis())
     private val randomChordScheduler = Executors.newSingleThreadScheduledExecutor()
     private var randomChordTask: ScheduledFuture<*>? = null
     private var activeChord: Chord = Chord.UNDEFINED
     private var chordDelayMillis: Long = 500
+    private var relatedChordIndex: Int = 0
+    private var chordPlaybackMode: ChordPlaybackMode = ChordPlaybackMode.NONE
+
+    private val relatedChordProgression = listOf(
+        Chord.C_MAJOR,
+        Chord.G_DOMINANT_SEVENTH,
+        Chord.D_MINOR,
+        Chord.F_MAJOR,
+        Chord.C_DOMINANT_SEVENTH,
+        Chord.G_MINOR,
+        Chord.D_DOMINANT_SEVENTH,
+        Chord.A_DIMINISHED_SEVENTH,
+        Chord.F_DOMINANT_SEVENTH,
+        Chord.C_MINOR,
+        Chord.G_DOMINANT_SEVENTH,
+        Chord.D_DIMINISHED_SEVENTH,
+        Chord.A_SHARP_DOMINANT_SEVENTH, // Bb7 enharmonic
+        Chord.F_MINOR,
+        Chord.C_DOMINANT_SEVENTH,
+        Chord.G_DIMINISHED_SEVENTH
+    )
 
     init {
         spacing = 10.0
 
         val slider = Slider().apply {
             min = 250.0
-            max = 1000.0
+            max = 5000.0
             value = 500.0
             blockIncrement = 5.0
             isShowTickMarks = true
@@ -72,6 +96,13 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                 setOnMouseClicked { _ ->
                     midiSimulator.stop()
                     startRandomChordPlayback()
+                }
+            },
+            Button("Play related chords (repeat)").apply {
+                minWidth = 200.0
+                setOnMouseClicked { _ ->
+                    midiSimulator.stop()
+                    startRelatedChordPlayback()
                 }
             },
             createButton(
@@ -174,8 +205,9 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
      */
     private fun startRandomChordPlayback() {
         stopRandomChordPlayback()
+        chordPlaybackMode = ChordPlaybackMode.RANDOM
         playRandomChord()
-        randomChordTask = randomChordScheduler.scheduleAtFixedRate(
+        randomChordTask = randomChordScheduler.scheduleWithFixedDelay(
             { playRandomChord() },
             chordDelayMillis,
             chordDelayMillis,
@@ -184,13 +216,41 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     }
 
     /**
+     * Starts periodic playback of a fixed related-chord progression.
+     */
+    private fun startRelatedChordPlayback() {
+        stopRandomChordPlayback()
+        chordPlaybackMode = ChordPlaybackMode.RELATED
+        relatedChordIndex = 0
+        playNextRelatedChord()
+        randomChordTask = randomChordScheduler.scheduleWithFixedDelay(
+            { playNextRelatedChord() },
+            chordDelayMillis,
+            chordDelayMillis,
+            TimeUnit.MILLISECONDS
+        )
+    }
+
+    private fun playNextRelatedChord() {
+        sendChord(activeChord, false)
+        val nextChord = relatedChordProgression[relatedChordIndex]
+        logger.info("Playing related chord: $nextChord")
+        sendChord(nextChord, true)
+        activeChord = nextChord
+        relatedChordIndex = (relatedChordIndex + 1) % relatedChordProgression.size
+    }
+
+    /**
      * Restarts random chord playback if it is currently active.
      *
      * Used when the delay slider changes.
      */
     private fun restartRandomChordPlaybackIfRunning() {
-        if (randomChordTask != null) {
-            startRandomChordPlayback()
+        if (randomChordTask == null) return
+        when (chordPlaybackMode) {
+            ChordPlaybackMode.RANDOM -> startRandomChordPlayback()
+            ChordPlaybackMode.RELATED -> startRelatedChordPlayback()
+            ChordPlaybackMode.NONE -> Unit
         }
     }
 
@@ -202,6 +262,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         randomChordTask = null
         sendChord(activeChord, false)
         activeChord = Chord.UNDEFINED
+        chordPlaybackMode = ChordPlaybackMode.NONE
     }
 
     /**
@@ -228,7 +289,13 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
         val intervals = when (chord.quality) {
             ChordQuality.MAJOR -> listOf(0, 4, 7)
             ChordQuality.MINOR -> listOf(0, 3, 7)
-            else -> return emptyList()
+            ChordQuality.DOMINANT -> listOf(0, 4, 7, 10)
+            ChordQuality.DIMINISHED,
+            ChordQuality.HALF_DIMINISHED -> when (chord.extension) {
+                ChordExtension.DIMINISHED_SEVENTH -> listOf(0, 3, 6, 9)
+                ChordExtension.MINOR_SEVENTH -> listOf(0, 3, 6, 10)
+                else -> listOf(0, 3, 6)
+            }
         }
 
         val root = 48 + chord.pitchClass
