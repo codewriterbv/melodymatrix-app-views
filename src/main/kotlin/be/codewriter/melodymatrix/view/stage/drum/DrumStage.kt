@@ -35,7 +35,7 @@ class DrumStage : ViewStage() {
             image = Image("/drum/drum-notes.png")
         }
 
-        title = VIEW_TITLE
+        title = getViewTitle()
         scene = Scene(
             VBox(
                 imageView,
@@ -79,11 +79,8 @@ class DrumStage : ViewStage() {
     }
 
     companion object : ViewStageMetadata {
-        const val VIEW_TITLE = "Hi Drummer!"
-        const val VIEW_DESCRIPTION = "Shows a drum notation reference and reacts to drum MIDI events."
-        const val VIEW_IMAGE_PATH = "/stage/drum.png"
-        override fun getViewTitle(): String = VIEW_TITLE
-        override fun getViewDescription(): String = VIEW_DESCRIPTION
-        override fun getViewImagePath(): String = VIEW_IMAGE_PATH
+        override fun getViewTitle(): String = "Hi Drummer!"
+        override fun getViewDescription(): String = "Shows a drum notation reference and reacts to drum MIDI events."
+        override fun getViewImagePath(): String = "/stage/drum.png"
     }
 }

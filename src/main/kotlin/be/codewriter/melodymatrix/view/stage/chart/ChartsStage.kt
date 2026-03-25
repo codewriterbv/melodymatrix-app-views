@@ -32,7 +32,7 @@ import javafx.scene.layout.HBox
 class ChartsStage : ViewStage() {
 
     init {
-        title = VIEW_TITLE
+        title = getViewTitle()
 
         var buttons = HBox().apply {
             spacing = 10.0
@@ -146,12 +146,9 @@ class ChartsStage : ViewStage() {
     }
 
     companion object : ViewStageMetadata {
-        const val VIEW_TITLE = "See your music in charts..."
-        const val VIEW_DESCRIPTION = "Visualizes played notes using multiple chart types."
-        val VIEW_IMAGE_PATH: String? = null
-        override fun getViewTitle(): String = VIEW_TITLE
-        override fun getViewDescription(): String = VIEW_DESCRIPTION
-        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
+        override fun getViewTitle(): String = "Charts showing the notes distribution"
+        override fun getViewDescription(): String = "Visualizes played notes using multiple chart types."
+        override fun getViewImagePath(): String = "/stage/charts.png"
         var chartHolders: MutableList<ChartHolder> = mutableListOf()
         lateinit var borderPane: BorderPane
     }

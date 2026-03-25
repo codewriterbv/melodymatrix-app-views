@@ -66,12 +66,11 @@ class ChordRelationStage : ViewStage() {
     // ─── Geometry ─────────────────────────────────────────────────────────────
 
     companion object : ViewStageMetadata {
-        const val VIEW_TITLE = "Chord Relationship"
-        const val VIEW_DESCRIPTION = "Shows harmonic relationships between the last detected chord and related chords."
-        val VIEW_IMAGE_PATH: String? = null
-        override fun getViewTitle(): String = VIEW_TITLE
-        override fun getViewDescription(): String = VIEW_DESCRIPTION
-        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
+        override fun getViewTitle(): String = "Chord Relationship"
+        override fun getViewDescription(): String =
+            "Shows harmonic relationships between the last detected chord and related chords."
+
+        override fun getViewImagePath(): String = "/stage/chord-relation.png"
         const val W = 920.0
         const val H = 710.0
         const val HEADER_H = 58.0
@@ -184,7 +183,7 @@ class ChordRelationStage : ViewStage() {
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     init {
-        title = VIEW_TITLE
+        title = getViewTitle()
 
         val root = BorderPane().apply {
             top = buildHeader()

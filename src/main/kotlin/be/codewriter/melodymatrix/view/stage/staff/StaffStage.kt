@@ -15,8 +15,6 @@ import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import java.io.InputStream
 
 /**
@@ -29,7 +27,7 @@ import java.io.InputStream
  * @see ViewStage
  * @see MidiDataEvent
  */
-class ScaleStage : ViewStage() {
+class StaffStage : ViewStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
@@ -159,9 +157,8 @@ class ScaleStage : ViewStage() {
     }
 
     companion object : ViewStageMetadata {
-        override fun getViewTitle(): String = "See your music on a scale..."
+        override fun getViewTitle(): String = "Treble and Bass Clef Staff"
         override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
-        override fun getViewImagePath(): String? = null
-        private val logger: Logger = LogManager.getLogger(ScaleStage::class.java.name)
+        override fun getViewImagePath(): String = "/stage/scale.png"
     }
 }

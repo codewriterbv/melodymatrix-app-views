@@ -87,7 +87,7 @@ class ChordStage : ViewStage() {
             )
         }
 
-        title = VIEW_TITLE
+        title = getViewTitle()
         scene = Scene(VBox(chordLabel, chordNotesLabel, row1, row2).apply {
             spacing = 8.0
             padding = Insets(12.0, 0.0, 0.0, 20.0)
@@ -226,11 +226,8 @@ class ChordStage : ViewStage() {
     }
 
     companion object : ViewStageMetadata {
-        const val VIEW_TITLE = "See your chords..."
-        const val VIEW_DESCRIPTION = "Displays detected chords and active notes on a two-octave staff."
-        val VIEW_IMAGE_PATH: String? = null
-        override fun getViewTitle(): String = VIEW_TITLE
-        override fun getViewDescription(): String = VIEW_DESCRIPTION
-        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
+        override fun getViewTitle(): String = "See your chords..."
+        override fun getViewDescription(): String = "Displays detected chords and active notes on a two-octave staff."
+        override fun getViewImagePath(): String = "/stage/chord.png"
     }
 }

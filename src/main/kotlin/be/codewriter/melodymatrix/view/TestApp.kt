@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view
 
-import atlantafx.base.theme.PrimerLight
+import atlantafx.base.theme.NordDark
 import be.codewriter.melodymatrix.view.test.TestView
 import javafx.application.Application
 import javafx.application.Platform
@@ -29,13 +29,13 @@ class TestApp : Application() {
     /**
      * Initialises and shows the primary stage of the test application.
      *
-     * Applies the PrimerLight theme, creates a [TestView] scene, sets the window title,
+     * Applies the Nord Dark theme, creates a [TestView] scene, sets the window title,
      * and registers a close handler that shuts down the view and the JavaFX platform.
      *
      * @param stage The primary stage provided by the JavaFX runtime
      */
     override fun start(stage: Stage) {
-        setUserAgentStylesheet(PrimerLight().userAgentStylesheet)
+        setUserAgentStylesheet(NordDark().userAgentStylesheet)
 
         val testView = TestView()
 

@@ -247,7 +247,7 @@ class GuitarChordStage : ViewStage() {
     companion object : ViewStageMetadata {
         override fun getViewTitle(): String = "Play your chord on guitar"
         override fun getViewDescription(): String = "Displays guitar fretboard finger settings for detected chords."
-        override fun getViewImagePath(): String? = null
+        override fun getViewImagePath(): String = "/stage/guitar-chord.png"
         const val MAX_FRET = 12
         val STRINGS = listOf("E2", "A2", "D3", "G3", "B3", "E4")
     }

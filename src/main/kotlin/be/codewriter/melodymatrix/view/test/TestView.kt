@@ -20,7 +20,7 @@ import software.coley.bentofx.Bento
 import software.coley.bentofx.dockable.Dockable
 import stage.drum.DrumStage
 import stage.ledstrip.LedStripStage
-import stage.scale.ScaleStage
+import stage.scale.StaffStage
 
 /**
  * Root UI component for the standalone test application.
@@ -65,7 +65,7 @@ class TestView : VBox() {
         StageOption("Chord Relations", "tab-chord") { ChordRelationStage() },
         StageOption("Guitar Chord", "tab-guitar") { GuitarChordStage() },
         StageOption("Charts", "tab-charts") { ChartsStage() },
-        StageOption("Scale", "tab-scale") { ScaleStage() },
+        StageOption("Scale", "tab-scale") { StaffStage() },
         StageOption("Drum", "tab-drum") { DrumStage() },
         StageOption("LED Strip", "tab-led-strip") { LedStripStage() }
     )

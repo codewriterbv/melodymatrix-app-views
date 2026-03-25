@@ -23,6 +23,6 @@ interface ViewStageMetadata {
 
     fun getViewDescription(): String
 
-    fun getViewImagePath(): String?
+    fun getViewImagePath(): String
 }
 

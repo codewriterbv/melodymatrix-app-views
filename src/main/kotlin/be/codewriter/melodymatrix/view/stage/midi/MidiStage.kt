@@ -341,7 +341,7 @@ class MidiStage : ViewStage() {
     companion object : ViewStageMetadata {
         override fun getViewTitle(): String = "MIDI data received from the instrument"
         override fun getViewDescription(): String = "Shows a live MIDI event table and decoded byte-level details."
-        override fun getViewImagePath(): String? = null
+        override fun getViewImagePath(): String = "/stage/midi.png"
         private val logger: Logger = LogManager.getLogger(MidiStage::class.java.name)
     }
 }

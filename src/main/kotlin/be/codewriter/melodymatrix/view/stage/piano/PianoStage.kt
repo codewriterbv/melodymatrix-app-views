@@ -225,11 +225,11 @@ class PianoStage(
     }
 
     companion object : ViewStageMetadata {
-        override fun getViewTitle(): String = "See your music being played on a piano..."
+        override fun getViewTitle(): String = "Piano with visual effects"
         override fun getViewDescription(): String =
             "Renders an animated piano keyboard view with configurable visual effects."
 
-        override fun getViewImagePath(): String? = null
+        override fun getViewImagePath(): String = "/stage/piano.png"
         private val logger: Logger = LogManager.getLogger(PianoStage::class.java.name)
 
         const val PIANO_BACKGROUND_HEIGHT = 600.0
