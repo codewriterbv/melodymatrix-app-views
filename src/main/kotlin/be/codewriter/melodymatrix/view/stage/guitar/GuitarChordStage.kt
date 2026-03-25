@@ -1,10 +1,11 @@
 package be.codewriter.melodymatrix.view.stage.guitar
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Insets
@@ -20,18 +21,18 @@ import javafx.scene.layout.*
  * for the current chord. When a chord event arrives the board is updated with the
  * best available voicing from [GuitarChordVoicing]. A legend explains the fretboard markers.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see GuitarChordVoicing
  * @see ChordEvent
  */
-class GuitarChordStage : VisualizerStage() {
+class GuitarChordStage : ViewStage() {
 
     private val chordLabel = Label("Chord: -")
     private val voicingLabel = Label("Finger setting: -")
     private val fretMarkers: MutableMap<Pair<Int, Int>, Label> = mutableMapOf()
 
     init {
-        title = "Play your chord on guitar"
+        title = getViewTitle()
 
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
         voicingLabel.style = "-fx-font-size: 15;"
@@ -243,7 +244,10 @@ class GuitarChordStage : VisualizerStage() {
         PRESSED("●", "-fx-font-size: 18; -fx-text-fill: #1f4fa8; -fx-font-weight: bold;")
     }
 
-    private companion object {
+    companion object : ViewStageMetadata {
+        override fun getViewTitle(): String = "Play your chord on guitar"
+        override fun getViewDescription(): String = "Displays guitar fretboard finger settings for detected chords."
+        override fun getViewImagePath(): String? = null
         const val MAX_FRET = 12
         val STRINGS = listOf("E2", "A2", "D3", "G3", "B3", "E4")
     }

@@ -4,6 +4,8 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
@@ -29,10 +31,10 @@ import org.apache.logging.log4j.Logger
  * decimal values, binary representations, and parsed fields such as note, velocity,
  * instrument, controller and pitch-bend information.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see MidiDataEvent
  */
-class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
+class MidiStage : ViewStage() {
 
     val midiDataEventList: ObservableList<MidiDataEvent> = FXCollections.observableArrayList()
     val midiData0Value: StringProperty = SimpleStringProperty("")
@@ -241,7 +243,7 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
             }, 2, 19)
         }
 
-        title = "MIDI data received from the instrument"
+        title = getViewTitle()
         scene = Scene(HBox().apply {
             spacing = 10.0
             padding = Insets(25.0)
@@ -336,7 +338,10 @@ class MidiStage : be.codewriter.melodymatrix.view.VisualizerStage() {
         return bits.substring(0, 4) + " " + bits.substring(4, 8)
     }
 
-    companion object {
+    companion object : ViewStageMetadata {
+        override fun getViewTitle(): String = "MIDI data received from the instrument"
+        override fun getViewDescription(): String = "Shows a live MIDI event table and decoded byte-level details."
+        override fun getViewImagePath(): String? = null
         private val logger: Logger = LogManager.getLogger(MidiStage::class.java.name)
     }
 }

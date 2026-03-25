@@ -1,10 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.chart
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.chart.ChartsStage.Companion.chartHolders
 import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -23,14 +25,14 @@ import javafx.scene.layout.HBox
  * Available chart types: bar chart, concentric chart, Cox-comb chart, ridge-line chart,
  * and radar chart.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see ChartVisualizer
  * @see ChartHolder
  */
-class ChartsStage : VisualizerStage() {
+class ChartsStage : ViewStage() {
 
     init {
-        title = "See your music in charts..."
+        title = VIEW_TITLE
 
         var buttons = HBox().apply {
             spacing = 10.0
@@ -143,7 +145,13 @@ class ChartsStage : VisualizerStage() {
         }
     }
 
-    companion object {
+    companion object : ViewStageMetadata {
+        const val VIEW_TITLE = "See your music in charts..."
+        const val VIEW_DESCRIPTION = "Visualizes played notes using multiple chart types."
+        val VIEW_IMAGE_PATH: String? = null
+        override fun getViewTitle(): String = VIEW_TITLE
+        override fun getViewDescription(): String = VIEW_DESCRIPTION
+        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
         var chartHolders: MutableList<ChartHolder> = mutableListOf()
         lateinit var borderPane: BorderPane
     }

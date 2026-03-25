@@ -1,12 +1,13 @@
 package stage.scale
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -25,10 +26,10 @@ import java.io.InputStream
  * chord detection. Renders treble and bass staves using the Musiqwik music font. Each note label
  * is highlighted when the corresponding key is pressed and cleared on release.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see MidiDataEvent
  */
-class ScaleStage : VisualizerStage() {
+class ScaleStage : ViewStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
@@ -81,7 +82,7 @@ class ScaleStage : VisualizerStage() {
             )
         }
 
-        title = "See your music on a scale..."
+        title = getViewTitle()
         scene = Scene(VBox(row1, row2).apply {
             spacing = 0.0
             padding = Insets(0.0, 0.0, 0.0, 20.0)
@@ -157,7 +158,10 @@ class ScaleStage : VisualizerStage() {
         }
     }
 
-    companion object {
+    companion object : ViewStageMetadata {
+        override fun getViewTitle(): String = "See your music on a scale..."
+        override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
+        override fun getViewImagePath(): String? = null
         private val logger: Logger = LogManager.getLogger(ScaleStage::class.java.name)
     }
 }

@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.component
 
-import be.codewriter.melodymatrix.view.VisualizerStage
+import be.codewriter.melodymatrix.view.stage.ViewStage
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.layout.Pane
@@ -70,10 +70,10 @@ class ScaledContentPane(
 
     companion object {
         /**
-         * Detaches the root node from a [VisualizerStage]'s scene and wraps it in a
+         * Detaches the root node from a [ViewStage]'s scene and wraps it in a
          * [ScaledContentPane] so it can be embedded safely in a Bento tab.
          */
-        fun fromStage(stage: VisualizerStage): Node {
+        fun fromStage(stage: ViewStage): Node {
             val scene = stage.scene
                 ?: throw IllegalStateException("Visualizer stage ${stage::class.simpleName} did not initialize a scene")
 

@@ -1,12 +1,13 @@
 package stage.ledstrip
 
 import atlantafx.base.controls.ToggleSwitch
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
@@ -25,6 +26,9 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import stage.ledstrip.LedStripStage.Companion.effectSpeed
+import stage.ledstrip.LedStripStage.Companion.effectWidth
+import stage.ledstrip.LedStripStage.Companion.updateLedStrip
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
@@ -40,11 +44,12 @@ import kotlin.math.abs
  * A background [BoxUpdater] thread refreshes the fade animation at ~50 fps, and a
  * [LedStripSender] thread pushes colour data to the hardware at the same rate.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see ColorBox
  * @see PixelblazeOutputExpanderHelper
  */
-class LedStripStage : VisualizerStage() {
+class LedStripStage : ViewStage() {
+
     init {
         val boxHolder = HBox().apply {
             spacing = 2.0
@@ -61,7 +66,7 @@ class LedStripStage : VisualizerStage() {
             counter++
         }
 
-        title = "Let's flash some lights..."
+        title = getViewTitle()
         scene = Scene(VBox().apply {
             spacing = 25.0
             padding = Insets(10.0)
@@ -441,7 +446,12 @@ class LedStripStage : VisualizerStage() {
         }
     }
 
-    companion object {
+    companion object : ViewStageMetadata {
+        override fun getViewTitle(): String = "Let's flash some lights..."
+        override fun getViewDescription(): String =
+            "Drives an LED strip and on-screen LED preview from incoming MIDI notes."
+
+        override fun getViewImagePath(): String? = null
         private val logger: Logger = LogManager.getLogger(LedStripStage::class.java.name)
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_HEIGHT = 50.0

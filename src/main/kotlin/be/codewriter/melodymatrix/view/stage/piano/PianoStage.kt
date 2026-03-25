@@ -1,11 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.piano
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import be.codewriter.melodymatrix.view.stage.piano.configurator.*
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView
@@ -39,7 +40,7 @@ import org.apache.logging.log4j.Logger
  * @property videoRecorder The video recorder used for optional screen capture
  * @property testMode When true, an FPS counter overlay is displayed
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see PianoScene
  * @see KeyboardView
  */
@@ -48,7 +49,7 @@ class PianoStage(
     private val videoRecorder: VideoRecorder,
     private val testMode: Boolean = false
 ) :
-    VisualizerStage() {
+    ViewStage() {
 
     private val holder = BorderPane()
     private val config = PianoConfiguration()
@@ -101,7 +102,7 @@ class PianoStage(
             left = getPianoSettingsAccordion()
         }
 
-        title = "See your music being played on a piano..."
+        title = getViewTitle()
         scene = Scene(holder, PIANO_WIDTH + 350 + 20 + 10, PIANO_HEIGHT + 20)
         isResizable = false
 
@@ -223,7 +224,12 @@ class PianoStage(
         }
     }
 
-    companion object {
+    companion object : ViewStageMetadata {
+        override fun getViewTitle(): String = "See your music being played on a piano..."
+        override fun getViewDescription(): String =
+            "Renders an animated piano keyboard view with configurable visual effects."
+
+        override fun getViewImagePath(): String? = null
         private val logger: Logger = LogManager.getLogger(PianoStage::class.java.name)
 
         const val PIANO_BACKGROUND_HEIGHT = 600.0

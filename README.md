@@ -45,7 +45,7 @@ What this project doesn't contain:
 
 * Create a directory in 'stage' for the new view
 * Add a class in that new directory `YourViewStage.kt`
-* Make sure it implements `VisualizerStage()`
+* Make sure it implements `ViewStage()`
 * Look at one of the existing views how to add components
 * The handling of the notes that are played, needs to be implemented in an override:
 

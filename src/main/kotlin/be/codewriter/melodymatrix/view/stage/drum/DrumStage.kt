@@ -1,10 +1,11 @@
 package stage.drum
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -22,10 +23,10 @@ import javafx.scene.layout.VBox
  * Drum MIDI events arrive on channel 10 (index 9) and use note numbers to identify
  * individual drum instruments (kick, snare, hi-hat, etc.).
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see MidiDataEvent
  */
-class DrumStage : VisualizerStage() {
+class DrumStage : ViewStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
@@ -34,7 +35,7 @@ class DrumStage : VisualizerStage() {
             image = Image("/drum/drum-notes.png")
         }
 
-        title = "Hi Drummer!"
+        title = VIEW_TITLE
         scene = Scene(
             VBox(
                 imageView,
@@ -61,7 +62,7 @@ class DrumStage : VisualizerStage() {
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {
-                val midiDataEvent = event as? MidiDataEvent ?: return
+                event as? MidiDataEvent ?: return
                 Platform.runLater {
                     // TODO
                 }
@@ -75,5 +76,14 @@ class DrumStage : VisualizerStage() {
                 // Not needed here
             }
         }
+    }
+
+    companion object : ViewStageMetadata {
+        const val VIEW_TITLE = "Hi Drummer!"
+        const val VIEW_DESCRIPTION = "Shows a drum notation reference and reacts to drum MIDI events."
+        const val VIEW_IMAGE_PATH = "/stage/drum.png"
+        override fun getViewTitle(): String = VIEW_TITLE
+        override fun getViewDescription(): String = VIEW_DESCRIPTION
+        override fun getViewImagePath(): String = VIEW_IMAGE_PATH
     }
 }

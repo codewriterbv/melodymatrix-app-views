@@ -1,6 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.chord
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.ChordQuality
 import be.codewriter.melodymatrix.view.definition.RelationshipType
@@ -9,6 +8,8 @@ import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.ChordRelationMap
 import be.codewriter.melodymatrix.view.helper.RelatedChord
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.animation.*
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
@@ -60,11 +61,17 @@ import kotlin.math.sqrt
  * @see be.codewriter.melodymatrix.view.definition.RelatedChord
  * @see be.codewriter.melodymatrix.view.definition.RelationshipType
  */
-class ChordRelationStage : VisualizerStage() {
+class ChordRelationStage : ViewStage() {
 
     // ─── Geometry ─────────────────────────────────────────────────────────────
 
-    private companion object {
+    companion object : ViewStageMetadata {
+        const val VIEW_TITLE = "Chord Relationship"
+        const val VIEW_DESCRIPTION = "Shows harmonic relationships between the last detected chord and related chords."
+        val VIEW_IMAGE_PATH: String? = null
+        override fun getViewTitle(): String = VIEW_TITLE
+        override fun getViewDescription(): String = VIEW_DESCRIPTION
+        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
         const val W = 920.0
         const val H = 710.0
         const val HEADER_H = 58.0
@@ -177,7 +184,7 @@ class ChordRelationStage : VisualizerStage() {
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     init {
-        title = "Chord Relationship"
+        title = VIEW_TITLE
 
         val root = BorderPane().apply {
             top = buildHeader()

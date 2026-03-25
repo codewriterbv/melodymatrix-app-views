@@ -1,6 +1,5 @@
 package be.codewriter.melodymatrix.view.stage.chord
 
-import be.codewriter.melodymatrix.view.VisualizerStage
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
@@ -9,6 +8,8 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
+import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.Scene
@@ -25,11 +26,11 @@ import java.io.InputStream
  * on the staff is backed by a [Label]; when a MIDI note is pressed the corresponding label is
  * highlighted. The current chord name and active notes are also shown as text labels.
  *
- * @see VisualizerStage
+ * @see ViewStage
  * @see ChordEvent
  * @see MidiDataEvent
  */
-class ChordStage : VisualizerStage() {
+class ChordStage : ViewStage() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
     private val activeNotes: MutableSet<Note> = mutableSetOf()
@@ -86,7 +87,7 @@ class ChordStage : VisualizerStage() {
             )
         }
 
-        title = "See your chords..."
+        title = VIEW_TITLE
         scene = Scene(VBox(chordLabel, chordNotesLabel, row1, row2).apply {
             spacing = 8.0
             padding = Insets(12.0, 0.0, 0.0, 20.0)
@@ -222,5 +223,14 @@ class ChordStage : VisualizerStage() {
         } else {
             notes[note]
         }
+    }
+
+    companion object : ViewStageMetadata {
+        const val VIEW_TITLE = "See your chords..."
+        const val VIEW_DESCRIPTION = "Displays detected chords and active notes on a two-octave staff."
+        val VIEW_IMAGE_PATH: String? = null
+        override fun getViewTitle(): String = VIEW_TITLE
+        override fun getViewDescription(): String = VIEW_DESCRIPTION
+        override fun getViewImagePath(): String? = VIEW_IMAGE_PATH
     }
 }
