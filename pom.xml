@@ -11,14 +11,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.source>26</maven.compiler.source>
+        <maven.compiler.target>26</maven.compiler.target>
         <kotlin.version>2.3.20</kotlin.version>
 
         <!-- Dependency versions -->
         <atlantafx.version>2.1.0</atlantafx.version>
         <charts.version>21.0.27</charts.version>
-        <javafx.version>25.0.2</javafx.version>
+        <javafx.version>26</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
         <kotlin.serialization.version>1.9.0</kotlin.serialization.version>
