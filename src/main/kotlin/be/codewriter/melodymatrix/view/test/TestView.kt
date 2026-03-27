@@ -1,14 +1,13 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.stage.MmxViewSurface
-import be.codewriter.melodymatrix.view.stage.chart.ChartsView
-import be.codewriter.melodymatrix.view.stage.chord.ChordRelationView
-import be.codewriter.melodymatrix.view.stage.chord.ChordView
-import be.codewriter.melodymatrix.view.stage.guitar.GuitarChordView
-import be.codewriter.melodymatrix.view.stage.midi.MidiView
-import be.codewriter.melodymatrix.view.stage.piano.PianoView
-import be.codewriter.melodymatrix.view.video.DummyVideoRecorder
+import be.codewriter.melodymatrix.view.view.MmxViewSurface
+import be.codewriter.melodymatrix.view.view.chart.ChartsView
+import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
+import be.codewriter.melodymatrix.view.view.chord.ChordView
+import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
+import be.codewriter.melodymatrix.view.view.midi.MidiView
+import be.codewriter.melodymatrix.view.view.piano.PianoView
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.Node
@@ -57,7 +56,7 @@ class TestView : VBox() {
 
     private val stageOptions = listOf(
         StageOption("Midi", "tab-midi") { MidiView() },
-        StageOption("Piano", "tab-piano") { PianoView(licenseStatus, DummyVideoRecorder(), true) },
+        StageOption("Piano", "tab-piano") { PianoView(licenseStatus, true) },
         StageOption("Chord", "tab-chord") { ChordView() },
         StageOption("Chord Relations", "tab-chord") { ChordRelationView() },
         StageOption("Guitar Chord", "tab-guitar") { GuitarChordView() },
