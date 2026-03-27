@@ -146,9 +146,15 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
         val state = latestAnimationState
 
         animationCalculator?.updateAboveKeyEffect(
-            enabled = config.aboveKeyEnabled.value,
-            startColor = config.aboveKeyColorStart.value,
-            endColor = config.aboveKeyColorEnd.value
+            enabled = config.cloudEnabled.value,
+            startColor = config.cloudColorStart.value,
+            endColor = config.cloudColorEnd.value,
+            particleCount = config.cloudParticleCount.value,
+            particleSize = config.cloudParticleSize.value,
+            driftSpeed = config.cloudDriftSpeed.value,
+            wobbleAmplitude = config.cloudWobbleAmplitude.value,
+            opacity = config.cloudOpacity.value,
+            spawnRadius = config.cloudSpawnRadius.value
         )
 
         // Apply state to visual elements

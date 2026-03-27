@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @see AnimationState
  * @see ExplosionGenerator
  * @see FireworksGenerator
- * @see AboveKeySmokeGenerator
+ * @see CloudGenerator
  */
 class AnimationCalculator(
     private val updateCallback: (AnimationState) -> Unit
@@ -83,7 +83,7 @@ class AnimationCalculator(
     private val activeParticles = mutableListOf<ParticleInfo>()
     private val aboveKeyParticles = mutableListOf<AboveKeyParticleInfo>()
     private val activeKeys = mutableMapOf<Note, KeyAnimationInfo>()
-    private val aboveKeySmokeGenerator = AboveKeySmokeGenerator()
+    private val cloudGenerator = CloudGenerator()
     private val fireworksGenerator = FireworksGenerator()
     private val explosionGenerator = ExplosionGenerator()
 
@@ -156,13 +156,33 @@ class AnimationCalculator(
     /**
      * Updates the above-key smoke effect configuration immediately (thread-safe).
      *
-     * @param enabled    Whether the smoke effect should be active
-     * @param startColor Base/idle smoke colour
-     * @param endColor   Colour smoke shifts toward near active keys
+     * @param enabled         Whether the smoke effect should be active
+     * @param startColor      Base/idle smoke colour
+     * @param endColor        Colour smoke shifts toward near active keys
+     * @param particleCount   Number of particles seeded across the keyboard
+     * @param particleSize    Nominal blob size (actual size varies ±40 % around this value)
+     * @param driftSpeed      Maximum horizontal drift speed in pixels/second
+     * @param wobbleAmplitude Vertical wobble amplitude in pixels
+     * @param opacity         Base opacity (actual opacity varies ±50 % around this value)
+     * @param spawnRadius     X-radius around a pressed key used for density checks and spawning
      */
-    fun updateAboveKeyEffect(enabled: Boolean, startColor: Color, endColor: Color) {
+    fun updateAboveKeyEffect(
+        enabled: Boolean,
+        startColor: Color,
+        endColor: Color,
+        particleCount: Int,
+        particleSize: Double,
+        driftSpeed: Double,
+        wobbleAmplitude: Double,
+        opacity: Double,
+        spawnRadius: Double
+    ) {
         synchronized(stateLock) {
-            aboveKeySmokeGenerator.updateConfig(enabled, startColor, endColor, aboveKeyParticles)
+            cloudGenerator.updateConfig(
+                enabled, startColor, endColor,
+                particleCount, particleSize, driftSpeed, wobbleAmplitude, opacity, spawnRadius,
+                aboveKeyParticles
+            )
         }
     }
 
@@ -323,10 +343,10 @@ class AnimationCalculator(
         }
     }
 
-    /** Advances above-key smoke particles, delegating to [AboveKeySmokeGenerator]. */
+    /** Advances above-key smoke particles, delegating to [CloudGenerator]. */
     private fun updateAboveKeyParticles(deltaTime: Double) {
         val activeNotes = activeKeys.filter { it.value.isPressed }.keys
-        aboveKeySmokeGenerator.update(deltaTime, activeNotes, aboveKeyParticles)
+        cloudGenerator.update(deltaTime, activeNotes, aboveKeyParticles)
     }
 
     /** Advances key-press animation progress values for all tracked keys. */

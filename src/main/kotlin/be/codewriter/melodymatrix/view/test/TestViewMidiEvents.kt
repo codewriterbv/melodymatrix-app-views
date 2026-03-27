@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
+import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.definition.*
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
@@ -7,7 +8,6 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
-import javafx.scene.control.Slider
 import javafx.scene.layout.VBox
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -64,13 +64,10 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
     init {
         spacing = 10.0
 
-        val slider = Slider().apply {
+        val slider = TickerSlider().apply {
             min = 250.0
             max = 5000.0
             value = 500.0
-            blockIncrement = 5.0
-            isShowTickMarks = true
-            isShowTickLabels = true
             valueProperty().addListener { _: ObservableValue<out Number>?, _: Number, newValue: Number ->
                 chordDelayMillis = newValue.toLong()
                 midiSimulator.setDelay(chordDelayMillis)

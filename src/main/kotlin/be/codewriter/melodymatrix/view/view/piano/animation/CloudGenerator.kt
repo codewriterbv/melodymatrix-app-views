@@ -16,18 +16,30 @@ import kotlin.random.Random
  *
  * @see AnimationCalculator
  */
-class AboveKeySmokeGenerator {
+class CloudGenerator {
     /**
      * Immutable configuration snapshot for the smoke effect.
      *
-     * @property enabled    Whether the effect is active
-     * @property startColor Base particle colour (also the "idle" colour)
-     * @property endColor   Colour particles shift toward when a nearby key is pressed
+     * @property enabled         Whether the effect is active
+     * @property startColor      Base particle colour (also the "idle" colour)
+     * @property endColor        Colour particles shift toward when a nearby key is pressed
+     * @property particleCount   Number of particles seeded across the keyboard
+     * @property particleSize    Nominal blob size; actual size varies ±40 % around this value
+     * @property driftSpeed      Maximum horizontal drift speed in pixels/second
+     * @property wobbleAmplitude Vertical wobble amplitude in pixels
+     * @property opacity         Base opacity; actual opacity varies ±50 % around this value
+     * @property spawnRadius     X-radius around a pressed key used for density checks and spawning
      */
     private data class SmokeConfig(
         val enabled: Boolean = true,
         val startColor: Color = Color.rgb(255, 0, 0),
-        val endColor: Color = Color.rgb(0, 0, 2)
+        val endColor: Color = Color.rgb(0, 0, 2),
+        val particleCount: Int = 32,
+        val particleSize: Double = 160.0,
+        val driftSpeed: Double = 22.0,
+        val wobbleAmplitude: Double = 15.0,
+        val opacity: Double = 0.12,
+        val spawnRadius: Double = 160.0
     )
 
     private var config = SmokeConfig()
@@ -35,26 +47,43 @@ class AboveKeySmokeGenerator {
     /**
      * Applies a new configuration, clearing or re-seeding the particle list as needed.
      *
-     * @param enabled   Whether the effect should be active
-     * @param startColor Base/idle particle colour
-     * @param endColor   Colour particles shift toward near active keys
-     * @param particles  The mutable particle list to update in place
+     * @param enabled         Whether the effect should be active
+     * @param startColor      Base/idle particle colour
+     * @param endColor        Colour particles shift toward near active keys
+     * @param particleCount   Number of particles to seed across the keyboard
+     * @param particleSize    Nominal blob size (actual size varies ±40 % around this value)
+     * @param driftSpeed      Maximum horizontal drift speed in pixels/second
+     * @param wobbleAmplitude Vertical wobble amplitude in pixels
+     * @param opacity         Base opacity (actual opacity varies ±50 % around this value)
+     * @param spawnRadius     X-radius around a pressed key used for density checks and spawning
+     * @param particles       The mutable particle list to update in place
      */
     fun updateConfig(
         enabled: Boolean,
         startColor: Color,
         endColor: Color,
+        particleCount: Int,
+        particleSize: Double,
+        driftSpeed: Double,
+        wobbleAmplitude: Double,
+        opacity: Double,
+        spawnRadius: Double,
         particles: MutableList<AnimationCalculator.AboveKeyParticleInfo>
     ) {
-        val previousEnabled = config.enabled
-        val previousStart = config.startColor
-        val previousEnd = config.endColor
-
-        config = SmokeConfig(enabled, startColor, endColor)
+        val previous = config
+        config = SmokeConfig(enabled, startColor, endColor, particleCount, particleSize, driftSpeed, wobbleAmplitude, opacity, spawnRadius)
 
         if (!enabled) {
             particles.clear()
-        } else if (!previousEnabled || previousStart != startColor || previousEnd != endColor) {
+        } else if (!previous.enabled
+            || previous.startColor != startColor
+            || previous.endColor != endColor
+            || previous.particleCount != particleCount
+            || previous.particleSize != particleSize
+            || previous.driftSpeed != driftSpeed
+            || previous.wobbleAmplitude != wobbleAmplitude
+            || previous.opacity != opacity
+        ) {
             seedParticles(particles)
         }
     }
@@ -89,6 +118,20 @@ class AboveKeySmokeGenerator {
             (idx.toDouble() / totalKeys) * PIANO_WIDTH
         }
 
+        // Spawn extra particles near keys where local cloud density is low
+        val spawnRadius = config.spawnRadius
+        val minLocalDensity = 4
+        val maxTotalParticles = config.particleCount * 2
+        if (particles.size < maxTotalParticles) {
+            activeKeyXs.forEach { keyX ->
+                val localCount = particles.count { kotlin.math.abs(it.x - keyX) < spawnRadius }
+                if (localCount < minLocalDensity) {
+                    val spawnX = keyX + Random.nextDouble(-spawnRadius * 0.5, spawnRadius * 0.5)
+                    particles.add(createParticle(spawnX.coerceIn(0.0, PIANO_WIDTH)))
+                }
+            }
+        }
+
         particles.forEach { particle ->
             particle.x += particle.driftSpeed * deltaTime
             particle.phase += deltaTime * particle.phaseSpeed
@@ -113,37 +156,46 @@ class AboveKeySmokeGenerator {
     }
 
     /**
-     * Populates the particle list with 32 randomly distributed particles spanning the full keyboard width.
+     * Populates the particle list with [SmokeConfig.particleCount] randomly distributed
+     * particles spanning the full keyboard width.
      *
      * @param particles The list to populate; it is cleared before adding new particles
      */
     private fun seedParticles(particles: MutableList<AnimationCalculator.AboveKeyParticleInfo>) {
         particles.clear()
-        repeat(32) {
+        repeat(config.particleCount) {
             particles.add(createParticle(Random.nextDouble(0.0, PIANO_WIDTH)))
         }
     }
 
     /**
-     * Creates a single smoke particle at the given X position with randomised properties.
+     * Creates a single smoke particle at the given X position with randomised properties
+     * derived from the current [SmokeConfig].
      *
      * @param initialX Starting X position in scene coordinates
      * @return A fully initialised [AnimationCalculator.AboveKeyParticleInfo]
      */
     private fun createParticle(initialX: Double): AnimationCalculator.AboveKeyParticleInfo {
-        val size = Random.nextDouble(100.0, 220.0)
+        val sizeMin = config.particleSize * 0.6
+        val sizeMax = config.particleSize * 1.4
+        val size = Random.nextDouble(sizeMin, sizeMax)
+        val opacityMin = (config.opacity * 0.5).coerceAtLeast(0.01)
+        val opacityMax = (config.opacity * 1.5).coerceAtMost(1.0)
+        val baseOpacity = Random.nextDouble(opacityMin, opacityMax)
+        val wobbleMin = (config.wobbleAmplitude * 0.5).coerceAtLeast(1.0)
+        val wobbleMax = config.wobbleAmplitude * 1.5
         return AnimationCalculator.AboveKeyParticleInfo(
             x = initialX,
             y = 0.0,
-            baseY = Random.nextDouble(PIANO_BACKGROUND_HEIGHT - 50.0, PIANO_BACKGROUND_HEIGHT - 15.0),
+            baseY = Random.nextDouble(PIANO_BACKGROUND_HEIGHT, PIANO_BACKGROUND_HEIGHT + 20.0),
             size = size,
             color = blend(config.startColor, config.endColor, Random.nextDouble(0.0, 1.0)),
-            opacity = Random.nextDouble(0.06, 0.18),
-            baseOpacity = Random.nextDouble(0.06, 0.18),
-            driftSpeed = Random.nextDouble(-22.0, 22.0),
+            opacity = baseOpacity,
+            baseOpacity = baseOpacity,
+            driftSpeed = Random.nextDouble(-config.driftSpeed, config.driftSpeed),
             phase = Random.nextDouble(0.0, Math.PI * 2),
             phaseSpeed = Random.nextDouble(0.22, 0.55),
-            wobbleAmplitude = Random.nextDouble(8.0, 22.0),
+            wobbleAmplitude = Random.nextDouble(wobbleMin, wobbleMax),
             opacityPhase = Random.nextDouble(0.0, Math.PI * 2),
             opacitySpeed = Random.nextDouble(0.18, 0.45)
         ).apply {

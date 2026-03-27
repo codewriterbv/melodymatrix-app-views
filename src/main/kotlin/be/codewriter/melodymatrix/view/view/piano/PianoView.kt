@@ -174,14 +174,14 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
                 createSettingsButton("Fireworks", config.fireworksEnabled) {
                     FireworksConfigurator(config)
                 },
-                createSettingsButton("Above Keys", config.aboveKeyEnabled) {
-                    KeyEffectConfigurator(config)
+                createSettingsButton("Clouds", config.cloudEnabled) {
+                    CloudConfigurator(config)
                 }
 
             )
             if (showDebugInfo) {
                 children.addAll(
-                    Label("Debug info"),
+                    Label("FPS"),
                     ToggleSwitch().apply {
                         selectedProperty().bindBidirectional(config.showDebugInfo)
                     }
