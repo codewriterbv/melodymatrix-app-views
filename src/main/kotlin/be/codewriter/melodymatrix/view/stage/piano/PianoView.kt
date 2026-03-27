@@ -5,8 +5,8 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import be.codewriter.melodymatrix.view.stage.piano.configurator.*
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.stage.piano.keyboard.KeyboardView
@@ -16,7 +16,6 @@ import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.Node
 import javafx.scene.control.Accordion
 import javafx.scene.control.Label
@@ -43,16 +42,16 @@ import org.apache.logging.log4j.Logger
  * @property videoRecorder The video recorder used for optional screen capture
  * @property testMode When true, an FPS counter overlay is displayed
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see PianoScene
  * @see KeyboardView
  */
-class PianoStage(
+class PianoView(
     private val licenseStatus: LicenseStatus,
     private val videoRecorder: VideoRecorder,
     private val testMode: Boolean = false
 ) :
-    ViewStage() {
+    MmxMmxView() {
 
     private val holder = BorderPane()
     private val config = PianoConfiguration()
@@ -105,11 +104,11 @@ class PianoStage(
             left = getPianoSettingsAccordion()
         }
 
-        title = getViewTitle()
-        scene = Scene(holder, PIANO_WIDTH + 350 + 20 + 10, PIANO_HEIGHT + 20)
-        isResizable = false
-
-        setOnCloseRequest {
+        setupSurface(
+            rootNode = holder,
+            naturalWidth = PIANO_WIDTH + 350 + 20 + 10,
+            naturalHeight = PIANO_HEIGHT + 20
+        ) {
             fpsTimer?.stop()
             pianoScene.stop()
         }
@@ -248,13 +247,13 @@ class PianoStage(
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Piano with visual effects"
         override fun getViewDescription(): String =
             "Renders an animated piano keyboard view with configurable visual effects."
 
         override fun getViewImagePath(): String = "/stage/piano.png"
-        private val logger: Logger = LogManager.getLogger(PianoStage::class.java.name)
+        private val logger: Logger = LogManager.getLogger(PianoView::class.java.name)
 
         const val PIANO_BACKGROUND_HEIGHT = 600.0
         const val PIANO_KEYBOARD_HEIGHT = 120

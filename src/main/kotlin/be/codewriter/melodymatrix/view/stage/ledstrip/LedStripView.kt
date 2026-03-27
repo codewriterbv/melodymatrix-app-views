@@ -6,8 +6,8 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import be.codewriter.melodymatrix.view.stage.ledstrip.pixelblaze.PixelblazeOutputExpanderHelper
 import com.fazecast.jSerialComm.SerialPort
 import javafx.application.Platform
@@ -15,7 +15,6 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
@@ -26,9 +25,9 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import stage.ledstrip.LedStripStage.Companion.effectSpeed
-import stage.ledstrip.LedStripStage.Companion.effectWidth
-import stage.ledstrip.LedStripStage.Companion.updateLedStrip
+import stage.ledstrip.LedStripView.Companion.effectSpeed
+import stage.ledstrip.LedStripView.Companion.effectWidth
+import stage.ledstrip.LedStripView.Companion.updateLedStrip
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
@@ -44,11 +43,11 @@ import kotlin.math.abs
  * A background [BoxUpdater] thread refreshes the fade animation at ~50 fps, and a
  * [LedStripSender] thread pushes colour data to the hardware at the same rate.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see ColorBox
  * @see PixelblazeOutputExpanderHelper
  */
-class LedStripStage : ViewStage() {
+class LedStripView : MmxMmxView() {
 
     init {
         val boxHolder = HBox().apply {
@@ -66,8 +65,7 @@ class LedStripStage : ViewStage() {
             counter++
         }
 
-        title = getViewTitle()
-        scene = Scene(VBox().apply {
+        val root = VBox().apply {
             spacing = 25.0
             padding = Insets(10.0)
             children.addAll(
@@ -81,7 +79,7 @@ class LedStripStage : ViewStage() {
                 },
                 getSerialControls()
             )
-        }, windowWidth, BOX_HEIGHT + 320)
+        }
 
         val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
         val executor = Executors.newThreadPerTaskExecutor(factory)
@@ -90,7 +88,7 @@ class LedStripStage : ViewStage() {
         val threadLedUpdate = Thread.startVirtualThread(LedStripSender())
         executor.submit(threadLedUpdate)
 
-        setOnCloseRequest {
+        setupSurface(root, windowWidth, BOX_HEIGHT + 320) {
             updateLedStrip = false
             for (i in 0 until 8) {
                 try {
@@ -446,13 +444,13 @@ class LedStripStage : ViewStage() {
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Let's flash some lights..."
         override fun getViewDescription(): String =
             "Drives an LED strip and on-screen LED preview from incoming MIDI notes."
 
         override fun getViewImagePath(): String = "/stage/led.png"
-        private val logger: Logger = LogManager.getLogger(LedStripStage::class.java.name)
+        private val logger: Logger = LogManager.getLogger(LedStripView::class.java.name)
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_HEIGHT = 50.0
 

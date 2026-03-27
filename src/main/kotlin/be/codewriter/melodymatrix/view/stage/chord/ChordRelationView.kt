@@ -8,15 +8,14 @@ import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.ChordRelationMap
 import be.codewriter.melodymatrix.view.helper.RelatedChord
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.animation.*
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.geometry.VPos
-import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Label
@@ -61,11 +60,11 @@ import kotlin.math.sqrt
  * @see be.codewriter.melodymatrix.view.definition.RelatedChord
  * @see be.codewriter.melodymatrix.view.definition.RelationshipType
  */
-class ChordRelationStage : ViewStage() {
+class ChordRelationView : MmxMmxView() {
 
     // ─── Geometry ─────────────────────────────────────────────────────────────
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Chord Relationship"
         override fun getViewDescription(): String =
             "Shows harmonic relationships between the last detected chord and related chords."
@@ -183,16 +182,15 @@ class ChordRelationStage : ViewStage() {
     // ─── Init ─────────────────────────────────────────────────────────────────
 
     init {
-        title = getViewTitle()
-
         val root = BorderPane().apply {
             top = buildHeader()
             center = contentGroup
             //style = "-fx-background-color: #0E1117;"
         }
 
-        scene = Scene(root, W, H)
-        setOnCloseRequest { }
+        setupSurface(root, W, H) {
+            pulseTimeline.stop()
+        }
         pulseClock.addListener { _, _, _ -> redrawArrows() }
         pulseTimeline.play()
 

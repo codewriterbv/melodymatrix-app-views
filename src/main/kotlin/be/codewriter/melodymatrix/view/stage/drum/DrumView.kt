@@ -4,12 +4,11 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -23,10 +22,10 @@ import javafx.scene.layout.VBox
  * Drum MIDI events arrive on channel 10 (index 9) and use note numbers to identify
  * individual drum instruments (kick, snare, hi-hat, etc.).
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see MidiDataEvent
  */
-class DrumStage : ViewStage() {
+class DrumView : MmxMmxView() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
@@ -35,21 +34,16 @@ class DrumStage : ViewStage() {
             image = Image("/drum/drum-notes.png")
         }
 
-        title = getViewTitle()
-        scene = Scene(
-            VBox(
-                imageView,
-                Label("Image from https://www.drumeo.com/beat/how-to-read-drum-music/")
-            ).apply {
-                spacing = 0.0
-                padding = Insets(0.0, 0.0, 0.0, 20.0)
-                alignment = Pos.CENTER
-            }, 800.0, 550.0
-        )
-
-        setOnCloseRequest {
-            // Nothing needed here, but must be defined or will cause a problem when closing the window
+        val root = VBox(
+            imageView,
+            Label("Image from https://www.drumeo.com/beat/how-to-read-drum-music/")
+        ).apply {
+            spacing = 0.0
+            padding = Insets(0.0, 0.0, 0.0, 20.0)
+            alignment = Pos.CENTER
         }
+
+        setupSurface(root, 800.0, 550.0)
     }
 
     /**
@@ -78,7 +72,7 @@ class DrumStage : ViewStage() {
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Hi Drummer!"
         override fun getViewDescription(): String = "Shows a drum notation reference and reacts to drum MIDI events."
         override fun getViewImagePath(): String = "/stage/drum.png"

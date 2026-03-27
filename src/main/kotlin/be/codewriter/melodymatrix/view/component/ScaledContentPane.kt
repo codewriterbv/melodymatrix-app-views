@@ -1,9 +1,7 @@
 package be.codewriter.melodymatrix.view.component
 
-import be.codewriter.melodymatrix.view.stage.ViewStage
+import be.codewriter.melodymatrix.view.stage.MmxViewSurface
 import javafx.scene.Node
-import javafx.scene.Scene
-import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
 import javafx.scene.transform.Scale
 
@@ -70,34 +68,14 @@ class ScaledContentPane(
 
     companion object {
         /**
-         * Detaches the root node from a [ViewStage]'s scene and wraps it in a
-         * [ScaledContentPane] so it can be embedded safely in a Bento tab.
+         * Wraps a [MmxViewSurface] in a [ScaledContentPane] so it can be embedded safely in a Bento tab.
          */
-        fun fromStage(stage: ViewStage): Node {
-            val scene = stage.scene
-                ?: throw IllegalStateException("Visualizer stage ${stage::class.simpleName} did not initialize a scene")
-
-            val content = scene.root
-            val naturalWidth = scene.resolveNaturalWidth()
-            val naturalHeight = scene.resolveNaturalHeight()
-
-            // Detach the original content so it can be re-hosted elsewhere.
-            scene.root = Pane()
-
-            return ScaledContentPane(content, naturalWidth, naturalHeight)
-        }
-
-        private fun Scene.resolveNaturalWidth(): Double {
-            return width.takeIf { it > 0.0 }
-                ?: root.layoutBounds.width.takeIf { it > 0.0 }
-                ?: 1.0
-        }
-
-        /** Resolves the natural height of a scene, falling back to the root's layout bounds. */
-        private fun Scene.resolveNaturalHeight(): Double {
-            return height.takeIf { it > 0.0 }
-                ?: root.layoutBounds.height.takeIf { it > 0.0 }
-                ?: 1.0
+        fun fromSurface(surface: MmxViewSurface): Node {
+            return ScaledContentPane(
+                content = surface.rootNode,
+                naturalWidth = surface.naturalWidth,
+                naturalHeight = surface.naturalHeight
+            )
         }
     }
 }

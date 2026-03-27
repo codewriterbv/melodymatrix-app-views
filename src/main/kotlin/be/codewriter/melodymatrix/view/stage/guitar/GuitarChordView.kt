@@ -4,13 +4,12 @@ import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 
@@ -21,39 +20,31 @@ import javafx.scene.layout.*
  * for the current chord. When a chord event arrives the board is updated with the
  * best available voicing from [GuitarChordVoicing]. A legend explains the fretboard markers.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see GuitarChordVoicing
  * @see ChordEvent
  */
-class GuitarChordStage : ViewStage() {
+class GuitarChordView : MmxMmxView() {
 
     private val chordLabel = Label("Chord: -")
     private val voicingLabel = Label("Finger setting: -")
     private val fretMarkers: MutableMap<Pair<Int, Int>, Label> = mutableMapOf()
 
     init {
-        title = getViewTitle()
-
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
         voicingLabel.style = "-fx-font-size: 15;"
 
-        scene = Scene(
-            VBox(
-                chordLabel,
-                voicingLabel,
-                createFretboard(),
-                createLegend()
-            ).apply {
-                spacing = 10.0
-                padding = Insets(12.0)
-            },
-            860.0,
-            350.0
-        )
-
-        setOnCloseRequest {
-            // Must be defined or the stage close flow is unstable on some systems.
+        val root = VBox(
+            chordLabel,
+            voicingLabel,
+            createFretboard(),
+            createLegend()
+        ).apply {
+            spacing = 10.0
+            padding = Insets(12.0)
         }
+
+        setupSurface(root, 860.0, 350.0)
     }
 
     /**
@@ -244,7 +235,7 @@ class GuitarChordStage : ViewStage() {
         PRESSED("●", "-fx-font-size: 18; -fx-text-fill: #1f4fa8; -fx-font-weight: bold;")
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Play your chord on guitar"
         override fun getViewDescription(): String = "Displays guitar fretboard finger settings for detected chords."
         override fun getViewImagePath(): String = "/stage/guitar-chord.png"

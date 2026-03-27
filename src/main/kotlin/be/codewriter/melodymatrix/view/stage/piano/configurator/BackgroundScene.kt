@@ -3,8 +3,8 @@ package be.codewriter.melodymatrix.view.stage.piano.configurator
 import atlantafx.base.controls.Spacer
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoBackgroundImage
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.beans.binding.Bindings

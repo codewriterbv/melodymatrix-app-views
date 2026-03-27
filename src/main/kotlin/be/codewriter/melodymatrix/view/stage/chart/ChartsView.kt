@@ -4,12 +4,11 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
-import be.codewriter.melodymatrix.view.stage.chart.ChartsStage.Companion.chartHolders
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
+import be.codewriter.melodymatrix.view.stage.chart.ChartsView.Companion.chartHolders
 import be.codewriter.melodymatrix.view.stage.chart.component.*
 import javafx.scene.Node
-import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
@@ -25,15 +24,13 @@ import javafx.scene.layout.HBox
  * Available chart types: bar chart, concentric chart, Cox-comb chart, ridge-line chart,
  * and radar chart.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see ChartVisualizer
  * @see ChartHolder
  */
-class ChartsStage : ViewStage() {
+class ChartsView : MmxMmxView() {
 
     init {
-        title = getViewTitle()
-
         var buttons = HBox().apply {
             spacing = 10.0
             children.addAll(
@@ -49,10 +46,8 @@ class ChartsStage : ViewStage() {
             top = buttons
         }
 
-        scene = Scene(borderPane, 900.0, 700.0)
-
-        setOnCloseRequest {
-            // Nothing needed here, but must be defined or will cause a problem when closing the window
+        setupSurface(borderPane, 900.0, 700.0) {
+            chartHolders.clear()
         }
     }
 
@@ -76,7 +71,7 @@ class ChartsStage : ViewStage() {
     /**
      * A selectable chart panel combining a title button with a [ChartVisualizer].
      *
-     * Clicking the button expands this chart into the central area of [ChartsStage]
+     * Clicking the button expands this chart into the central area of [ChartsView]
      * and resets all other holders to their compact preview size.
      *
      * @property label The display label used for the selection button
@@ -145,7 +140,7 @@ class ChartsStage : ViewStage() {
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Charts showing the notes distribution"
         override fun getViewDescription(): String = "Visualizes played notes using multiple chart types."
         override fun getViewImagePath(): String = "/stage/charts.png"

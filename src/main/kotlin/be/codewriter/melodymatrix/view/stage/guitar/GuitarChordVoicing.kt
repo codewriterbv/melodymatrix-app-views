@@ -15,7 +15,7 @@ import be.codewriter.melodymatrix.view.stage.guitar.GuitarChordVoicing.autoToneB
  * If none is found, falls back to an automatic tone-based algorithm that maps each chord
  * tone to the nearest fret on each string.
  *
- * @see GuitarChordStage
+ * @see GuitarChordView
  * @see ChordFingersLoader
  */
 internal object GuitarChordVoicing {

@@ -9,7 +9,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class ViewStageMetadataTest {
+class MmxViewMetadataTest {
 
     @TestFactory
     fun `all ViewStage implementations provide complete metadata and a resolvable image`():
@@ -86,7 +86,7 @@ class ViewStageMetadataTest {
     )
 
     companion object {
-        private val classesRoot: Path = Paths.get(ViewStage::class.java.protectionDomain.codeSource.location.toURI())
+        private val classesRoot: Path = Paths.get(MmxMmxView::class.java.protectionDomain.codeSource.location.toURI())
         private val moduleRoot: Path = classesRoot.parent.parent
         private val sourceRoot: Path = moduleRoot.resolve("src/main/kotlin")
         private val resourcesRoot: Path = moduleRoot.resolve("src/main/resources")

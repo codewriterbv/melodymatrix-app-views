@@ -8,11 +8,10 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
-import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -26,11 +25,11 @@ import java.io.InputStream
  * on the staff is backed by a [Label]; when a MIDI note is pressed the corresponding label is
  * highlighted. The current chord name and active notes are also shown as text labels.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see ChordEvent
  * @see MidiDataEvent
  */
-class ChordStage : ViewStage() {
+class ChordView : MmxMmxView() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
     private val activeNotes: MutableSet<Note> = mutableSetOf()
@@ -87,15 +86,12 @@ class ChordStage : ViewStage() {
             )
         }
 
-        title = getViewTitle()
-        scene = Scene(VBox(chordLabel, chordNotesLabel, row1, row2).apply {
+        val root = VBox(chordLabel, chordNotesLabel, row1, row2).apply {
             spacing = 8.0
             padding = Insets(12.0, 0.0, 0.0, 20.0)
-        }, 610.0, 220.0)
-
-        setOnCloseRequest {
-            // Must be defined or the stage close flow is unstable on some systems.
         }
+
+        setupSurface(root, 610.0, 220.0)
     }
 
     /**
@@ -225,7 +221,7 @@ class ChordStage : ViewStage() {
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "See your chords..."
         override fun getViewDescription(): String = "Displays detected chords and active notes on a two-octave staff."
         override fun getViewImagePath(): String = "/stage/chord.png"

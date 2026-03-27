@@ -1,14 +1,14 @@
 package be.codewriter.melodymatrix.view.stage.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.stage.piano.data.FireworksExplosionType
 import javafx.geometry.Point2D
 import javafx.scene.paint.Color
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**

@@ -6,11 +6,10 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.application.Platform
 import javafx.geometry.Insets
-import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -24,10 +23,10 @@ import java.io.InputStream
  * chord detection. Renders treble and bass staves using the Musiqwik music font. Each note label
  * is highlighted when the corresponding key is pressed and cleared on release.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see MidiDataEvent
  */
-class StaffStage : ViewStage() {
+class StaffView : MmxMmxView() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
 
@@ -80,15 +79,12 @@ class StaffStage : ViewStage() {
             )
         }
 
-        title = getViewTitle()
-        scene = Scene(VBox(row1, row2).apply {
+        val root = VBox(row1, row2).apply {
             spacing = 0.0
             padding = Insets(0.0, 0.0, 0.0, 20.0)
-        }, 610.0, 200.0)
-
-        setOnCloseRequest {
-            // Nothing needed here, but must be defined or will cause a problem when closing the window
         }
+
+        setupSurface(root, 610.0, 200.0)
     }
 
     /**
@@ -156,7 +152,7 @@ class StaffStage : ViewStage() {
         }
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Treble and Bass Clef Staff"
         override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
         override fun getViewImagePath(): String = "/stage/scale.png"

@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_HEIGHT
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.video.VideoRecorder
 import javafx.scene.Node
 import javafx.scene.control.Button

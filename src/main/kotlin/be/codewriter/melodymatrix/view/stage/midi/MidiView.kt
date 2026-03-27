@@ -4,8 +4,8 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.stage.ViewStage
-import be.codewriter.melodymatrix.view.stage.ViewStageMetadata
+import be.codewriter.melodymatrix.view.stage.MmxMmxView
+import be.codewriter.melodymatrix.view.stage.MmxViewMetadata
 import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
@@ -13,7 +13,6 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.geometry.HPos
 import javafx.geometry.Insets
-import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.ColumnConstraints
@@ -31,10 +30,10 @@ import org.apache.logging.log4j.Logger
  * decimal values, binary representations, and parsed fields such as note, velocity,
  * instrument, controller and pitch-bend information.
  *
- * @see ViewStage
+ * @see MmxMmxView
  * @see MidiDataEvent
  */
-class MidiStage : ViewStage() {
+class MidiView : MmxMmxView() {
 
     val midiDataEventList: ObservableList<MidiDataEvent> = FXCollections.observableArrayList()
     val midiData0Value: StringProperty = SimpleStringProperty("")
@@ -243,16 +242,13 @@ class MidiStage : ViewStage() {
             }, 2, 19)
         }
 
-        title = getViewTitle()
-        scene = Scene(HBox().apply {
+        val root = HBox().apply {
             spacing = 10.0
             padding = Insets(25.0)
             children.addAll(table, midiInfo)
-        }, 1000.0, 800.0)
-
-        setOnCloseRequest {
-            // Nothing needed here, but must be defined or will cause a problem when closing the window
         }
+
+        setupSurface(root, 1000.0, 800.0)
     }
 
     /**
@@ -338,10 +334,10 @@ class MidiStage : ViewStage() {
         return bits.substring(0, 4) + " " + bits.substring(4, 8)
     }
 
-    companion object : ViewStageMetadata {
+    companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "MIDI data received from the instrument"
         override fun getViewDescription(): String = "Shows a live MIDI event table and decoded byte-level details."
         override fun getViewImagePath(): String = "/stage/midi.png"
-        private val logger: Logger = LogManager.getLogger(MidiStage::class.java.name)
+        private val logger: Logger = LogManager.getLogger(MidiView::class.java.name)
     }
 }

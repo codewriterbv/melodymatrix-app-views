@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.stage.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_BACKGROUND_HEIGHT
-import be.codewriter.melodymatrix.view.stage.piano.PianoStage.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.stage.piano.PianoView.Companion.PIANO_WIDTH
 import javafx.scene.paint.Color
 import kotlin.math.sin
 import kotlin.random.Random
