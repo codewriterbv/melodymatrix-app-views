@@ -1,17 +1,13 @@
 package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.stage.piano.data.FireworksExplosionType
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.collections.FXCollections
 import javafx.geometry.HorizontalDirection
 import javafx.scene.Node
-import javafx.scene.control.ColorPicker
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 
 /**
@@ -38,17 +34,17 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.fireworksEnabled)
         }
-        val fireworksRadius = Slider().apply {
+        val fireworksRadius = TickerSlider().apply {
             min = 2.0
             max = 50.0
             valueProperty().bindBidirectional(config.fireworksRadius)
         }
-        val numParticles = Slider().apply {
+        val numParticles = TickerSlider().apply {
             min = 80.0
             max = 150.0
             valueProperty().bindBidirectional(config.fireworksNumberOfParticles)
         }
-        val particleSize = Slider().apply {
+        val particleSize = TickerSlider().apply {
             min = 0.9
             max = 3.0
             valueProperty().bindBidirectional(config.fireworksParticleSize)
@@ -76,6 +72,13 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
             max = 2.4
             valueProperty().bindBidirectional(config.fireworksLaunchHeightMultiplier)
         }
+        val liftMultiplier = TickerSlider().apply {
+            min = 0.6
+            max = 1.8
+            majorTickUnit = 0.2
+            minorTickCount = 1
+            valueProperty().bindBidirectional(config.fireworksLiftMultiplier)
+        }
         val explosionType = ComboBox<FireworksExplosionType>(
             FXCollections.observableArrayList(FireworksExplosionType.entries)
         ).apply {
@@ -88,6 +91,7 @@ class EffectFireworks(config: PianoConfiguration) : VBox() {
             labeledControl("Number of Particles", numParticles),
             labeledControl("Number of Tail Particles", tailNumParticles),
             labeledControl("Launch Height", launchHeightMultiplier),
+            labeledControl("Vertical Lift", liftMultiplier),
             labeledControl("Explosion Type", explosionType),
             labeledControl("Particle Size", particleSize),
             labeledControl("Random Color", randomColor),

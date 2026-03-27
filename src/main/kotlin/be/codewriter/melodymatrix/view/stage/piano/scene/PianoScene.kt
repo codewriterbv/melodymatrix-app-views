@@ -120,6 +120,8 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
                 color = config.explosionColor.value,
                 particleCount = config.explosionNumberOfParticles.value,
                 particleSize = config.explosionParticleSize.value,
+                tailParticleCount = config.explosionTailNumberOfParticles.value,
+                liftMultiplier = config.explosionLiftMultiplier.value,
                 randomColor = config.explosionRandomColor.value
             )
         }
@@ -136,6 +138,7 @@ class PianoScene(val config: PianoConfiguration) : Canvas() {
                 randomColor = config.fireworksRandomColor.value,
                 tailParticleCount = config.fireworksTailNumberOfParticles.value,
                 launchHeightMultiplier = config.fireworksLaunchHeightMultiplier.value,
+                liftMultiplier = config.fireworksLiftMultiplier.value,
                 explosionType = config.fireworksExplosionType.value
             )
         }

@@ -45,15 +45,17 @@ class PianoConfiguration {
     var fireworksParticleSize = SimpleDoubleProperty(5.0)
     var fireworksTailNumberOfParticles = SimpleIntegerProperty(10)
     var fireworksLaunchHeightMultiplier = SimpleDoubleProperty(1.0)
+    var fireworksLiftMultiplier = SimpleDoubleProperty(1.0)
     var fireworksExplosionType = SimpleObjectProperty(FireworksExplosionType.CLASSIC)
 
     // Explosion settings
-    var explosionEnabled = SimpleBooleanProperty(false)
+    var explosionEnabled = SimpleBooleanProperty(true)
     var explosionColor = SimpleObjectProperty(Color.YELLOW)
     var explosionRandomColor = SimpleBooleanProperty(false)
     var explosionRadius = SimpleDoubleProperty(5.0)
     var explosionNumberOfParticles = SimpleIntegerProperty(80)
     var explosionParticleSize = SimpleDoubleProperty(5.0)
+    var explosionLiftMultiplier = SimpleDoubleProperty(1.0)
     var explosionTailNumberOfParticles = SimpleIntegerProperty(10)
 
     // Logo settings

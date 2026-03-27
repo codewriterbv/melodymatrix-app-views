@@ -33,6 +33,7 @@ class FireworksGenerator {
      * @param randomColor            When true, uses a random cinematic palette for the burst
      * @param tailParticleCount      Number of trailing particles emitted during ascent
      * @param launchHeightMultiplier Multiplier applied to the launch height (0.6–2.8)
+     * @param liftMultiplier         Multiplier applied to upward fireworks lift (0.6–1.8)
      * @param explosionType          The burst pattern style
      * @return A list of [AnimationCalculator.ParticleInfo] for both tail and burst particles
      */
@@ -47,11 +48,13 @@ class FireworksGenerator {
         randomColor: Boolean,
         tailParticleCount: Int,
         launchHeightMultiplier: Double,
+        liftMultiplier: Double,
         explosionType: FireworksExplosionType
     ): List<AnimationCalculator.ParticleInfo> {
         val particles = mutableListOf<AnimationCalculator.ParticleInfo>()
         val clampedVelocity = velocity.coerceAtLeast(1)
         val launchFactor = launchHeightMultiplier.coerceIn(0.6, 2.8)
+        val effectiveLiftMultiplier = liftMultiplier.coerceIn(0.6, 1.8)
         val burstY = (y - (100.0 + clampedVelocity * 1.6) * launchFactor).coerceAtLeast(40.0)
 
         repeat(tailParticleCount.coerceAtLeast(1)) {
@@ -60,7 +63,10 @@ class FireworksGenerator {
                 AnimationCalculator.ParticleInfo(
                     x = x + Random.nextDouble(-4.0, 4.0),
                     y = y - progress * (y - burstY),
-                    velocity = Point2D(Random.nextDouble(-10.0, 10.0), -Random.nextDouble(50.0, 130.0)),
+                    velocity = Point2D(
+                        Random.nextDouble(-10.0, 10.0),
+                        -Random.nextDouble(50.0, 130.0) * effectiveLiftMultiplier
+                    ),
                     color = resolveColor(color, randomColor),
                     lifespan = Random.nextDouble(0.2, 0.6),
                     size = (particleSize * 0.7).coerceAtLeast(1.0)
@@ -117,7 +123,7 @@ class FireworksGenerator {
                 FireworksExplosionType.CHRYSANTHEMUM -> sin(angle) * speed * Random.nextDouble(0.88, 1.08)
                 FireworksExplosionType.PALM -> sin(angle) * speed - Random.nextDouble(30.0, 78.0)
                 FireworksExplosionType.CRACKLE -> sin(angle) * speed * Random.nextDouble(0.78, 1.25)
-            }
+            } * effectiveLiftMultiplier
             particles.add(
                 AnimationCalculator.ParticleInfo(
                     x = x,

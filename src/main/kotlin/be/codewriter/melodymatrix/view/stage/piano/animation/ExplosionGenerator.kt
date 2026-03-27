@@ -28,6 +28,8 @@ class ExplosionGenerator {
      * @param color        Base colour; may be randomised if [randomColor] is true
      * @param particleCount Total number of particles to generate
      * @param particleSize  Base diameter of each particle in pixels
+     * @param tailParticleCount Number of trailing particles emitted upward from the key
+     * @param liftMultiplier Multiplier for vertical lift strength (higher = taller bursts)
      * @param randomColor   When true, selects from a cinematic palette instead of [color]
      * @return A list of [AnimationCalculator.ParticleInfo] representing the explosion particles
      */
@@ -39,19 +41,28 @@ class ExplosionGenerator {
         color: Color,
         particleCount: Int,
         particleSize: Double,
+        tailParticleCount: Int,
+        liftMultiplier: Double,
         randomColor: Boolean
     ): List<AnimationCalculator.ParticleInfo> {
         val particles = mutableListOf<AnimationCalculator.ParticleInfo>()
         val clampedVelocity = velocity.coerceAtLeast(1)
         val intensity = clampedVelocity / 127.0
         val effectiveCount = particleCount.coerceAtLeast(1)
+        val effectiveTailCount = tailParticleCount.coerceAtLeast(0)
         val effectiveRadius = radius.coerceAtLeast(1.0)
         val baseSize = particleSize.coerceAtLeast(1.0)
         val palette = buildExplosionPalette(color, randomColor)
-        val baseLift = 1.0 + (intensity * intensity) * 2.8
-        val epicPhase = ((intensity - 0.55) / 0.45).coerceIn(0.0, 1.0)
-        val epicBoost = 1.0 + (epicPhase * epicPhase) * 1.2
-        val velocityLift = baseLift * epicBoost
+        val effectiveLiftMultiplier = liftMultiplier.coerceIn(0.6, 1.8)
+        // Make radius visibly affect horizontal coverage in addition to speed.
+        val spreadBoost = (0.45 + effectiveRadius / 4.5).coerceIn(0.8, 2.6)
+        // Midpoint retune between the previous and current formulas.
+        val baseLift = 1.0 + intensity * 3.9
+        // Lower threshold from 0.55 → 0.30 so the epic boost activates around
+        // velocity ~38 (below the real-world average of 56) instead of velocity ~70.
+        val epicPhase = ((intensity - 0.30) / 0.70).coerceIn(0.0, 1.0)
+        val epicBoost = 1.0 + (epicPhase * epicPhase) * 1.75
+        val velocityLift = baseLift * epicBoost * effectiveLiftMultiplier
 
         val coreCount = (effectiveCount * 0.45).toInt().coerceAtLeast(1)
         val sparkCount = (effectiveCount * 0.30).toInt().coerceAtLeast(1)
@@ -65,8 +76,8 @@ class ExplosionGenerator {
                     x = x + Random.nextDouble(-3.0, 3.0),
                     y = y + Random.nextDouble(-2.0, 2.0),
                     velocity = Point2D(
-                        cos(angle) * speed,
-                        sin(angle) * speed - Random.nextDouble(24.0, 46.0) * (0.95 + velocityLift * 0.85)
+                        cos(angle) * speed * spreadBoost,
+                        sin(angle) * speed - Random.nextDouble(37.0, 68.0) * (0.975 + velocityLift * 1.325)
                     ),
                     color = blend(palette.random(), Color.WHITE, Random.nextDouble(0.35, 0.62)),
                     lifespan = Random.nextDouble(0.28, 0.58) + intensity * 0.18,
@@ -83,8 +94,8 @@ class ExplosionGenerator {
                     x = x,
                     y = y,
                     velocity = Point2D(
-                        cos(angle) * speed,
-                        sin(angle) * speed - Random.nextDouble(12.0, 40.0) * (0.9 + velocityLift * 1.15)
+                        cos(angle) * speed * spreadBoost,
+                        sin(angle) * speed - Random.nextDouble(21.0, 55.0) * (0.9 + velocityLift * 1.675)
                     ),
                     color = jitterColor(palette.random()),
                     lifespan = Random.nextDouble(0.42, 0.88) + intensity * 0.22,
@@ -101,12 +112,28 @@ class ExplosionGenerator {
                     x = x + Random.nextDouble(-7.0, 7.0),
                     y = y + Random.nextDouble(-4.0, 2.0),
                     velocity = Point2D(
-                        cos(angle) * speed,
-                        sin(angle) * speed - Random.nextDouble(18.0, 34.0) * (0.9 + velocityLift * 0.95)
+                        cos(angle) * speed * spreadBoost,
+                        sin(angle) * speed - Random.nextDouble(29.0, 52.0) * (0.9 + velocityLift * 1.275)
                     ),
                     color = blend(palette.first(), palette.last(), Random.nextDouble(0.18, 0.78)),
                     lifespan = Random.nextDouble(0.72, 1.35) + intensity * 0.28,
                     size = baseSize * Random.nextDouble(1.45, 2.5)
+                )
+            )
+        }
+
+        repeat(effectiveTailCount) {
+            val tailXOffset = Random.nextDouble(-effectiveRadius * 2.8, effectiveRadius * 2.8)
+            val driftX = Random.nextDouble(-18.0, 18.0) * spreadBoost
+            val upward = Random.nextDouble(42.0, 78.0) * (0.7 + velocityLift * 0.9)
+            particles.add(
+                AnimationCalculator.ParticleInfo(
+                    x = x + tailXOffset,
+                    y = y + Random.nextDouble(-4.0, 4.0),
+                    velocity = Point2D(driftX, -upward),
+                    color = blend(palette.random(), Color.WHITE, Random.nextDouble(0.22, 0.50)),
+                    lifespan = Random.nextDouble(0.24, 0.58) + intensity * 0.12,
+                    size = baseSize * Random.nextDouble(0.45, 0.90)
                 )
             )
         }

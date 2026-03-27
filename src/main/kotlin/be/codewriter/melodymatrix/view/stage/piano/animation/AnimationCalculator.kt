@@ -47,6 +47,8 @@ class AnimationCalculator(
             val color: Color,
             val particleCount: Int,
             val particleSize: Double,
+            val tailParticleCount: Int,
+            val liftMultiplier: Double,
             val randomColor: Boolean
         ) : AnimationCommand
 
@@ -62,6 +64,7 @@ class AnimationCalculator(
             val randomColor: Boolean,
             val tailParticleCount: Int,
             val launchHeightMultiplier: Double,
+            val liftMultiplier: Double,
             val explosionType: FireworksExplosionType
         ) : AnimationCommand
     }
@@ -173,6 +176,8 @@ class AnimationCalculator(
      * @param color        Base particle colour
      * @param particleCount Number of particles to generate
      * @param particleSize  Base particle diameter in pixels
+     * @param tailParticleCount Number of trailing particles emitted upward from the key
+     * @param liftMultiplier Multiplier for vertical lift strength (higher = taller bursts)
      * @param randomColor  When true uses a cinematic colour palette
      */
     fun addExplosion(
@@ -183,6 +188,8 @@ class AnimationCalculator(
         color: Color,
         particleCount: Int,
         particleSize: Double,
+        tailParticleCount: Int,
+        liftMultiplier: Double,
         randomColor: Boolean
     ) {
         commandQueue.add(
@@ -194,6 +201,8 @@ class AnimationCalculator(
                 color = color,
                 particleCount = particleCount,
                 particleSize = particleSize,
+                tailParticleCount = tailParticleCount,
+                liftMultiplier = liftMultiplier,
                 randomColor = randomColor
             )
         )
@@ -212,6 +221,7 @@ class AnimationCalculator(
      * @param randomColor            When true uses a cinematic colour palette
      * @param tailParticleCount      Trailing particles emitted during ascent
      * @param launchHeightMultiplier Multiplier applied to the launch height (0.6–2.8)
+     * @param liftMultiplier          Multiplier applied to upward fireworks lift (0.6–1.8)
      * @param explosionType          The burst pattern style
      */
     fun addFireworks(
@@ -225,6 +235,7 @@ class AnimationCalculator(
         randomColor: Boolean,
         tailParticleCount: Int,
         launchHeightMultiplier: Double,
+        liftMultiplier: Double,
         explosionType: FireworksExplosionType
     ) {
         commandQueue.add(
@@ -239,6 +250,7 @@ class AnimationCalculator(
                 randomColor = randomColor,
                 tailParticleCount = tailParticleCount,
                 launchHeightMultiplier = launchHeightMultiplier,
+                liftMultiplier = liftMultiplier,
                 explosionType = explosionType
             )
         )
@@ -267,6 +279,8 @@ class AnimationCalculator(
                             color = command.color,
                             particleCount = command.particleCount,
                             particleSize = command.particleSize,
+                            tailParticleCount = command.tailParticleCount,
+                            liftMultiplier = command.liftMultiplier,
                             randomColor = command.randomColor
                         )
                     )
@@ -285,6 +299,7 @@ class AnimationCalculator(
                             randomColor = command.randomColor,
                             tailParticleCount = command.tailParticleCount,
                             launchHeightMultiplier = command.launchHeightMultiplier,
+                            liftMultiplier = command.liftMultiplier,
                             explosionType = command.explosionType
                         )
                     )

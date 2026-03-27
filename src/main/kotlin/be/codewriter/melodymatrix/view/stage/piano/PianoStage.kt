@@ -17,10 +17,13 @@ import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
+import javafx.scene.Node
 import javafx.scene.control.Accordion
 import javafx.scene.control.Label
+import javafx.scene.control.ScrollPane
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
@@ -157,34 +160,55 @@ class PianoStage(
             panes.addAll(
                 TitledPane().apply {
                     text = "Background settings"
-                    content = BackgroundScene(config, licenseStatus)
+                    content = wrapSettingsContent(BackgroundScene(config, licenseStatus))
                 },
                 TitledPane().apply {
                     text = "Piano key settings"
-                    content = KeyColors(config)
+                    content = wrapSettingsContent(KeyColors(config))
                 },
                 TitledPane().apply {
                     text = "Explosion effect"
-                    content = EffectExplosion(config)
+                    content = wrapSettingsContent(EffectExplosion(config))
                 },
                 TitledPane().apply {
                     text = "Fireworks effect"
-                    content = EffectFireworks(config)
+                    content = wrapSettingsContent(EffectFireworks(config))
                 },
                 TitledPane().apply {
                     text = "Effect above the keys"
-                    content = KeyEffect(config)
+                    content = wrapSettingsContent(KeyEffect(config))
                 },
                 TitledPane().apply {
                     text = "Record"
-                    content = PianoExport(
-                        licenseStatus,
-                        videoRecorder,
-                        holder.center
+                    content = wrapSettingsContent(
+                        PianoExport(
+                            licenseStatus,
+                            videoRecorder,
+                            holder.center
+                        )
                     )
                 }
             )
             expandedPane = panes[0]
+        }
+    }
+
+    private fun wrapSettingsContent(content: Node): ScrollPane {
+        val paddedContent = VBox(content).apply {
+            // Reserve space so overlay scrollbars do not cover right-side controls.
+            padding = Insets(0.0, 14.0, 0.0, 0.0)
+            isFillWidth = true
+        }
+
+        if (content is Region) {
+            content.maxWidth = Double.MAX_VALUE
+        }
+
+        return ScrollPane(paddedContent).apply {
+            isFitToWidth = true
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            style = "-fx-background-color: transparent;"
         }
     }
 

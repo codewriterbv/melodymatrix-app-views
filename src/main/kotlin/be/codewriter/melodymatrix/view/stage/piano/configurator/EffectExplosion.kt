@@ -1,14 +1,12 @@
 package be.codewriter.melodymatrix.view.stage.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.stage.piano.data.PianoConfiguration
 import javafx.geometry.HorizontalDirection
 import javafx.scene.Node
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
-import javafx.scene.control.Slider
-import javafx.scene.control.Spinner
-import javafx.scene.control.SpinnerValueFactory
 import javafx.scene.layout.VBox
 
 /**
@@ -19,9 +17,7 @@ import javafx.scene.layout.VBox
  * All controls are bidirectionally bound to [PianoConfiguration] explosion properties.
  *
  * @param config Observable configuration to bind to
- * @see PianoStage
  * @see PianoConfiguration
- * @see ExplosionGenerator
  */
 class EffectExplosion(config: PianoConfiguration) : VBox() {
 
@@ -33,25 +29,34 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.explosionEnabled)
         }
-        val explosionRadius = Slider().apply {
-            min = 2.0
-            max = 9.5
+        val explosionRadius = TickerSlider().apply {
+            min = 1.0
+            max = 16.0
             valueProperty().bindBidirectional(config.explosionRadius)
         }
-        val numParticles = Slider().apply {
+        val numParticles = TickerSlider().apply {
             min = 80.0
             max = 150.0
-            isShowTickMarks = true
-            isShowTickLabels = true
-            majorTickUnit = 10.0
-            minorTickCount = 9
-            isSnapToTicks = true
             valueProperty().bindBidirectional(config.explosionNumberOfParticles)
         }
-        val particleSize = Slider().apply {
-            min = 0.9
-            max = 3.0
+        val particleSize = TickerSlider().apply {
+            min = 0.5
+            max = 20.0
             valueProperty().bindBidirectional(config.explosionParticleSize)
+        }
+        val liftMultiplier = TickerSlider().apply {
+            min = 0.6
+            max = 1.8
+            majorTickUnit = 0.2
+            minorTickCount = 1
+            valueProperty().bindBidirectional(config.explosionLiftMultiplier)
+        }
+        val tailNumParticles = TickerSlider().apply {
+            min = 0.0
+            max = 300.0
+            majorTickUnit = 50.0
+            minorTickCount = 4
+            valueProperty().bindBidirectional(config.explosionTailNumberOfParticles)
         }
         val randomColor = ToggleSwitch().apply {
             labelPosition = HorizontalDirection.RIGHT
@@ -61,16 +66,6 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
             valueProperty().bindBidirectional(config.explosionColor)
             disableProperty().bind(randomColor.selectedProperty())
         }
-        val tailNumParticles = Spinner<Int>().apply {
-            isEditable = true
-            valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(
-                0,
-                100,
-                config.explosionTailNumberOfParticles.get()
-            ).also { factory ->
-                factory.valueProperty().bindBidirectional(config.explosionTailNumberOfParticles.asObject())
-            }
-        }
 
         children.addAll(
             labeledControl("Show Explosion", explosionVisible),
@@ -78,6 +73,7 @@ class EffectExplosion(config: PianoConfiguration) : VBox() {
             labeledControl("Number of Particles", numParticles),
             labeledControl("Number of Tail Particles", tailNumParticles),
             labeledControl("Particle Size", particleSize),
+            labeledControl("Vertical Lift", liftMultiplier),
             labeledControl("Random Color", randomColor),
             labeledControl("Fixed Color", color)
         )
