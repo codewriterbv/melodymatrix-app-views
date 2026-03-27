@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
+    <Properties>
+        <Property name="LOG_DIR">${sys:user.home}/Library/Logs/MelodyMatrix/Viewers</Property>
+    </Properties>
+
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
                     pattern="%d{dd/MM/yyyy HH:mm:ss.SSS} | %-20.20c{1} | %-20.20M | %-8.8level | %highlight{%msg%n}"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="logs/app.log" filePattern="logs/app-%d{MM-dd-yy-HH-mm-ss}-%i.log.gz">
+        <RollingFile name="RollingFile" fileName="${LOG_DIR}/app.log"
+                     filePattern="${LOG_DIR}/app-%d{MM-dd-yy-HH-mm-ss}-%i.log.gz">
             <PatternLayout
                     pattern="%d{dd/MM/yyyy HH:mm:ss.SSS} | %-20.20c{1} | %-30.30M | %-8.8level | %msg %n"/>
             <Policies>
@@ -14,6 +19,7 @@
             <DefaultRolloverStrategy max="5"/>
         </RollingFile>
     </Appenders>
+
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>
