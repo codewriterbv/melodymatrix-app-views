@@ -22,6 +22,7 @@ import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TitledPane
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -69,10 +70,26 @@ class PianoView(
         pianoScene = PianoScene(config)
         keyboardView = KeyboardView(config)
 
-        var pianoView = VBox().apply {
+        val pianoView = VBox().apply {
             prefWidth = PIANO_WIDTH
             prefHeight = PIANO_HEIGHT
             children.addAll(pianoScene, keyboardView)
+
+            // Keep keyboard height fixed while allowing only the scene area to adapt.
+            keyboardView.minHeight = PIANO_KEYBOARD_HEIGHT.toDouble()
+            keyboardView.prefHeight = PIANO_KEYBOARD_HEIGHT.toDouble()
+            keyboardView.maxHeight = PIANO_KEYBOARD_HEIGHT.toDouble()
+            VBox.setVgrow(pianoScene, Priority.ALWAYS)
+
+            widthProperty().addListener { _, _, newWidth ->
+                val w = newWidth.toDouble().coerceAtLeast(200.0)
+                pianoScene.width = w
+                keyboardView.prefWidth = w
+            }
+            heightProperty().addListener { _, _, newHeight ->
+                val h = (newHeight.toDouble() - PIANO_KEYBOARD_HEIGHT).coerceAtLeast(200.0)
+                pianoScene.height = h
+            }
         }
 
         // Wrap the game node with FPS counter if in test mode
