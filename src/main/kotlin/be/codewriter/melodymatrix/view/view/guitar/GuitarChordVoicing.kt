@@ -152,6 +152,7 @@ internal object GuitarChordVoicing {
             ChordExtension.DOMINANT_NINTH -> intervals.addAll(listOf(10, 2))
             ChordExtension.MAJOR_NINTH -> intervals.addAll(listOf(11, 2))
             ChordExtension.MINOR_NINTH -> intervals.addAll(listOf(10, 2))
+            ChordExtension.SIX_NINE -> intervals.addAll(listOf(9, 2))
             ChordExtension.NONE -> {
                 // No extension to add.
             }
