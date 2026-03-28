@@ -190,7 +190,9 @@ class ChordRelationView : MmxView() {
 
         setupSurface(root, W, H) {
             pulseTimeline.stop()
+            captureNode = contentGroup
         }
+
         pulseClock.addListener { _, _, _ -> redrawArrows() }
         pulseTimeline.play()
 

@@ -248,7 +248,9 @@ class MidiView : MmxView() {
             children.addAll(table, midiInfo)
         }
 
-        setupSurface(root, 1000.0, 800.0)
+        setupSurface(root, 1000.0, 800.0) {
+            captureNode = root
+        }
     }
 
     /**
