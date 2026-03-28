@@ -38,7 +38,8 @@ object ChordRelationMap {
             ChordQuality.DOMINANT -> majorRelations(p)   // treat like major
             ChordQuality.MINOR -> minorRelations(p)
             ChordQuality.DIMINISHED,
-            ChordQuality.HALF_DIMINISHED -> dimRelations(p)
+            ChordQuality.HALF_DIMINISHED,
+            ChordQuality.TRITONE -> dimRelations(p)
         }
     }
 

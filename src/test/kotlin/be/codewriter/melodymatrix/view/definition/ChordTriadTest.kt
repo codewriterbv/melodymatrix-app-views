@@ -13,5 +13,14 @@ class ChordTriadTest {
         assertEquals(ChordExtension.NONE, chord.extension)
         assertEquals(ChordAlteration.NONE, chord.alteration)
     }
+
+    @Test
+    fun `from returns tritone dyad for pitch class and quality`() {
+        val chord = Chord.from(0, ChordQuality.TRITONE)
+
+        assertEquals(Chord.C_TRITONE, chord)
+        assertEquals(ChordExtension.NONE, chord.extension)
+        assertEquals(ChordAlteration.NONE, chord.alteration)
+    }
 }
 

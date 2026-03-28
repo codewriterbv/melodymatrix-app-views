@@ -987,14 +987,14 @@ class ChordRelationView : MmxView() {
         ChordQuality.MAJOR -> majorFill(current)
         ChordQuality.MINOR -> minorFill(current)
         ChordQuality.DOMINANT -> dominantFill(current)
-        ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED -> dimFill(current)
+        ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED, ChordQuality.TRITONE -> dimFill(current)
     }
 
     private fun chordStroke(chord: Chord, current: Boolean) = if (current) when (chord.quality) {
         ChordQuality.MAJOR -> Color.web("#93C5FD")
         ChordQuality.MINOR -> Color.web("#FCD34D")
         ChordQuality.DOMINANT -> Color.web("#C4B5FD")
-        ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED -> Color.web("#FCA5A5")
+        ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED, ChordQuality.TRITONE -> Color.web("#FCA5A5")
     } else Color.web("#334155")
 
     // ─── Geometry ─────────────────────────────────────────────────────────────
@@ -1038,7 +1038,7 @@ class ChordRelationView : MmxView() {
 
     private fun normalizedQuality(quality: ChordQuality): ChordQuality = when (quality) {
         ChordQuality.DOMINANT -> ChordQuality.MAJOR
-        ChordQuality.HALF_DIMINISHED -> ChordQuality.DIMINISHED
+        ChordQuality.HALF_DIMINISHED, ChordQuality.TRITONE -> ChordQuality.DIMINISHED
         else -> quality
     }
 

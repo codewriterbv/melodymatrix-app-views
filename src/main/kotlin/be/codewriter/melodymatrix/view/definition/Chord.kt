@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.definition
 
 /**
- * Represents a detected chord, combining a root pitch class (0–11) with a quality (major/minor/seventh).
+ * Represents a detected chord, combining a root pitch class (0-11) with a quality (triad, seventh, or dyad).
  * Follows the same enum-with-properties pattern as Note and Octave.
  * 
  * <a href="https://hellomusictheory.com/learn/types-of-chords/">Types of Chords</a>
@@ -38,6 +38,20 @@ enum class Chord(
     A_SHARP_MINOR(10, ChordQuality.MINOR, ChordExtension.NONE, "A# minor"),
     B_MAJOR(11, ChordQuality.MAJOR, ChordExtension.NONE, "B major"),
     B_MINOR(11, ChordQuality.MINOR, ChordExtension.NONE, "B minor"),
+
+    // ── Dyads ───────────────────────────────────────────────────────────────
+    C_TRITONE(0, ChordQuality.TRITONE, ChordExtension.NONE, "C tritone"),
+    C_SHARP_TRITONE(1, ChordQuality.TRITONE, ChordExtension.NONE, "C# tritone"),
+    D_TRITONE(2, ChordQuality.TRITONE, ChordExtension.NONE, "D tritone"),
+    D_SHARP_TRITONE(3, ChordQuality.TRITONE, ChordExtension.NONE, "D# tritone"),
+    E_TRITONE(4, ChordQuality.TRITONE, ChordExtension.NONE, "E tritone"),
+    F_TRITONE(5, ChordQuality.TRITONE, ChordExtension.NONE, "F tritone"),
+    F_SHARP_TRITONE(6, ChordQuality.TRITONE, ChordExtension.NONE, "F# tritone"),
+    G_TRITONE(7, ChordQuality.TRITONE, ChordExtension.NONE, "G tritone"),
+    G_SHARP_TRITONE(8, ChordQuality.TRITONE, ChordExtension.NONE, "G# tritone"),
+    A_TRITONE(9, ChordQuality.TRITONE, ChordExtension.NONE, "A tritone"),
+    A_SHARP_TRITONE(10, ChordQuality.TRITONE, ChordExtension.NONE, "A# tritone"),
+    B_TRITONE(11, ChordQuality.TRITONE, ChordExtension.NONE, "B tritone"),
 
     // ── Seventh chords ───────────────────────────────────────────────────────
     C_MAJOR_SEVENTH(0, ChordQuality.MAJOR, ChordExtension.MAJOR_SEVENTH, "C major 7th"),
@@ -116,6 +130,44 @@ enum class Chord(
     B_MINOR_SEVENTH(11, ChordQuality.MINOR, ChordExtension.MINOR_SEVENTH, "B minor 7th"),
     B_HALF_DIMINISHED_SEVENTH(11, ChordQuality.HALF_DIMINISHED, ChordExtension.MINOR_SEVENTH, "B half-diminished 7th"),
     B_DIMINISHED_SEVENTH(11, ChordQuality.DIMINISHED, ChordExtension.DIMINISHED_SEVENTH, "B diminished 7th"),
+
+    // ── Ninth chords ─────────────────────────────────────────────────────────
+    C_MAJOR_NINTH(0, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "C major 9th"),
+    C_DOMINANT_NINTH(0, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "C dominant 9th"),
+    C_MINOR_NINTH(0, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "C minor 9th"),
+    C_SHARP_MAJOR_NINTH(1, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "C# major 9th"),
+    C_SHARP_DOMINANT_NINTH(1, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "C# dominant 9th"),
+    C_SHARP_MINOR_NINTH(1, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "C# minor 9th"),
+    D_MAJOR_NINTH(2, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "D major 9th"),
+    D_DOMINANT_NINTH(2, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "D dominant 9th"),
+    D_MINOR_NINTH(2, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "D minor 9th"),
+    D_SHARP_MAJOR_NINTH(3, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "D# major 9th"),
+    D_SHARP_DOMINANT_NINTH(3, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "D# dominant 9th"),
+    D_SHARP_MINOR_NINTH(3, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "D# minor 9th"),
+    E_MAJOR_NINTH(4, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "E major 9th"),
+    E_DOMINANT_NINTH(4, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "E dominant 9th"),
+    E_MINOR_NINTH(4, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "E minor 9th"),
+    F_MAJOR_NINTH(5, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "F major 9th"),
+    F_DOMINANT_NINTH(5, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "F dominant 9th"),
+    F_MINOR_NINTH(5, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "F minor 9th"),
+    F_SHARP_MAJOR_NINTH(6, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "F# major 9th"),
+    F_SHARP_DOMINANT_NINTH(6, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "F# dominant 9th"),
+    F_SHARP_MINOR_NINTH(6, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "F# minor 9th"),
+    G_MAJOR_NINTH(7, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "G major 9th"),
+    G_DOMINANT_NINTH(7, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "G dominant 9th"),
+    G_MINOR_NINTH(7, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "G minor 9th"),
+    G_SHARP_MAJOR_NINTH(8, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "G# major 9th"),
+    G_SHARP_DOMINANT_NINTH(8, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "G# dominant 9th"),
+    G_SHARP_MINOR_NINTH(8, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "G# minor 9th"),
+    A_MAJOR_NINTH(9, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "A major 9th"),
+    A_DOMINANT_NINTH(9, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "A dominant 9th"),
+    A_MINOR_NINTH(9, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "A minor 9th"),
+    A_SHARP_MAJOR_NINTH(10, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "A# major 9th"),
+    A_SHARP_DOMINANT_NINTH(10, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "A# dominant 9th"),
+    A_SHARP_MINOR_NINTH(10, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "A# minor 9th"),
+    B_MAJOR_NINTH(11, ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH, "B major 9th"),
+    B_DOMINANT_NINTH(11, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH, "B dominant 9th"),
+    B_MINOR_NINTH(11, ChordQuality.MINOR, ChordExtension.MINOR_NINTH, "B minor 9th"),
 
     // ── Altered dominant chords ──────────────────────────────────────────────
     C_DOMINANT_SEVENTH_FLAT_FIFTH(

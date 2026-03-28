@@ -293,6 +293,22 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                 ChordExtension.MINOR_SEVENTH -> listOf(0, 3, 6, 10)
                 else -> listOf(0, 3, 6)
             }
+            ChordQuality.TRITONE -> listOf(0, 6)
+        }.toMutableList()
+
+        when (chord.extension) {
+            ChordExtension.MAJOR_NINTH -> {
+                if (!intervals.contains(11)) intervals.add(11)
+                if (!intervals.contains(2)) intervals.add(2)
+            }
+
+            ChordExtension.DOMINANT_NINTH,
+            ChordExtension.MINOR_NINTH -> {
+                if (!intervals.contains(10)) intervals.add(10)
+                if (!intervals.contains(2)) intervals.add(2)
+            }
+
+            else -> Unit
         }
 
         val root = 48 + chord.pitchClass

@@ -26,5 +26,8 @@ enum class ChordQuality(val label: String) {
     DIMINISHED("diminished"),
 
     /** Half-diminished seventh (diminished triad with minor seventh) */
-    HALF_DIMINISHED("half diminished")
+    HALF_DIMINISHED("half diminished"),
+
+    /** Tritone dyad (root and augmented fourth / diminished fifth) */
+    TRITONE("tritone")
 }

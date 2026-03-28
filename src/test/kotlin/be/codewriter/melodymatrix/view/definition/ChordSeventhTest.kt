@@ -23,5 +23,23 @@ class ChordSeventhTest {
 
         assertEquals(Chord.UNDEFINED, chord)
     }
+
+    @Test
+    fun `from returns dominant ninth when extension is dominant ninth`() {
+        val chord = Chord.from(0, ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH)
+
+        assertEquals(Chord.C_DOMINANT_NINTH, chord)
+    }
+
+    @Test
+    fun `from returns undefined for unsupported ninth quality combination`() {
+        val chord = Chord.from(
+            pitchClass = 0,
+            quality = ChordQuality.HALF_DIMINISHED,
+            extension = ChordExtension.MINOR_NINTH
+        )
+
+        assertEquals(Chord.UNDEFINED, chord)
+    }
 }
 

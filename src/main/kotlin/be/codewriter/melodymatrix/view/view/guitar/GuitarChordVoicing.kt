@@ -142,12 +142,16 @@ internal object GuitarChordVoicing {
             ChordQuality.MAJOR, ChordQuality.DOMINANT -> intervals.addAll(listOf(0, 4, 7))
             ChordQuality.MINOR -> intervals.addAll(listOf(0, 3, 7))
             ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED -> intervals.addAll(listOf(0, 3, 6))
+            ChordQuality.TRITONE -> intervals.addAll(listOf(0, 6))
         }
 
         when (chord.extension) {
             ChordExtension.MAJOR_SEVENTH -> intervals.add(11)
             ChordExtension.MINOR_SEVENTH -> intervals.add(10)
             ChordExtension.DIMINISHED_SEVENTH -> intervals.add(9)
+            ChordExtension.DOMINANT_NINTH -> intervals.addAll(listOf(10, 2))
+            ChordExtension.MAJOR_NINTH -> intervals.addAll(listOf(11, 2))
+            ChordExtension.MINOR_NINTH -> intervals.addAll(listOf(10, 2))
             ChordExtension.NONE -> {
                 // No extension to add.
             }
