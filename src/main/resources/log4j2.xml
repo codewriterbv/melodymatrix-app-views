@@ -2,6 +2,8 @@
 <Configuration status="INFO">
     <Properties>
         <Property name="LOG_DIR">${sys:user.home}/Library/Logs/MelodyMatrix/Viewers</Property>
+        l
+        <Property name="MIDI_LOG_LEVEL">${sys:melodymatrix.midi.log.level:-info}</Property>
     </Properties>
 
     <Appenders>
@@ -21,6 +23,8 @@
     </Appenders>
 
     <Loggers>
+        <Logger name="be.codewriter.melodymatrix.engine.midi" level="${MIDI_LOG_LEVEL}" additivity="true"/>
+
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="RollingFile"/>
