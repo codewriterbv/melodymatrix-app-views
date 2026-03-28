@@ -45,12 +45,15 @@ object ChordDetectionRules {
     /**
      * Ordered list of ninth-chord detection patterns.
      *
-     * These patterns match five-note chords including major, dominant and minor ninth chords.
+     * These patterns match five-note chords including major, dominant and minor ninth chords,
+     * and major/minor 6/9 chords (major 6th + major 9th, no 7th).
      */
     val NINTH_PATTERNS: List<ChordDetectionPattern> = listOf(
         ChordDetectionPattern(setOf(0, 4, 7, 11, 2), ChordQuality.MAJOR, ChordExtension.MAJOR_NINTH),
         ChordDetectionPattern(setOf(0, 4, 7, 10, 2), ChordQuality.DOMINANT, ChordExtension.DOMINANT_NINTH),
-        ChordDetectionPattern(setOf(0, 3, 7, 10, 2), ChordQuality.MINOR, ChordExtension.MINOR_NINTH)
+        ChordDetectionPattern(setOf(0, 3, 7, 10, 2), ChordQuality.MINOR, ChordExtension.MINOR_NINTH),
+        ChordDetectionPattern(setOf(0, 4, 7, 9, 2), ChordQuality.MAJOR, ChordExtension.SIX_NINE),
+        ChordDetectionPattern(setOf(0, 3, 7, 9, 2), ChordQuality.MINOR, ChordExtension.SIX_NINE)
     )
 
     /**

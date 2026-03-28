@@ -207,6 +207,32 @@ enum class Chord(
     B_DOMINANT_SEVENTH_FLAT_FIFTH(11, ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, "B dominant 7th b5", ChordAlteration.FLAT_FIFTH),
     B_DOMINANT_SEVENTH_SHARP_FIFTH(11, ChordQuality.DOMINANT, ChordExtension.MINOR_SEVENTH, "B dominant 7th #5", ChordAlteration.SHARP_FIFTH),
 
+    // ── Six-nine chords ───────────────────────────────────────────────────────
+    C_MAJOR_SIX_NINE(0, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "C 6/9"),
+    C_MINOR_SIX_NINE(0, ChordQuality.MINOR, ChordExtension.SIX_NINE, "C minor 6/9"),
+    C_SHARP_MAJOR_SIX_NINE(1, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "C# 6/9"),
+    C_SHARP_MINOR_SIX_NINE(1, ChordQuality.MINOR, ChordExtension.SIX_NINE, "C# minor 6/9"),
+    D_MAJOR_SIX_NINE(2, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "D 6/9"),
+    D_MINOR_SIX_NINE(2, ChordQuality.MINOR, ChordExtension.SIX_NINE, "D minor 6/9"),
+    D_SHARP_MAJOR_SIX_NINE(3, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "D# 6/9"),
+    D_SHARP_MINOR_SIX_NINE(3, ChordQuality.MINOR, ChordExtension.SIX_NINE, "D# minor 6/9"),
+    E_MAJOR_SIX_NINE(4, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "E 6/9"),
+    E_MINOR_SIX_NINE(4, ChordQuality.MINOR, ChordExtension.SIX_NINE, "E minor 6/9"),
+    F_MAJOR_SIX_NINE(5, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "F 6/9"),
+    F_MINOR_SIX_NINE(5, ChordQuality.MINOR, ChordExtension.SIX_NINE, "F minor 6/9"),
+    F_SHARP_MAJOR_SIX_NINE(6, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "F# 6/9"),
+    F_SHARP_MINOR_SIX_NINE(6, ChordQuality.MINOR, ChordExtension.SIX_NINE, "F# minor 6/9"),
+    G_MAJOR_SIX_NINE(7, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "G 6/9"),
+    G_MINOR_SIX_NINE(7, ChordQuality.MINOR, ChordExtension.SIX_NINE, "G minor 6/9"),
+    G_SHARP_MAJOR_SIX_NINE(8, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "G# 6/9"),
+    G_SHARP_MINOR_SIX_NINE(8, ChordQuality.MINOR, ChordExtension.SIX_NINE, "G# minor 6/9"),
+    A_MAJOR_SIX_NINE(9, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "A 6/9"),
+    A_MINOR_SIX_NINE(9, ChordQuality.MINOR, ChordExtension.SIX_NINE, "A minor 6/9"),
+    A_SHARP_MAJOR_SIX_NINE(10, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "A# 6/9"),
+    A_SHARP_MINOR_SIX_NINE(10, ChordQuality.MINOR, ChordExtension.SIX_NINE, "A# minor 6/9"),
+    B_MAJOR_SIX_NINE(11, ChordQuality.MAJOR, ChordExtension.SIX_NINE, "B 6/9"),
+    B_MINOR_SIX_NINE(11, ChordQuality.MINOR, ChordExtension.SIX_NINE, "B minor 6/9"),
+
     UNDEFINED(-1, ChordQuality.MAJOR, ChordExtension.NONE, "");
 
     companion object {

@@ -32,6 +32,9 @@ enum class ChordExtension(val label: String) {
     MAJOR_NINTH("major 9th"),
 
     /** Minor ninth extension (minor 7th plus major 9th above root) */
-    MINOR_NINTH("minor 9th")
+    MINOR_NINTH("minor 9th"),
+
+    /** Six/nine extension (major 6th plus major 9th above root, no 7th) */
+    SIX_NINE("6/9")
 }
 
