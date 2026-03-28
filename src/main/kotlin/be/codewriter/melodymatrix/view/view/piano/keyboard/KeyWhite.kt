@@ -6,6 +6,10 @@ import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_BLACK_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_WIDTH
+import javafx.animation.Interpolator
+import javafx.animation.KeyFrame
+import javafx.animation.KeyValue
+import javafx.animation.Timeline
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.layout.Region
@@ -14,6 +18,8 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
+import javafx.util.Duration
+import javafx.scene.transform.Rotate
 
 
 /**
@@ -40,6 +46,35 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     private var pressed = false
     private val key: Shape
     private val noteName: Label
+    private var pressAnimation: Timeline? = null
+    private val sideShadowLeft = Rectangle(2.2, PIANO_WHITE_KEY_HEIGHT).apply {
+        fill = Color.BLACK
+        opacity = 0.0
+        translateX = 0.0
+    }
+    private val sideShadowRight = Rectangle(2.2, PIANO_WHITE_KEY_HEIGHT).apply {
+        fill = Color.BLACK
+        opacity = 0.0
+        translateX = PIANO_WHITE_KEY_WIDTH - width
+    }
+    private val frontShadow = Rectangle(PIANO_WHITE_KEY_WIDTH, 9.0).apply {
+        fill = Color.BLACK
+        opacity = 0.0
+        translateY = PIANO_WHITE_KEY_HEIGHT - height
+    }
+    private val topHighlight = Rectangle(PIANO_WHITE_KEY_WIDTH - 1.0, 7.0).apply {
+        fill = Color.WHITE
+        opacity = 0.20
+        translateX = 0.5
+        translateY = 0.8
+    }
+    private val pressRotate = Rotate(
+        0.0,
+        PIANO_WHITE_KEY_WIDTH / 2.0,
+        0.0,
+        0.0,
+        Rotate.X_AXIS
+    )
 
     init {
         val cutOutType =
@@ -100,7 +135,8 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
             textFillProperty().bind(config.pianoKeyNameColor)
         }
 
-        children.addAll(key, noteName)
+        children.addAll(key, topHighlight, sideShadowLeft, sideShadowRight, frontShadow, noteName)
+        transforms.add(pressRotate)
 
         config.pianoWhiteKeyColor.addListener { _, _, _ -> setColor() }
         config.pianoWhiteKeyActiveColor.addListener { _, _, _ -> setColor() }
@@ -117,13 +153,61 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     override fun update(pressed: Boolean) {
         this.pressed = pressed
         setColor()
+        animatePress(pressed)
     }
 
+    /**
+     * Applies the correct fill colour based on the current pressed state and configuration.
+     */
     private fun setColor() {
         if (pressed) {
             key.fill = config.pianoWhiteKeyActiveColor.value
         } else {
             key.fill = config.pianoWhiteKeyColor.value
         }
+    }
+
+    /**
+     * Animates the key with a top-hinged rotation and stronger shading cues to emphasize depth.
+     */
+    private fun animatePress(pressed: Boolean) {
+        pressAnimation?.stop()
+        val targetAngle = if (pressed) -10.0 else 0.0
+        val leftShadowOpacity = if (pressed) 0.30 else 0.0
+        val rightShadowOpacity = if (pressed) 0.22 else 0.0
+        val frontShadowOpacity = if (pressed) 0.26 else 0.0
+        val topHighlightOpacity = if (pressed) 0.08 else 0.20
+
+        pressAnimation = Timeline(
+            KeyFrame(
+                if (pressed) Duration.millis(55.0) else Duration.millis(130.0),
+                KeyValue(
+                    pressRotate.angleProperty(),
+                    targetAngle,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                ),
+                KeyValue(
+                    sideShadowLeft.opacityProperty(),
+                    leftShadowOpacity,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                ),
+                KeyValue(
+                    sideShadowRight.opacityProperty(),
+                    rightShadowOpacity,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                ),
+                KeyValue(
+                    frontShadow.opacityProperty(),
+                    frontShadowOpacity,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                ),
+                KeyValue(
+                    topHighlight.opacityProperty(),
+                    topHighlightOpacity,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                )
+            )
+        )
+        pressAnimation?.play()
     }
 }
