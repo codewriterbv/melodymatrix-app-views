@@ -50,6 +50,15 @@ open class BaseConfigurator : BorderPane() {
         }
     }
 
+    protected fun twoLabeledControls(title1: String, control1: Node, title2: String, control2: Node): HBox {
+        return HBox(12.0).apply {
+            children.addAll(
+                labeledControl(title1, control1),
+                labeledControl(title2, control2)
+            )
+        }
+    }
+
     protected fun labeledRow(title: String, component: Node, labelWidth: Double = 100.0): HBox {
         return HBox(8.0).apply {
             alignment = Pos.CENTER_LEFT
@@ -69,7 +78,7 @@ open class BaseConfigurator : BorderPane() {
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             prefViewportWidth = 420.0
-            prefViewportHeight = 500.0
+            prefViewportHeight = 650.0
             style = "-fx-background-color: transparent;"
         }
         bottom = HBox().apply {

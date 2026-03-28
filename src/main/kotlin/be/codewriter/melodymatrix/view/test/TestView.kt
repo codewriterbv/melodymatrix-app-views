@@ -58,7 +58,7 @@ class TestView : VBox() {
         StageOption("Midi", "tab-midi") { MidiView() },
         StageOption("Piano", "tab-piano") { PianoView(licenseStatus, true) },
         StageOption("Chord", "tab-chord") { ChordView() },
-        StageOption("Chord Relations", "tab-chord") { ChordRelationView() },
+        StageOption("Chord Relations", "tab-chord-relations") { ChordRelationView() },
         StageOption("Guitar Chord", "tab-guitar") { GuitarChordView() },
         StageOption("Charts", "tab-charts") { ChartsView() },
         StageOption("Scale", "tab-scale") { StaffView() },

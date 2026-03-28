@@ -126,7 +126,7 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
             prefWidth = PIANO_WHITE_KEY_WIDTH
             minWidth = PIANO_WHITE_KEY_WIDTH
             maxWidth = PIANO_WHITE_KEY_WIDTH
-            font = Font.font(8.0)
+            font = Font.font(config.pianoKeyNameFontSize.value)
             alignment = Pos.CENTER
             textAlignment = TextAlignment.CENTER
             translateY = PIANO_WHITE_KEY_HEIGHT - 20
@@ -140,6 +140,12 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
 
         config.pianoWhiteKeyColor.addListener { _, _, _ -> setColor() }
         config.pianoWhiteKeyActiveColor.addListener { _, _, _ -> setColor() }
+        // Re-apply current visual intensities immediately when depth slider changes.
+        config.pianoWhiteKeyDepth.addListener { _, _, _ -> animatePress(this.pressed) }
+        // Update label font size when the slider changes.
+        config.pianoKeyNameFontSize.addListener { _, _, newSize ->
+            noteName.font = Font.font(newSize.toDouble())
+        }
     }
 
     override fun note(): Note {
@@ -172,11 +178,13 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
      */
     private fun animatePress(pressed: Boolean) {
         pressAnimation?.stop()
-        val targetAngle = if (pressed) -10.0 else 0.0
-        val leftShadowOpacity = if (pressed) 0.30 else 0.0
-        val rightShadowOpacity = if (pressed) 0.22 else 0.0
-        val frontShadowOpacity = if (pressed) 0.26 else 0.0
-        val topHighlightOpacity = if (pressed) 0.08 else 0.20
+        val depth = config.pianoWhiteKeyDepth.value.coerceIn(0.0, 2.0)
+
+        val targetAngle = if (pressed) -10.0 * depth else 0.0
+        val leftShadowOpacity = if (pressed) 0.30 * depth else 0.0
+        val rightShadowOpacity = if (pressed) 0.22 * depth else 0.0
+        val frontShadowOpacity = if (pressed) 0.26 * depth else 0.0
+        val topHighlightOpacity = if (pressed) (0.20 - (0.12 * depth)).coerceIn(0.04, 0.20) else 0.20
 
         pressAnimation = Timeline(
             KeyFrame(

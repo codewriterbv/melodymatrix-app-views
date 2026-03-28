@@ -166,7 +166,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
                     maxHeight = TOOLBAR_CONTROL_HEIGHT
                 },
                 createSettingsButton("Piano Keys") {
-                    KeyColorsConfigurator(config)
+                    KeyConfigurator(config)
                 },
                 createSettingsButton("Image", config.backgroundImageEnabled) {
                     ImageConfigurator(config, licenseStatus)

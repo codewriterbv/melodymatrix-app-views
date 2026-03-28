@@ -24,14 +24,23 @@ class PianoConfiguration {
     /** Fill color for pressed white keys. */
     var pianoWhiteKeyActiveColor = SimpleObjectProperty(Color.web("#4d66cc"))
 
+    /** Intensity multiplier for white-key 3D press depth (0.0 = off, 2.0 = strong). */
+    var pianoWhiteKeyDepth = SimpleDoubleProperty(1.0)
+
     /** Fill color for idle black keys. */
     var pianoBlackKeyColor = SimpleObjectProperty(Color.BLACK)
 
     /** Fill color for pressed black keys. */
     var pianoBlackKeyActiveColor = SimpleObjectProperty(Color.web("#e64d4d"))
 
+    /** Intensity multiplier for black-key 3D depth and bevel contrast (0.0 = off, 2.0 = strong). */
+    var pianoBlackKeyDepth = SimpleDoubleProperty(1.0)
+
     /** Text color used for key labels (note names). */
     var pianoKeyNameColor = SimpleObjectProperty(Color.BLACK)
+
+    /** Font size (in points) for key name labels. */
+    var pianoKeyNameFontSize = SimpleDoubleProperty(11.0)
 
     /** Shows or hides key labels on the keyboard. */
     var pianoKeyNameVisible = SimpleBooleanProperty(false)

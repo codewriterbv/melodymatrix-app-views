@@ -41,6 +41,12 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
         translateX = 1.0
         translateY = 1.0
     }
+    private val topRim = Rectangle(PIANO_BLACK_KEY_WIDTH - 1.0, 1.2).apply {
+        fill = Color.color(0.95, 0.95, 0.95)
+        opacity = 0.30
+        translateX = 0.5
+        translateY = 0.25
+    }
     private val leftBevel = Rectangle(1.5, PIANO_BLACK_KEY_HEIGHT).apply {
         fill = Color.WHITE
         opacity = 0.10
@@ -69,7 +75,7 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
     )
 
     init {
-        children.addAll(key, topHighlight, leftBevel, rightBevel, bottomShadow)
+        children.addAll(key, topHighlight, topRim, leftBevel, rightBevel, bottomShadow)
         transforms.add(pressRotate)
 
         config.pianoBlackKeyColor.addListener { _, _, _ ->
@@ -79,6 +85,9 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
         config.pianoBlackKeyActiveColor.addListener { _, _, _ ->
             applyFill()
         }
+
+        // Re-apply current visual intensities immediately when depth slider changes.
+        config.pianoBlackKeyDepth.addListener { _, _, _ -> animatePress(this.pressed) }
     }
 
     /**
@@ -111,32 +120,39 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
      */
     private fun animatePress(pressed: Boolean) {
         pressAnimation?.stop()
-        val targetAngle = if (pressed) -12.0 else 0.0
+        val depth = config.pianoBlackKeyDepth.value.coerceIn(0.0, 2.0)
+        val targetAngle = if (pressed) -12.0 * depth else 0.0
 
+        val topRimOpacity = when {
+            useHighContrastDepth && pressed -> 0.40
+            useHighContrastDepth -> 0.52
+            pressed -> 0.18
+            else -> 0.30
+        } * depth
         val topHighlightOpacity = when {
             useHighContrastDepth && pressed -> 0.22
             useHighContrastDepth -> 0.34
             pressed -> 0.10
             else -> 0.20
-        }
+        } * depth
         val leftBevelOpacity = when {
             useHighContrastDepth && pressed -> 0.18
             useHighContrastDepth -> 0.26
             pressed -> 0.08
             else -> 0.10
-        }
+        } * depth
         val rightBevelOpacity = when {
             useHighContrastDepth && pressed -> 0.48
             useHighContrastDepth -> 0.38
             pressed -> 0.36
             else -> 0.28
-        }
+        } * depth
         val bottomShadowOpacity = when {
             useHighContrastDepth && pressed -> 0.56
             useHighContrastDepth -> 0.44
             pressed -> 0.44
             else -> 0.34
-        }
+        } * depth
 
         pressAnimation = Timeline(
             KeyFrame(
@@ -144,6 +160,11 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
                 KeyValue(
                     pressRotate.angleProperty(),
                     targetAngle,
+                    if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
+                ),
+                KeyValue(
+                    topRim.opacityProperty(),
+                    topRimOpacity,
                     if (pressed) Interpolator.EASE_OUT else Interpolator.EASE_BOTH
                 ),
                 KeyValue(
@@ -194,6 +215,7 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
         if (useHighContrastDepth) {
             // Stronger, lighter overlays for near-black themes.
             topHighlight.fill = Color.color(0.92, 0.92, 0.92)
+            topRim.fill = Color.color(0.98, 0.98, 0.98)
             leftBevel.fill = Color.color(0.80, 0.80, 0.80)
             rightBevel.fill = Color.color(0.62, 0.62, 0.62)
             bottomShadow.fill = Color.color(0.52, 0.52, 0.52)
@@ -201,6 +223,7 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
         }
 
         topHighlight.fill = baseColor.interpolate(Color.WHITE, 0.55)
+        topRim.fill = baseColor.interpolate(Color.WHITE, 0.75)
         leftBevel.fill = baseColor.interpolate(Color.WHITE, 0.35)
         rightBevel.fill = baseColor.interpolate(Color.BLACK, 0.35)
         bottomShadow.fill = baseColor.interpolate(Color.BLACK, 0.45)
