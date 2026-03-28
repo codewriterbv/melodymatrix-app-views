@@ -108,7 +108,8 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
         setupSurface(
             rootNode = holder,
             naturalWidth = PIANO_WIDTH + 20,
-            naturalHeight = PIANO_HEIGHT + 72
+            naturalHeight = PIANO_HEIGHT + 72,
+            captureNode = pianoView
         ) {
             fpsTimer?.stop()
             pianoCanvas.stop()
