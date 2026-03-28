@@ -27,6 +27,20 @@ interface MmxViewSurface : MmxEventHandler {
     val captureNode: Node?
         get() = null
 
+    /**
+     * Natural pixel width of [captureNode] at 1:1 scale (i.e. without any zoom transform).
+     * Zero when [captureNode] is `null`.
+     */
+    val captureWidth: Int
+        get() = 0
+
+    /**
+     * Natural pixel height of [captureNode] at 1:1 scale (i.e. without any zoom transform).
+     * Zero when [captureNode] is `null`.
+     */
+    val captureHeight: Int
+        get() = 0
+
     fun dispose() {
         // Default no-op; override where cleanup is required.
     }
@@ -61,6 +75,14 @@ abstract class MmxView : MmxViewSurface {
     final override var captureNode: Node? = null
         protected set
 
+    /** Natural pixel width of [captureNode] at 1:1 scale. Zero when no capture node is set. */
+    final override var captureWidth: Int = 0
+        protected set
+
+    /** Natural pixel height of [captureNode] at 1:1 scale. Zero when no capture node is set. */
+    final override var captureHeight: Int = 0
+        protected set
+
     private var disposeAction: () -> Unit = {}
 
     protected fun setupSurface(
@@ -68,12 +90,16 @@ abstract class MmxView : MmxViewSurface {
         naturalWidth: Double,
         naturalHeight: Double,
         captureNode: Node? = null,
+        captureWidth: Int = 0,
+        captureHeight: Int = 0,
         onDispose: () -> Unit = {}
     ) {
         this.rootNode = rootNode
         this.naturalWidth = naturalWidth
         this.naturalHeight = naturalHeight
         this.captureNode = captureNode
+        this.captureWidth = captureWidth
+        this.captureHeight = captureHeight
         this.disposeAction = onDispose
     }
 
