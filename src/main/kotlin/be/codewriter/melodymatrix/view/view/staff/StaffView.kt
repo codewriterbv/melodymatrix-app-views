@@ -84,7 +84,7 @@ class StaffView : MmxView() {
             padding = Insets(0.0, 0.0, 0.0, 20.0)
         }
 
-        setupSurface(root, 610.0, 200.0)
+        setupSurface(root, 610.0, 200.0, root)
     }
 
     /**

@@ -188,9 +188,8 @@ class ChordRelationView : MmxView() {
             //style = "-fx-background-color: #0E1117;"
         }
 
-        setupSurface(root, W, H) {
+        setupSurface(root, W, H, contentGroup) {
             pulseTimeline.stop()
-            captureNode = contentGroup
         }
 
         pulseClock.addListener { _, _, _ -> redrawArrows() }

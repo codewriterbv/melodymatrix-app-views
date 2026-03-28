@@ -44,9 +44,7 @@ class GuitarChordView : MmxView() {
             padding = Insets(12.0)
         }
 
-        setupSurface(root, 860.0, 350.0) {
-            captureNode = root
-        }
+        setupSurface(root, 860.0, 350.0, root)
     }
 
     /**
