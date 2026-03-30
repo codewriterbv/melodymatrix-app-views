@@ -23,6 +23,10 @@ import javafx.stage.Window
  */
 open class BaseConfigurator : BorderPane() {
 
+    companion object {
+        private const val HEADER_TOP_INSET = 30.0
+    }
+
     protected val contentBox = VBox(8.0).apply {
         isFillWidth = true
         maxWidth = Double.MAX_VALUE
@@ -60,20 +64,21 @@ open class BaseConfigurator : BorderPane() {
         }
     }
 
-    protected fun labeledRow(title: String, component: Node, labelWidth: Double = 100.0): HBox {
-        return HBox(8.0).apply {
-            alignment = Pos.CENTER_LEFT
-            children.addAll(
-                Label(title).apply { prefWidth = labelWidth },
-                component
-            )
-        }
-    }
-
     /**
-     * Wraps this configurator in a modal-friendly container with scrolling and a close button.
+     * Wraps this configurator in a modal-friendly container with a drag strip, scrolling body,
+     * and a close button.
      */
-    fun createModalContent(onClose: () -> Unit) {
+    fun createModalContent(dialogTitle: String, onClose: () -> Unit): HBox {
+        val dragStrip = HBox().apply {
+            alignment = Pos.CENTER_LEFT
+            // Keep title clear of native window controls when using EXTENDED stage style.
+            padding = Insets(HEADER_TOP_INSET, 0.0, 12.0, 0.0)
+            children.add(Label("$dialogTitle Settings").apply {
+                style = "-fx-font-size: 22px; -fx-font-weight: bold;"
+            })
+        }
+        top = dragStrip
+
         center = (center as? ScrollPane) ?: ScrollPane(scrollContent).apply {
             isFitToWidth = true
             hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
@@ -90,6 +95,22 @@ open class BaseConfigurator : BorderPane() {
                 setOnAction { onClose() }
             })
         }
+
+        return dragStrip
+    }
+
+    private fun installManualWindowDrag(stage: Stage, dragNode: Node) {
+        var dragDeltaX = 0.0
+        var dragDeltaY = 0.0
+
+        dragNode.setOnMousePressed { event ->
+            dragDeltaX = stage.x - event.screenX
+            dragDeltaY = stage.y - event.screenY
+        }
+        dragNode.setOnMouseDragged { event ->
+            stage.x = event.screenX + dragDeltaX
+            stage.y = event.screenY + dragDeltaY
+        }
     }
 
     /** Creates a modal dialog window for this configurator with a reliable native titlebar close. */
@@ -104,7 +125,8 @@ open class BaseConfigurator : BorderPane() {
             isResizable = true
         }
 
-        createModalContent { stage.close() }
+        val dragStrip = createModalContent(title) { stage.close() }
+        installManualWindowDrag(stage, dragStrip)
         stage.scene = Scene(this)
         stage.sizeToScene()
         stage.minWidth = 360.0
