@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.view.guitar
 
+import be.codewriter.melodymatrix.view.component.ToggleButton
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
@@ -7,9 +8,10 @@ import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.CheckBox
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 
@@ -27,9 +29,7 @@ import javafx.scene.layout.HBox
 class GuitarChordView : MmxView() {
 
     private val visualizer = GuitarVisualizer(GuitarVisualizer.Mode.CHORD)
-    private val stickyChordDisplay = CheckBox("Keep last chord").apply {
-        isSelected = true
-    }
+    private val stickyChordDisplayProperty: BooleanProperty = SimpleBooleanProperty(true)
 
     init {
         val root = BorderPane().apply {
@@ -58,7 +58,7 @@ class GuitarChordView : MmxView() {
         Platform.runLater {
             val showChord = chordEvent.on && chordEvent.chord != Chord.UNDEFINED
             if (!showChord) {
-                if (!stickyChordDisplay.isSelected) {
+                if (!stickyChordDisplayProperty.get()) {
                     visualizer.clear()
                 }
                 return@runLater
@@ -72,11 +72,13 @@ class GuitarChordView : MmxView() {
         return HBox(8.0).apply {
             alignment = Pos.CENTER_LEFT
             padding = Insets(10.0, 12.0, 8.0, 12.0)
-            children.add(stickyChordDisplay)
+            children.add(ToggleButton("Keep last chord", stickyChordDisplayProperty, TOOLBAR_CONTROL_HEIGHT))
         }
     }
 
     companion object : MmxViewMetadata {
+        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
+
         override fun getViewTitle(): String = "Guitar Chord"
         override fun getViewDescription(): String = "Displays guitar fretboard finger settings for chords."
         override fun getViewImagePath(): String = "/view/guitar-chord.png"

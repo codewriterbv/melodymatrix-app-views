@@ -23,6 +23,8 @@ class GuitarVisualizer(private val mode: Mode) {
     }
 
     val rootNode: VBox
+    /** When false (default), only one most playable position is shown for NOTE mode. */
+    var showAllPositions: Boolean = false
 
     private val titleLabel = Label().apply {
         style = "-fx-font-size: 22; -fx-font-weight: bold;"
@@ -78,9 +80,14 @@ class GuitarVisualizer(private val mode: Mode) {
             return
         }
 
-        val positions = findPlayablePositions(note)
+        val allPositions = findPlayablePositions(note)
+        val positions = if (showAllPositions) {
+            allPositions
+        } else {
+            listOfNotNull(bestSinglePosition(allPositions))
+        }
         titleLabel.text = "Note: ${note.mainNote.label}${note.octave.octave}"
-        detailsLabel.text = if (positions.isEmpty()) {
+        detailsLabel.text = if (allPositions.isEmpty()) {
             "Positions: not available in first $MAX_FRET frets"
         } else {
             "Positions: ${renderPositions(positions)}"
@@ -95,6 +102,11 @@ class GuitarVisualizer(private val mode: Mode) {
                 applyMarker(marker, Marker.PRESSED)
             }
         }
+    }
+
+    private fun bestSinglePosition(positions: List<Pair<Int, Int>>): Pair<Int, Int>? {
+        // Prefer lower fret positions; for ties, prefer strings around the neck center.
+        return positions.minWithOrNull(compareBy({ it.second }, { kotlin.math.abs(it.first - 2) }))
     }
 
     private fun findPlayablePositions(note: Note): List<Pair<Int, Int>> {

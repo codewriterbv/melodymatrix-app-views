@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.view.chord
 
-import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.component.ToggleButton
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
@@ -8,13 +8,8 @@ import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
-import javafx.beans.property.BooleanProperty
-import javafx.event.ActionEvent
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.ContentDisplay
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 
@@ -78,35 +73,13 @@ class ChordRelationView : MmxView() {
             alignment = Pos.CENTER_LEFT
             padding = Insets(10.0, 12.0, 8.0, 12.0)
             children.addAll(
-                chordTypeButton("Major", visualizer.majorEnabledProperty),
-                chordTypeButton("Minor", visualizer.minorEnabledProperty),
-                chordTypeButton("Dominant", visualizer.dominantEnabledProperty),
-                chordTypeButton("Dim", visualizer.diminishedEnabledProperty),
-                chordTypeButton("Half-Dim", visualizer.halfDiminishedEnabledProperty),
-                chordTypeButton("Tritone", visualizer.tritoneEnabledProperty)
+                ToggleButton("Major", visualizer.majorEnabledProperty, TOOLBAR_CONTROL_HEIGHT),
+                ToggleButton("Minor", visualizer.minorEnabledProperty, TOOLBAR_CONTROL_HEIGHT),
+                ToggleButton("Dominant", visualizer.dominantEnabledProperty, TOOLBAR_CONTROL_HEIGHT),
+                ToggleButton("Dim", visualizer.diminishedEnabledProperty, TOOLBAR_CONTROL_HEIGHT),
+                ToggleButton("Half-Dim", visualizer.halfDiminishedEnabledProperty, TOOLBAR_CONTROL_HEIGHT),
+                ToggleButton("Tritone", visualizer.tritoneEnabledProperty, TOOLBAR_CONTROL_HEIGHT)
             )
-        }
-    }
-
-    private fun chordTypeButton(title: String, property: BooleanProperty): Button {
-        val toggle = ToggleSwitch().apply {
-            selectedProperty().bindBidirectional(property)
-            addEventHandler(MouseEvent.MOUSE_PRESSED) { it.consume() }
-            addEventHandler(MouseEvent.MOUSE_RELEASED) { it.consume() }
-            addEventHandler(MouseEvent.MOUSE_CLICKED) { it.consume() }
-            addEventHandler(ActionEvent.ACTION) { it.consume() }
-        }
-
-        return Button(title).apply {
-            graphic = toggle
-            contentDisplay = ContentDisplay.RIGHT
-            graphicTextGap = 10.0
-            minHeight = TOOLBAR_CONTROL_HEIGHT
-            prefHeight = TOOLBAR_CONTROL_HEIGHT
-            maxHeight = TOOLBAR_CONTROL_HEIGHT
-            setOnAction {
-                property.set(!property.get())
-            }
         }
     }
 }
