@@ -1,6 +1,5 @@
 package be.codewriter.melodymatrix.view.view.piano
 
-import be.codewriter.melodymatrix.view.component.ToggleButton as MmxToggleButton
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -18,7 +17,10 @@ import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.ColorPicker
+import javafx.scene.control.Label
+import javafx.scene.control.Tooltip
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
@@ -28,6 +30,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import be.codewriter.melodymatrix.view.component.ToggleButton as MmxToggleButton
 
 /**
  * Visualizer stage that displays an interactive piano keyboard.
@@ -61,6 +64,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
 
     init {
         config.showDebugInfo.value = showDebugInfo
+        config.restoreSettings()
 
         val pianoView = VBox().apply {
             prefWidth = PIANO_WIDTH
@@ -198,6 +202,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
     private fun openSettingsModal(title: String, content: BaseConfigurator) {
         content.toDialog(title, holder.scene?.window).showAndWait()
     }
+
 
     /**
      * Starts the FPS counter animation timer.

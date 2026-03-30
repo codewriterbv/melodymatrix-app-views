@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.helper.RegistryHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -22,6 +23,8 @@ class ChordRelationView : MmxView() {
     override val fitToViewport: Boolean = true
 
     companion object : MmxViewMetadata {
+        private const val REGISTRY_PREFIX = "view.chordRelation"
+
         override fun getViewTitle(): String = "Chord Relationship"
         override fun getViewDescription(): String =
             "Shows harmonic relationships between the last detected chord and related chords."
@@ -34,6 +37,8 @@ class ChordRelationView : MmxView() {
     private val visualizer = ChordRelationVisualizer()
 
     init {
+        restoreSettings()
+
         val root = BorderPane().apply {
             top = buildToolbar()
             center = ZoomableNode(
@@ -56,6 +61,15 @@ class ChordRelationView : MmxView() {
         ) {
             visualizer.stop()
         }
+    }
+
+    private fun restoreSettings() {
+        RegistryHelper.bindBoolean(visualizer.majorEnabledProperty, "$REGISTRY_PREFIX.major")
+        RegistryHelper.bindBoolean(visualizer.minorEnabledProperty, "$REGISTRY_PREFIX.minor")
+        RegistryHelper.bindBoolean(visualizer.dominantEnabledProperty, "$REGISTRY_PREFIX.dominant")
+        RegistryHelper.bindBoolean(visualizer.diminishedEnabledProperty, "$REGISTRY_PREFIX.diminished")
+        RegistryHelper.bindBoolean(visualizer.halfDiminishedEnabledProperty, "$REGISTRY_PREFIX.halfDiminished")
+        RegistryHelper.bindBoolean(visualizer.tritoneEnabledProperty, "$REGISTRY_PREFIX.tritone")
     }
 
     override fun onEvent(event: MmxEvent) {

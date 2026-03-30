@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.helper.RegistryHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -21,11 +22,22 @@ import javafx.scene.layout.HBox
  */
 class GuitarNoteView : MmxView() {
 
+    companion object : MmxViewMetadata {
+        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
+        private const val REGISTRY_SHOW_ALL_POSITIONS = "view.guitarNote.showAllPositions"
+
+        override fun getViewTitle(): String = "Guitar Note"
+        override fun getViewDescription(): String = "Displays playable guitar positions for notes."
+        override fun getViewImagePath(): String = "/view/guitar-chord.png"
+    }
+
     private val visualizer = GuitarVisualizer(GuitarVisualizer.Mode.NOTE)
     private val activeNotes = linkedSetOf<Note>()
     private val showAllPositionsProperty: BooleanProperty = SimpleBooleanProperty(false)
 
     init {
+        RegistryHelper.bindBoolean(showAllPositionsProperty, REGISTRY_SHOW_ALL_POSITIONS)
+
         val root = BorderPane().apply {
             top = buildToolbar()
             center = visualizer.rootNode
@@ -82,14 +94,6 @@ class GuitarNoteView : MmxView() {
             padding = Insets(10.0, 12.0, 8.0, 12.0)
             children.add(ToggleButton("Show all positions", showAllPositionsProperty, TOOLBAR_CONTROL_HEIGHT))
         }
-    }
-
-    companion object : MmxViewMetadata {
-        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
-
-        override fun getViewTitle(): String = "Guitar Note"
-        override fun getViewDescription(): String = "Displays playable guitar positions for notes."
-        override fun getViewImagePath(): String = "/view/guitar-chord.png"
     }
 }
 

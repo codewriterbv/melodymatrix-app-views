@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.helper.RegistryHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -28,10 +29,21 @@ import javafx.scene.layout.HBox
  */
 class GuitarChordView : MmxView() {
 
+    companion object : MmxViewMetadata {
+        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
+        private const val REGISTRY_KEEP_LAST_CHORD = "view.guitarChord.keepLastChord"
+
+        override fun getViewTitle(): String = "Guitar Chord"
+        override fun getViewDescription(): String = "Displays guitar fretboard finger settings for chords."
+        override fun getViewImagePath(): String = "/view/guitar-chord.png"
+    }
+
     private val visualizer = GuitarVisualizer(GuitarVisualizer.Mode.CHORD)
     private val stickyChordDisplayProperty: BooleanProperty = SimpleBooleanProperty(true)
 
     init {
+        RegistryHelper.bindBoolean(stickyChordDisplayProperty, REGISTRY_KEEP_LAST_CHORD)
+
         val root = BorderPane().apply {
             top = buildToolbar()
             center = visualizer.rootNode
@@ -74,13 +86,5 @@ class GuitarChordView : MmxView() {
             padding = Insets(10.0, 12.0, 8.0, 12.0)
             children.add(ToggleButton("Keep last chord", stickyChordDisplayProperty, TOOLBAR_CONTROL_HEIGHT))
         }
-    }
-
-    companion object : MmxViewMetadata {
-        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
-
-        override fun getViewTitle(): String = "Guitar Chord"
-        override fun getViewDescription(): String = "Displays guitar fretboard finger settings for chords."
-        override fun getViewImagePath(): String = "/view/guitar-chord.png"
     }
 }
