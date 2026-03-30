@@ -57,8 +57,8 @@ class GuitarNoteView : MmxView() {
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Play your note on guitar"
-        override fun getViewDescription(): String = "Displays playable guitar positions for incoming MIDI notes."
+        override fun getViewTitle(): String = "Guitar Note"
+        override fun getViewDescription(): String = "Displays playable guitar positions for notes."
         override fun getViewImagePath(): String = "/stage/guitar-chord.png"
     }
 }
