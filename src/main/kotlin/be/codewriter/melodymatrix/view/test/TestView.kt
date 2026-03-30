@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.view.chart.ChartsView
 import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
 import be.codewriter.melodymatrix.view.view.chord.ChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
+import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.piano.PianoView
 import javafx.geometry.Insets
@@ -59,7 +60,8 @@ class TestView : VBox() {
         StageOption("Piano", "tab-piano") { PianoView(licenseStatus, true) },
         StageOption("Chord", "tab-chord") { ChordView() },
         StageOption("Chord Relations", "tab-chord-relations") { ChordRelationView() },
-        StageOption("Guitar Chord", "tab-guitar") { GuitarChordView() },
+        StageOption("Guitar Note", "tab-guitar-note") { GuitarNoteView() },
+        StageOption("Guitar Chord", "tab-guitar-chord") { GuitarChordView() },
         StageOption("Charts", "tab-charts") { ChartsView() },
         StageOption("Scale", "tab-scale") { StaffView() },
         StageOption("Drum", "tab-drum") { DrumView() },

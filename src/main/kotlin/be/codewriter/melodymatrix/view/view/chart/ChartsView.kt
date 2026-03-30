@@ -8,6 +8,7 @@ import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.chart.ChartsView.Companion.chartHolders
 import be.codewriter.melodymatrix.view.view.chart.component.*
+import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.layout.BorderPane
@@ -43,6 +44,7 @@ class ChartsView : MmxView() {
         }
 
         borderPane = BorderPane().apply {
+            padding = Insets(10.0)
             top = buttons
         }
 

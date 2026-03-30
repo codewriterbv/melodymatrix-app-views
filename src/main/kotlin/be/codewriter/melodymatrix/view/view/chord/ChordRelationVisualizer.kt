@@ -20,6 +20,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
 import javafx.scene.text.TextAlignment
@@ -120,6 +121,7 @@ class ChordRelationVisualizer {
     private val nodeViews = mutableMapOf<Chord, NodeView>()
     private val edgeViews = mutableMapOf<EdgeKey, EdgeView>()
     private val pulseClock = SimpleDoubleProperty(0.0)
+    private val orbitGuideOpacity = SimpleDoubleProperty(0.0)
 
     private val pulseTimeline = Timeline(
         KeyFrame(Duration.ZERO, KeyValue(pulseClock, 0.0, Interpolator.LINEAR)),
@@ -136,8 +138,20 @@ class ChordRelationVisualizer {
         isMouseTransparent = true
     }
 
+    // Theme-aware orbit guide ring (uses AtlantaFX looked-up color token).
+    private val orbitGuideCircle = Circle(ORBIT_R).apply {
+        fill = Color.TRANSPARENT
+        strokeWidth = 1.0
+        style = "-fx-stroke: -color-fg-muted;"
+        strokeDashArray.addAll(4.0, 7.0)
+        isMouseTransparent = true
+        translateX = CX - (W / 2.0)
+        translateY = CY - (GRAPH_H / 2.0)
+        opacityProperty().bind(orbitGuideOpacity)
+    }
+
     /** The canvas + nodes pane are stacked and faded together during transitions. */
-    val contentGroup = StackPane(arrowCanvas, nodesPane).apply {
+    val contentGroup = StackPane(orbitGuideCircle, arrowCanvas, nodesPane).apply {
         prefWidth = W
         prefHeight = GRAPH_H
     }
@@ -563,13 +577,7 @@ class ChordRelationVisualizer {
             .maxOfOrNull { it.pane.opacity.coerceIn(0.0, 1.0) }
             ?: 0.0
 
-        gc.save()
-        gc.stroke = Color.web("#1E293B", 0.25 + orbitAlpha * 0.65)
-        gc.lineWidth = 1.0
-        gc.setLineDashes(4.0, 7.0)
-        gc.strokeOval(CX - ORBIT_R, CY - ORBIT_R, ORBIT_R * 2, ORBIT_R * 2)
-        gc.setLineDashes()
-        gc.restore()
+        orbitGuideOpacity.set(0.25 + orbitAlpha * 0.65)
 
         drawTrailChain(gc)
 
@@ -628,6 +636,7 @@ class ChordRelationVisualizer {
     private fun drawIdleState() {
         val gc = arrowCanvas.graphicsContext2D
         gc.clearRect(0.0, 0.0, W, GRAPH_H)
+        orbitGuideOpacity.set(0.0)
         drawHex(gc, CX, CY, CENTER_HEX_R, Color.web("#1C2333"), Color.web("#2D3F55"), 1.5)
         gc.save()
         gc.fill = Color.web("#475569")
