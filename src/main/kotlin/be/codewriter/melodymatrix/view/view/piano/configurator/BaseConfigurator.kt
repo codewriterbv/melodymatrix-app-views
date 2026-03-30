@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
+import javafx.stage.StageStyle
 import javafx.stage.Window
 
 /**
@@ -93,7 +94,10 @@ open class BaseConfigurator : BorderPane() {
 
     /** Creates a modal dialog window for this configurator with a reliable native titlebar close. */
     fun toDialog(title: String, owner: Window?): Stage {
+        val preferredStyle = runCatching { StageStyle.valueOf("EXTENDED") }
+            .getOrElse { StageStyle.DECORATED }
         val stage = Stage().apply {
+            initStyle(preferredStyle)
             this.title = "$title Settings"
             owner?.let { initOwner(it) }
             initModality(Modality.WINDOW_MODAL)

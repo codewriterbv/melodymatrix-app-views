@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.view.piano
 
-import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.component.ToggleButton as MmxToggleButton
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -16,11 +16,9 @@ import be.codewriter.melodymatrix.view.view.piano.scene.PianoCanvas
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
-import javafx.event.ActionEvent
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
@@ -160,12 +158,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
 
             )
             if (showDebugInfo) {
-                children.addAll(
-                    Label("FPS"),
-                    ToggleSwitch().apply {
-                        selectedProperty().bindBidirectional(config.showDebugInfo)
-                    }
-                )
+                children.add(MmxToggleButton("FPS", config.showDebugInfo, TOOLBAR_CONTROL_HEIGHT))
             }
         }
     }
@@ -183,22 +176,15 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
         enabledProperty: BooleanProperty,
         contentSupplier: () -> BaseConfigurator
     ): Button {
-        val toggle = ToggleSwitch().apply {
-            selectedProperty().bindBidirectional(enabledProperty)
-            addEventHandler(MouseEvent.MOUSE_PRESSED) { it.consume() }
-            addEventHandler(MouseEvent.MOUSE_RELEASED) { it.consume() }
-            addEventHandler(MouseEvent.MOUSE_CLICKED) { it.consume() }
-            addEventHandler(ActionEvent.ACTION) { it.consume() }
-        }
-
-        return styledToolbarButton(Button(title).apply {
-            graphic = toggle
-            contentDisplay = ContentDisplay.RIGHT
-            graphicTextGap = 10.0
-            setOnAction {
-                openSettingsModal(title, contentSupplier())
-            }
-        })
+        return styledToolbarButton(
+            MmxToggleButton(
+                title = title,
+                property = enabledProperty,
+                controlHeight = TOOLBAR_CONTROL_HEIGHT,
+                onButtonAction = { openSettingsModal(title, contentSupplier()) },
+                toggleOnButtonAction = false
+            )
+        )
     }
 
     private fun styledToolbarButton(button: Button): Button {

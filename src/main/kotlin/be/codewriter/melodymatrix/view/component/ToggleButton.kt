@@ -21,7 +21,9 @@ import javafx.scene.input.MouseEvent
 class ToggleButton(
     title: String,
     property: BooleanProperty,
-    controlHeight: Double = 40.0
+    controlHeight: Double = 40.0,
+    onButtonAction: (() -> Unit)? = null,
+    toggleOnButtonAction: Boolean = true
 ) : Button(title) {
     init {
         val toggle = ToggleSwitch().apply {
@@ -39,7 +41,10 @@ class ToggleButton(
         prefHeight = controlHeight
         maxHeight = controlHeight
         setOnAction {
-            property.set(!property.get())
+            if (toggleOnButtonAction) {
+                property.set(!property.get())
+            }
+            onButtonAction?.invoke()
         }
     }
 }
