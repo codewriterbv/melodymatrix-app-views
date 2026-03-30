@@ -224,6 +224,6 @@ class ChordView : MmxView() {
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "See your chords..."
         override fun getViewDescription(): String = "Displays detected chords and active notes on a two-octave staff."
-        override fun getViewImagePath(): String = "/stage/chord.png"
+        override fun getViewImagePath(): String = "/view/chord.png"
     }
 }

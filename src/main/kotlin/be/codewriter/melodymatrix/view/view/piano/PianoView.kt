@@ -21,7 +21,10 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
-import javafx.scene.layout.*
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.HBox
+import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
@@ -43,6 +46,8 @@ import org.apache.logging.log4j.Logger
  * @see KeyboardView
  */
 class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boolean) : MmxView() {
+
+    override val fitToViewport: Boolean = true
 
     private val holder = BorderPane()
     private val config = PianoConfiguration()
@@ -107,7 +112,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
                 naturalHeight = PIANO_HEIGHT,
                 minWidthValue = 100.0,
                 minHeightValue = 50.0,
-                fitMode = ZoomableNode.FitMode.WIDTH
+                fitMode = ZoomableNode.FitMode.CONTAIN
             )
         }
 
@@ -279,7 +284,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
         override fun getViewDescription(): String =
             "Renders an animated piano keyboard view with configurable visual effects."
 
-        override fun getViewImagePath(): String = "/stage/piano.png"
+        override fun getViewImagePath(): String = "/view/piano.png"
         private val logger: Logger = LogManager.getLogger(PianoView::class.java.name)
 
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0

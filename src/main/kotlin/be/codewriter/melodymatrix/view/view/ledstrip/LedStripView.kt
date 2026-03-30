@@ -449,7 +449,7 @@ class LedStripView : MmxView() {
         override fun getViewDescription(): String =
             "Drives an LED strip and on-screen LED preview from incoming MIDI notes."
 
-        override fun getViewImagePath(): String = "/stage/led.png"
+        override fun getViewImagePath(): String = "/view/led.png"
         private val logger: Logger = LogManager.getLogger(LedStripView::class.java.name)
         val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_HEIGHT = 50.0

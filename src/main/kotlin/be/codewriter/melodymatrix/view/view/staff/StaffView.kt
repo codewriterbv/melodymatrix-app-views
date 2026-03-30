@@ -155,6 +155,6 @@ class StaffView : MmxView() {
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Treble and Bass Clef Staff"
         override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
-        override fun getViewImagePath(): String = "/stage/scale.png"
+        override fun getViewImagePath(): String = "/view/scale.png"
     }
 }

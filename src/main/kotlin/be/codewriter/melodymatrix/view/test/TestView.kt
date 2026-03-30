@@ -233,9 +233,9 @@ class TestView : VBox() {
             hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
 
-            // Only piano should adapt to the available viewport.
-            isFitToWidth = surface is PianoView
-            isFitToHeight = surface is PianoView
+            // Let each view declare if it should track viewport size.
+            isFitToWidth = surface.fitToViewport
+            isFitToHeight = surface.fitToViewport
             isPannable = true
         }
     }

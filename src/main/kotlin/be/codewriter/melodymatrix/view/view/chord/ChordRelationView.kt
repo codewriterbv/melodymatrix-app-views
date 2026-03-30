@@ -24,12 +24,14 @@ import javafx.scene.layout.HBox
  */
 class ChordRelationView : MmxView() {
 
+    override val fitToViewport: Boolean = true
+
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Chord Relationship"
         override fun getViewDescription(): String =
             "Shows harmonic relationships between the last detected chord and related chords."
 
-        override fun getViewImagePath(): String = "/stage/chord-relation.png"
+        override fun getViewImagePath(): String = "/view/chord-relation.png"
 
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
     }
@@ -45,7 +47,7 @@ class ChordRelationView : MmxView() {
                 naturalHeight = ChordRelationVisualizer.GRAPH_H,
                 minWidthValue = 100.0,
                 minHeightValue = 100.0,
-                fitMode = ZoomableNode.FitMode.WIDTH
+                fitMode = ZoomableNode.FitMode.CONTAIN
             )
         }
 

@@ -79,6 +79,6 @@ class GuitarChordView : MmxView() {
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Guitar Chord"
         override fun getViewDescription(): String = "Displays guitar fretboard finger settings for chords."
-        override fun getViewImagePath(): String = "/stage/guitar-chord.png"
+        override fun getViewImagePath(): String = "/view/guitar-chord.png"
     }
 }

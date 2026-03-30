@@ -20,7 +20,7 @@ class ZoomableNode(
     private val naturalHeight: Double,
     private val minWidthValue: Double = 100.0,
     private val minHeightValue: Double = 50.0,
-    private val fitMode: FitMode = FitMode.WIDTH,
+    private val fitMode: FitMode = FitMode.CONTAIN,
     private val minScale: Double = 0.1,
     private val onLayout: ((content: Node, availableWidth: Double, availableHeight: Double, scale: Double) -> Unit)? = null
 ) : Region() {

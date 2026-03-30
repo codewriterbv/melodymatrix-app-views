@@ -145,7 +145,7 @@ class ChartsView : MmxView() {
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Charts showing the notes distribution"
         override fun getViewDescription(): String = "Visualizes played notes using multiple chart types."
-        override fun getViewImagePath(): String = "/stage/charts.png"
+        override fun getViewImagePath(): String = "/view/charts.png"
         var chartHolders: MutableList<ChartHolder> = mutableListOf()
         lateinit var borderPane: BorderPane
     }

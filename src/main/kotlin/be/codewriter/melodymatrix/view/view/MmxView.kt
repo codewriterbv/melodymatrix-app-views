@@ -20,6 +20,15 @@ interface MmxViewSurface : MmxEventHandler {
     val naturalHeight: Double
 
     /**
+     * Indicates whether host containers should fit this view to the available viewport size.
+     *
+     * Views that use [be.codewriter.melodymatrix.view.component.ZoomableNode] typically set
+     * this to `true` so resize events are propagated by the host [ScrollPane].
+     */
+    val fitToViewport: Boolean
+        get() = false
+
+    /**
      * Optional node that represents the pure visual output of this view, suitable for
      * image capture or video recording. Returns `null` when the view does not designate
      * a specific capture target (host should fall back to [rootNode]).
