@@ -4,6 +4,8 @@ import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
+import javafx.beans.binding.Bindings
+import javafx.beans.binding.StringBinding
 
 /**
  * Represents the license status of the application.
@@ -24,4 +26,19 @@ data class LicenseStatus(
     val email: StringProperty = SimpleStringProperty(""),
     val validTill: StringProperty = SimpleStringProperty(""),
     val key: StringProperty = SimpleStringProperty("")
-)
+) {
+    /**
+     * Display-friendly version of validTill.
+     * Shows "Forever!" for perpetual licenses (empty or null validTill),
+     * otherwise shows the actual expiration date.
+     */
+    fun getValidTillDisplay(): StringBinding {
+        return Bindings.createStringBinding(
+            {
+                val date = validTill.value
+                if (date.isNullOrBlank()) "Forever!" else date
+            },
+            validTill
+        )
+    }
+}

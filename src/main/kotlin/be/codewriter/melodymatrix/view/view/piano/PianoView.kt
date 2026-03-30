@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.view.piano
 
 import atlantafx.base.controls.ToggleSwitch
+import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
@@ -18,14 +19,12 @@ import javafx.beans.property.BooleanProperty
 import javafx.event.ActionEvent
 import javafx.geometry.Insets
 import javafx.geometry.Pos
-import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.FontWeight
-import javafx.scene.transform.Scale
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -102,7 +101,14 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
         holder.apply {
             padding = Insets(10.0)
             top = createSettingsToolbar()
-            center = createZoomedCenterNode(centerNode)
+            center = ZoomableNode(
+                content = centerNode,
+                naturalWidth = PIANO_WIDTH,
+                naturalHeight = PIANO_HEIGHT,
+                minWidthValue = 100.0,
+                minHeightValue = 50.0,
+                fitMode = ZoomableNode.FitMode.WIDTH
+            )
         }
 
         setupSurface(
@@ -118,40 +124,6 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
         }
     }
 
-    private fun createZoomedCenterNode(content: Node): Region {
-        val scaleTransform = Scale(1.0, 1.0, 0.0, 0.0)
-        content.transforms.add(scaleTransform)
-
-        return object : Region() {
-            init {
-                children.add(content)
-            }
-
-            override fun layoutChildren() {
-                if (width <= 0.0 || height <= 0.0) {
-                    return
-                }
-
-                // Zoom to the available width while preserving aspect ratio.
-                val scale = (width / PIANO_WIDTH).coerceAtLeast(0.1)
-                scaleTransform.x = scale
-                scaleTransform.y = scale
-
-                if (content is Region) {
-                    content.resize(PIANO_WIDTH, PIANO_HEIGHT)
-                }
-                content.relocate(0.0, 0.0)
-            }
-
-            override fun computePrefWidth(height: Double): Double = PIANO_WIDTH
-
-            override fun computePrefHeight(width: Double): Double = PIANO_HEIGHT
-
-            override fun computeMinWidth(height: Double): Double = 100.0
-
-            override fun computeMinHeight(width: Double): Double = 50.0
-        }
-    }
 
     private fun createSettingsToolbar(): HBox {
         return HBox(8.0).apply {
