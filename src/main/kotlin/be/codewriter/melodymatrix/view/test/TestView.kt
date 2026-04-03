@@ -1,6 +1,8 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
+import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxViewSurface
 import be.codewriter.melodymatrix.view.view.chart.ChartsView
 import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
@@ -220,25 +222,14 @@ class TestView : VBox() {
         }
 
         midiSimulator.registerListener(stage)
-        
-        // Wire keyboard interactions to the MIDI simulator for piano views
-        when (option.id) {
-            "tab-piano" -> {
-                (stage as? be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView)?.apply {
-                    noteEventListener = be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener { note, isOn ->
-                        midiSimulator.sendNote(note, isOn)
-                    }
-                }
-            }
-            "tab-piano-simple" -> {
-                (stage as? be.codewriter.melodymatrix.view.view.piano.PianoSimpleView)?.apply {
-                    noteEventListener = be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener { note, isOn ->
-                        midiSimulator.sendNote(note, isOn)
-                    }
-                }
+
+        // Wire keyboard interactions to the MIDI simulator for views that support it (e.g., Piano); other stages will simply ignore the events.
+        if (stage is MmxNoteDispatcher) {
+            stage.noteEventListener = NoteEventListener { note, isOn ->
+                midiSimulator.sendNote(note, isOn)
             }
         }
-        
+
         visualizerTabs.addDockable(dockable)
         visualizerTabs.selectDockable(dockable)
 

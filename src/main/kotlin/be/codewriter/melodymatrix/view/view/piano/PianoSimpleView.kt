@@ -6,13 +6,14 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView.Companion.END_NOTE
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView.Companion.START_NOTE
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView
-import be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import org.apache.logging.log4j.LogManager
@@ -33,7 +34,7 @@ import org.apache.logging.log4j.Logger
  * @see KeyboardView
  * @see PianoWithEffectsView
  */
-class PianoSimpleView : MmxView() {
+class PianoSimpleView : MmxView(), MmxNoteDispatcher {
 
     override val fitToViewport: Boolean = true
 
@@ -51,10 +52,10 @@ class PianoSimpleView : MmxView() {
      * Optional listener that receives note events when the user clicks a key with the mouse.
      *
      * Assign an implementation from the host application to route keyboard interactions
-     * to the engine (e.g., [be.codewriter.melodymatrix.engine.midi.MidiService.sendNote]).
+     * to the engine (e.g., [sendNote]).
      * The listener is wired to [keyboardView] so all user interactions propagate.
      */
-    var noteEventListener: NoteEventListener?
+    override var noteEventListener: NoteEventListener
         get() = keyboardView.noteEventListener
         set(value) {
             keyboardView.noteEventListener = value

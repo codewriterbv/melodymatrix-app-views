@@ -1,20 +1,15 @@
-package be.codewriter.melodymatrix.view.view.piano.keyboard
+package be.codewriter.melodymatrix.view.event
 
 import be.codewriter.melodymatrix.view.definition.Note
 
 /**
  * Listener for note events triggered by interactive piano keys.
  *
- * Register an implementation on [KeyboardView] to receive callbacks whenever the user
- * physically presses or releases a key with the mouse. The implementor is responsible
- * for routing the note event to the appropriate backend (e.g. a MIDI service or simulator).
+ * Register an implementation on physically presses or releases of a note in a view ith the mouse.
+ * The implementor is responsible for routing the note event to the appropriate backend (e.g. a MIDI service or simulator).
  *
  * The interface is intentionally free of any engine or transport dependencies so the
  * viewer module stays fully decoupled from the application/engine layer.
- *
- * @see KeyboardView
- * @see KeyWhite
- * @see KeyBlack
  */
 fun interface NoteEventListener {
     /**
@@ -25,4 +20,3 @@ fun interface NoteEventListener {
      */
     fun onNote(note: Note, isOn: Boolean)
 }
-

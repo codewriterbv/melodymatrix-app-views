@@ -3,6 +3,7 @@ package be.codewriter.melodymatrix.view.view.piano.keyboard
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.geometry.Point2D
 import javafx.scene.Node
@@ -44,7 +45,7 @@ class KeyboardView private constructor(
      * The property can be set or cleared at any time; the lambda captured by each [Key]
      * reads the current value on every invocation, so late assignment works correctly.
      */
-    var noteEventListener: NoteEventListener? = null
+    var noteEventListener: NoteEventListener = NoteEventListener { _, _ -> }
 
     /**
      * Creates a keyboard displaying all 88 standard piano keys scaled to [width] × [height].
@@ -81,13 +82,13 @@ class KeyboardView private constructor(
             if (note.mainNote.isSharp) {
                 val x = previousWhiteKeyX + dims.whiteKeyWidth - (dims.blackKeyWidth / 2)
                 val key = KeyBlack(config, note, x, dims)
-                key.noteEventListener = NoteEventListener { n, isOn -> noteEventListener?.onNote(n, isOn) }
+                key.noteEventListener = NoteEventListener { n, isOn -> noteEventListener.onNote(n, isOn) }
                 keys[note] = key
                 addUINode(key, x)
             } else {
                 val x = counterWhiteKeys * dims.whiteKeyWidth
                 val key = KeyWhite(config, note, x, dims)
-                key.noteEventListener = NoteEventListener { n, isOn -> noteEventListener?.onNote(n, isOn) }
+                key.noteEventListener = NoteEventListener { n, isOn -> noteEventListener.onNote(n, isOn) }
                 keys[note] = key
                 addUINode(key, x)
                 counterWhiteKeys++

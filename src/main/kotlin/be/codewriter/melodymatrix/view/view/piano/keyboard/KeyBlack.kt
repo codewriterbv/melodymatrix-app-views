@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.view.piano.keyboard
 
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame

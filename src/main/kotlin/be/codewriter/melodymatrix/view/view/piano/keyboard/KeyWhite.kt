@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.view.piano.keyboard
 
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.PianoKeyType
+import be.codewriter.melodymatrix.view.event.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
@@ -15,8 +16,8 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
-import javafx.util.Duration
 import javafx.scene.transform.Rotate
+import javafx.util.Duration
 
 
 /**
