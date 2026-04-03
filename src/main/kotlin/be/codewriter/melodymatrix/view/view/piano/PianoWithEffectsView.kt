@@ -11,6 +11,7 @@ import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.piano.configurator.*
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView
+import be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.scene.PianoCanvas
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
@@ -46,15 +47,28 @@ import be.codewriter.melodymatrix.view.component.ToggleButton as MmxToggleButton
  * @see PianoCanvas
  * @see KeyboardView
  */
-class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boolean) : MmxView() {
+class PianoWithEffectsView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boolean) : MmxView() {
 
     override val fitToViewport: Boolean = true
 
     private val holder = BorderPane()
-    private val config = PianoConfiguration()
+    private val config = PianoConfiguration("effects")
 
     private val pianoCanvas: PianoCanvas = PianoCanvas(config)
-    private val keyboardView: KeyboardView = KeyboardView(config)
+    private val keyboardView: KeyboardView = KeyboardView(config, PIANO_WIDTH, PIANO_KEYBOARD_HEIGHT.toDouble())
+
+    /**
+     * Optional listener that receives note events when the user clicks a key with the mouse.
+     *
+     * Assign an implementation from the host application to route keyboard interactions
+     * to the engine (e.g., [be.codewriter.melodymatrix.engine.midi.MidiService.sendNote]).
+     * The listener is wired to [keyboardView] so all user interactions propagate.
+     */
+    var noteEventListener: NoteEventListener?
+        get() = keyboardView.noteEventListener
+        set(value) {
+            keyboardView.noteEventListener = value
+        }
 
     // Frame rate counter
     private var fpsCounter: Label? = null
@@ -276,7 +290,7 @@ class PianoView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boo
             "Renders an animated piano keyboard view with configurable visual effects."
 
         override fun getViewImagePath(): String = "/view/piano.png"
-        private val logger: Logger = LogManager.getLogger(PianoView::class.java.name)
+        private val logger: Logger = LogManager.getLogger(PianoWithEffectsView::class.java.name)
 
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
 

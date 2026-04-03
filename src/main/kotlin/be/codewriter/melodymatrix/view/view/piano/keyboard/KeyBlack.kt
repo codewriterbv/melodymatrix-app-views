@@ -2,8 +2,6 @@ package be.codewriter.melodymatrix.view.view.piano.keyboard
 
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
-import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_BLACK_KEY_HEIGHT
-import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_BLACK_KEY_WIDTH
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
@@ -24,43 +22,50 @@ import javafx.util.Duration
  * @param config Observable configuration providing key colours
  * @param note   The musical note this key represents
  * @param x      The horizontal position of the key's left edge in keyboard coordinates
+ * @param dims   The calculated pixel dimensions for this keyboard's keys
  * @see Key
  * @see KeyWhite
  * @see KeyboardView
  */
-class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
+class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double, val dims: KeyDimensions) :
     Region(), Key {
 
-    private var key: Rectangle = Rectangle(PIANO_BLACK_KEY_WIDTH, PIANO_BLACK_KEY_HEIGHT).apply {
+    /**
+     * Optional listener that is notified when this key is pressed or released via mouse interaction.
+     * Set by [KeyboardView]; the viewer module never references engine types directly.
+     */
+    var noteEventListener: NoteEventListener? = null
+
+    private var key: Rectangle = Rectangle(dims.blackKeyWidth, dims.blackKeyHeight).apply {
         fill = config.pianoBlackKeyColor.value
     }
 
-    private val topHighlight = Rectangle(PIANO_BLACK_KEY_WIDTH - 2.0, PIANO_BLACK_KEY_HEIGHT * 0.18).apply {
+    private val topHighlight = Rectangle(dims.blackKeyWidth - 2.0, dims.blackKeyHeight * 0.18).apply {
         fill = Color.WHITE
         opacity = 0.20
         translateX = 1.0
         translateY = 1.0
     }
-    private val topRim = Rectangle(PIANO_BLACK_KEY_WIDTH - 1.0, 1.2).apply {
+    private val topRim = Rectangle(dims.blackKeyWidth - 1.0, 1.2).apply {
         fill = Color.color(0.95, 0.95, 0.95)
         opacity = 0.30
         translateX = 0.5
         translateY = 0.25
     }
-    private val leftBevel = Rectangle(1.5, PIANO_BLACK_KEY_HEIGHT).apply {
+    private val leftBevel = Rectangle(1.5, dims.blackKeyHeight).apply {
         fill = Color.WHITE
         opacity = 0.10
         translateX = 0.5
     }
-    private val rightBevel = Rectangle(1.8, PIANO_BLACK_KEY_HEIGHT).apply {
+    private val rightBevel = Rectangle(1.8, dims.blackKeyHeight).apply {
         fill = Color.BLACK
         opacity = 0.28
-        translateX = PIANO_BLACK_KEY_WIDTH - width
+        translateX = dims.blackKeyWidth - width
     }
-    private val bottomShadow = Rectangle(PIANO_BLACK_KEY_WIDTH, 8.0).apply {
+    private val bottomShadow = Rectangle(dims.blackKeyWidth, 8.0).apply {
         fill = Color.BLACK
         opacity = 0.34
-        translateY = PIANO_BLACK_KEY_HEIGHT - height
+        translateY = dims.blackKeyHeight - height
     }
 
     private var pressed: Boolean = false
@@ -68,7 +73,7 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
     private var pressAnimation: Timeline? = null
     private val pressRotate = Rotate(
         0.0,
-        PIANO_BLACK_KEY_WIDTH / 2.0,
+        dims.blackKeyWidth / 2.0,
         0.0,
         0.0,
         Rotate.X_AXIS
@@ -88,6 +93,24 @@ class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double) :
 
         // Re-apply current visual intensities immediately when depth slider changes.
         config.pianoBlackKeyDepth.addListener { _, _, _ -> animatePress(this.pressed) }
+
+        // Mouse interaction: give immediate visual feedback and fire the note listener.
+        setOnMousePressed {
+            update(true)
+            noteEventListener?.onNote(note, true)
+        }
+        setOnMouseReleased {
+            update(false)
+            noteEventListener?.onNote(note, false)
+        }
+        // Send NOTE_OFF if the mouse leaves the key while the button is still held,
+        // so notes never get stuck.
+        setOnMouseExited { event ->
+            if (event.isPrimaryButtonDown) {
+                update(false)
+                noteEventListener?.onNote(note, false)
+            }
+        }
     }
 
     /**

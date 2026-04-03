@@ -1,7 +1,7 @@
 package be.codewriter.melodymatrix.view.view.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.view.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.data.FireworksExplosionType
 import javafx.geometry.Point2D
 import javafx.scene.paint.Color

@@ -14,7 +14,7 @@ import javafx.scene.paint.Color
  * (background, key colours, effects) can bind to them directly. Changes made in the
  * settings panel are automatically reflected in the piano scene and keyboard view.
  */
-class PianoConfiguration {
+class PianoConfiguration(val viewName: String) {
     /** Enables extra debug information in the piano view. */
     var showDebugInfo = SimpleBooleanProperty(true)
 
@@ -218,6 +218,6 @@ class PianoConfiguration {
         RegistryHelper.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
     }
 
-    private fun registryKey(name: String): String = "view.piano.$name"
+    private fun registryKey(name: String): String = "view.piano.$viewName.$name"
 
 }

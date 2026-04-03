@@ -140,6 +140,26 @@ class MidiSimulator {
      * @param notes  The list of notes to play in order
      * @param repeat Whether to loop the sequence indefinitely
      */
+    /**
+     * Sends a NOTE_ON or NOTE_OFF MIDI event for the given note on channel 0.
+     *
+     * Convenience method for interactive keyboard input from UI controls; creates and plays
+     * a single MIDI message with a fixed velocity of 64.
+     *
+     * @param note The note to send (e.g., [Note.C3])
+     * @param isOn `true` to send NOTE_ON (velocity 64), `false` to send NOTE_OFF (velocity 0)
+     */
+    fun sendNote(note: Note, isOn: Boolean) {
+        if (note == Note.UNDEFINED) return
+        val status = if (isOn) "10010000".toInt(2) else "10000000".toInt(2)
+        val velocity = if (isOn) 64 else 0
+        notifyListeners(
+            MidiDataEvent(
+                byteArrayOf(status.toByte(), note.byteValue.toByte(), velocity.toByte())
+            )
+        )
+    }
+
     fun setNotes(notes: List<Note>, repeat: Boolean) {
         stopCurrent()
         this.notes.clear()

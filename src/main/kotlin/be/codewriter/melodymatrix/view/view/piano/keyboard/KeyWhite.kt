@@ -3,9 +3,6 @@ package be.codewriter.melodymatrix.view.view.piano.keyboard
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.definition.PianoKeyType
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
-import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_BLACK_KEY_HEIGHT
-import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_HEIGHT
-import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView.Companion.PIANO_WHITE_KEY_WIDTH
 import javafx.animation.Interpolator
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
@@ -36,33 +33,40 @@ import javafx.scene.transform.Rotate
  * @param config Observable configuration for colours and label visibility
  * @param note   The musical note this key represents
  * @param x      The horizontal position of the key's left edge in keyboard coordinates
+ * @param dims   The calculated pixel dimensions for this keyboard's keys
  * @see Key
  * @see KeyBlack
  * @see KeyboardView
  */
-class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
+class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double, val dims: KeyDimensions) :
     Key, Region() {
+
+    /**
+     * Optional listener that is notified when this key is pressed or released via mouse interaction.
+     * Set by [KeyboardView]; the viewer module never references engine types directly.
+     */
+    var noteEventListener: NoteEventListener? = null
 
     private var pressed = false
     private val key: Shape
     private val noteName: Label
     private var pressAnimation: Timeline? = null
-    private val sideShadowLeft = Rectangle(2.2, PIANO_WHITE_KEY_HEIGHT).apply {
+    private val sideShadowLeft = Rectangle(2.2, dims.whiteKeyHeight).apply {
         fill = Color.BLACK
         opacity = 0.0
         translateX = 0.0
     }
-    private val sideShadowRight = Rectangle(2.2, PIANO_WHITE_KEY_HEIGHT).apply {
+    private val sideShadowRight = Rectangle(2.2, dims.whiteKeyHeight).apply {
         fill = Color.BLACK
         opacity = 0.0
-        translateX = PIANO_WHITE_KEY_WIDTH - width
+        translateX = dims.whiteKeyWidth - width
     }
-    private val frontShadow = Rectangle(PIANO_WHITE_KEY_WIDTH, 9.0).apply {
+    private val frontShadow = Rectangle(dims.whiteKeyWidth, 9.0).apply {
         fill = Color.BLACK
         opacity = 0.0
-        translateY = PIANO_WHITE_KEY_HEIGHT - height
+        translateY = dims.whiteKeyHeight - height
     }
-    private val topHighlight = Rectangle(PIANO_WHITE_KEY_WIDTH - 1.0, 7.0).apply {
+    private val topHighlight = Rectangle(dims.whiteKeyWidth - 1.0, 7.0).apply {
         fill = Color.WHITE
         opacity = 0.20
         translateX = 0.5
@@ -70,7 +74,7 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
     }
     private val pressRotate = Rotate(
         0.0,
-        PIANO_WHITE_KEY_WIDTH / 2.0,
+        dims.whiteKeyWidth / 2.0,
         0.0,
         0.0,
         Rotate.X_AXIS
@@ -80,16 +84,16 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
         val cutOutType =
             if (note == Note.A0) PianoKeyType.RIGHT else if (note == Note.C8) PianoKeyType.NONE else note.mainNote.pianoKeyType
 
-        val cutoutBlackWidth = PIANO_WHITE_KEY_WIDTH / 5
-        val cutoutBlackHeight = PIANO_BLACK_KEY_HEIGHT
+        val cutoutBlackWidth = dims.whiteKeyWidth / 5
+        val cutoutBlackHeight = dims.blackKeyHeight
 
-        val fullKey = Rectangle(PIANO_WHITE_KEY_WIDTH, PIANO_WHITE_KEY_HEIGHT)
+        val fullKey = Rectangle(dims.whiteKeyWidth, dims.whiteKeyHeight)
 
         val cutoutLeft = Rectangle(cutoutBlackWidth, cutoutBlackHeight).apply {
             translateX = 0.0
         }
         val cutoutRight = Rectangle(cutoutBlackWidth, cutoutBlackHeight).apply {
-            translateX = PIANO_WHITE_KEY_WIDTH - (cutoutBlackWidth)
+            translateX = dims.whiteKeyWidth - (cutoutBlackWidth)
         }
 
         // Cut out the pieces that are filled with a sharp key
@@ -123,13 +127,13 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
         }
 
         noteName = Label(note.name).apply {
-            prefWidth = PIANO_WHITE_KEY_WIDTH
-            minWidth = PIANO_WHITE_KEY_WIDTH
-            maxWidth = PIANO_WHITE_KEY_WIDTH
+            prefWidth = dims.whiteKeyWidth
+            minWidth = dims.whiteKeyWidth
+            maxWidth = dims.whiteKeyWidth
             font = Font.font(config.pianoKeyNameFontSize.value)
             alignment = Pos.CENTER
             textAlignment = TextAlignment.CENTER
-            translateY = PIANO_WHITE_KEY_HEIGHT - 20
+            translateY = dims.whiteKeyHeight - 20
             translateX = 0.0
             visibleProperty().bind(config.pianoKeyNameVisible)
             textFillProperty().bind(config.pianoKeyNameColor)
@@ -145,6 +149,24 @@ class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double) :
         // Update label font size when the slider changes.
         config.pianoKeyNameFontSize.addListener { _, _, newSize ->
             noteName.font = Font.font(newSize.toDouble())
+        }
+
+        // Mouse interaction: give immediate visual feedback and fire the note listener.
+        setOnMousePressed {
+            update(true)
+            noteEventListener?.onNote(note, true)
+        }
+        setOnMouseReleased {
+            update(false)
+            noteEventListener?.onNote(note, false)
+        }
+        // Send NOTE_OFF if the mouse leaves the key while the button is still held,
+        // so notes never get stuck.
+        setOnMouseExited { event ->
+            if (event.isPrimaryButtonDown) {
+                update(false)
+                noteEventListener?.onNote(note, false)
+            }
         }
     }
 

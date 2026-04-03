@@ -2,8 +2,8 @@ package be.codewriter.melodymatrix.view.view.piano.scene
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
-import be.codewriter.melodymatrix.view.view.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
-import be.codewriter.melodymatrix.view.view.piano.PianoView.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.view.piano.animation.AnimationCalculator
 import be.codewriter.melodymatrix.view.view.piano.animation.AnimationState
 import be.codewriter.melodymatrix.view.view.piano.data.PianoBackgroundImage

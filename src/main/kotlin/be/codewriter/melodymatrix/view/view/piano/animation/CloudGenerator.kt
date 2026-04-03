@@ -1,8 +1,8 @@
 package be.codewriter.melodymatrix.view.view.piano.animation
 
 import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.view.piano.PianoView.Companion.PIANO_BACKGROUND_HEIGHT
-import be.codewriter.melodymatrix.view.view.piano.PianoView.Companion.PIANO_WIDTH
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_WIDTH
 import javafx.scene.paint.Color
 import kotlin.math.sin
 import kotlin.random.Random
@@ -71,7 +71,17 @@ class CloudGenerator {
         particles: MutableList<AnimationCalculator.AboveKeyParticleInfo>
     ) {
         val previous = config
-        config = SmokeConfig(enabled, startColor, endColor, particleCount, particleSize, driftSpeed, wobbleAmplitude, opacity, spawnRadius)
+        config = SmokeConfig(
+            enabled,
+            startColor,
+            endColor,
+            particleCount,
+            particleSize,
+            driftSpeed,
+            wobbleAmplitude,
+            opacity,
+            spawnRadius
+        )
 
         if (!enabled) {
             particles.clear()

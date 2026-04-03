@@ -8,7 +8,8 @@ import be.codewriter.melodymatrix.view.view.chord.ChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
-import be.codewriter.melodymatrix.view.view.piano.PianoView
+import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
+import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.Node
@@ -57,7 +58,8 @@ class TestView : VBox() {
 
     private val stageOptions = listOf(
         StageOption("Midi", "tab-midi") { MidiView() },
-        StageOption("Piano", "tab-piano") { PianoView(licenseStatus, true) },
+        StageOption("Piano", "tab-piano-effects") { PianoWithEffectsView(licenseStatus, true) },
+        StageOption("Piano Simple", "tab-piano-simple") { PianoSimpleView() },
         StageOption("Chord", "tab-chord") { ChordView() },
         StageOption("Chord Relations", "tab-chord-relations") { ChordRelationView() },
         StageOption("Guitar Note", "tab-guitar-note") { GuitarNoteView() },
@@ -218,6 +220,25 @@ class TestView : VBox() {
         }
 
         midiSimulator.registerListener(stage)
+        
+        // Wire keyboard interactions to the MIDI simulator for piano views
+        when (option.id) {
+            "tab-piano" -> {
+                (stage as? be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView)?.apply {
+                    noteEventListener = be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener { note, isOn ->
+                        midiSimulator.sendNote(note, isOn)
+                    }
+                }
+            }
+            "tab-piano-simple" -> {
+                (stage as? be.codewriter.melodymatrix.view.view.piano.PianoSimpleView)?.apply {
+                    noteEventListener = be.codewriter.melodymatrix.view.view.piano.keyboard.NoteEventListener { note, isOn ->
+                        midiSimulator.sendNote(note, isOn)
+                    }
+                }
+            }
+        }
+        
         visualizerTabs.addDockable(dockable)
         visualizerTabs.selectDockable(dockable)
 
