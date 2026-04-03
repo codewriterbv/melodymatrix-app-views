@@ -1,15 +1,19 @@
 package stage.drum
 
-import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.component.ZoomableNode
+import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.animation.ScaleTransition
 import javafx.application.Platform
 import javafx.geometry.Pos
+import javafx.scene.Cursor
 import javafx.scene.control.Label
 import javafx.scene.effect.DropShadow
 import javafx.scene.layout.Pane
@@ -31,9 +35,11 @@ import kotlin.math.max
  * @see MmxView
  * @see MidiDataEvent
  */
-class DrumView : MmxView() {
+class DrumView : MmxView(), MmxNoteDispatcher {
 
     override val fitToViewport: Boolean = true
+    override var noteEventListener: NoteEventListener = NoteEventListener { _, _ -> }
+    override val midiChannel: Int = 9
 
     private val kitWidth = 800.0
     private val kitHeight = 500.0
@@ -55,6 +61,18 @@ class DrumView : MmxView() {
         val surface: Shape,
         val baseFill: Color,
         val hitFill: Color
+    )
+
+    private val partToNote: Map<DrumPart, Note> = mapOf(
+        DrumPart.KICK to (Note from 36.toByte()),
+        DrumPart.SNARE to (Note from 38.toByte()),
+        DrumPart.HI_HAT to (Note from 42.toByte()),
+        DrumPart.LOW_FLOOR_TOM to (Note from 41.toByte()),
+        DrumPart.HIGH_FLOOR_TOM to (Note from 43.toByte()),
+        DrumPart.LOW_TOM to (Note from 45.toByte()),
+        DrumPart.HIGH_TOM to (Note from 48.toByte()),
+        DrumPart.CRASH to (Note from 49.toByte()),
+        DrumPart.RIDE to (Note from 51.toByte()),
     )
 
     private val drumNodes: MutableMap<DrumPart, DrumNode> = mutableMapOf()
@@ -188,12 +206,29 @@ class DrumView : MmxView() {
             style = "-fx-font-weight: bold; -fx-font-size: 12px;"
         }
 
+        val note = partToNote[part] ?: Note.UNDEFINED
+
         val node = StackPane(surface, label).apply {
             layoutX = x
             layoutY = y
             prefWidth = width
             prefHeight = height
             alignment = Pos.CENTER
+            cursor = Cursor.HAND
+            setOnMousePressed {
+                triggerHit(part, 64)
+                noteEventListener.onNote(note, true)
+            }
+            setOnMouseReleased {
+                releaseHit(part)
+                noteEventListener.onNote(note, false)
+            }
+            setOnMouseExited { event ->
+                if (event.isPrimaryButtonDown) {
+                    releaseHit(part)
+                    noteEventListener.onNote(note, false)
+                }
+            }
         }
 
         stage.children.add(node)

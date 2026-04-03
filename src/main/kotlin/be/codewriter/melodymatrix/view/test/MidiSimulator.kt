@@ -149,9 +149,10 @@ class MidiSimulator {
      * @param note The note to send (e.g., [Note.C3])
      * @param isOn `true` to send NOTE_ON (velocity 64), `false` to send NOTE_OFF (velocity 0)
      */
-    fun sendNote(note: Note, isOn: Boolean) {
+    fun sendNote(note: Note, isOn: Boolean, channel: Int = 0) {
         if (note == Note.UNDEFINED) return
-        val status = if (isOn) "10010000".toInt(2) else "10000000".toInt(2)
+        val statusBase = if (isOn) 0x90 else 0x80
+        val status = statusBase or (channel and 0x0F)
         val velocity = if (isOn) 64 else 0
         notifyListeners(
             MidiDataEvent(

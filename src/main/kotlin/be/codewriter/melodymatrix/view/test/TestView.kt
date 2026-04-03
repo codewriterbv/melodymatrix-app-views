@@ -225,8 +225,9 @@ class TestView : VBox() {
 
         // Wire keyboard interactions to the MIDI simulator for views that support it (e.g., Piano); other stages will simply ignore the events.
         if (stage is MmxNoteDispatcher) {
+            val channel = stage.midiChannel
             stage.noteEventListener = NoteEventListener { note, isOn ->
-                midiSimulator.sendNote(note, isOn)
+                midiSimulator.sendNote(note, isOn, channel)
             }
         }
 
