@@ -144,12 +144,13 @@ class KeyBlack(
     }
 
     /**
-     * Animates the black key with top-hinged rotation and contrast-aware bevel/shadow response.
+     * Animates the black key's bevel/shadow contrast to convey the pressed state
+     * without any positional movement.
      */
     private fun animatePress(pressed: Boolean) {
         pressAnimation?.stop()
         val depth = config.pianoBlackKeyDepth.value.coerceIn(0.0, 2.0)
-        val targetAngle = if (pressed) -12.0 * depth else 0.0
+        val targetAngle = if (pressed) -7.0 * depth else 0.0
 
         val topRimOpacity = when {
             useHighContrastDepth && pressed -> 0.40
@@ -184,7 +185,7 @@ class KeyBlack(
 
         pressAnimation = Timeline(
             KeyFrame(
-                if (pressed) Duration.millis(50.0) else Duration.millis(110.0),
+                if (pressed) Duration.millis(55.0) else Duration.millis(130.0),
                 KeyValue(
                     pressRotate.angleProperty(),
                     targetAngle,
