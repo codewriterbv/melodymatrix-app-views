@@ -19,7 +19,6 @@ import javafx.scene.text.TextAlignment
 import javafx.scene.transform.Rotate
 import javafx.util.Duration
 
-
 /**
  * Visual representation of a white (natural) piano key.
  *
@@ -39,8 +38,12 @@ import javafx.util.Duration
  * @see KeyBlack
  * @see KeyboardView
  */
-class KeyWhite(val config: PianoConfiguration, val note: Note, val x: Double, val dims: KeyDimensions) :
-    Key, Region() {
+class KeyWhite(
+    val config: PianoConfiguration,
+    val note: Note,
+    val x: Double,
+    val dims: KeyDimensions
+) : Key, Region() {
 
     /**
      * Optional listener that is notified when this key is pressed or released via mouse interaction.

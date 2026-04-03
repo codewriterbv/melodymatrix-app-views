@@ -7,7 +7,7 @@ import be.codewriter.melodymatrix.view.event.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.geometry.Point2D
 import javafx.scene.Node
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.Pane
 
 /**
  * JavaFX pane that renders a piano keyboard for a configurable range of notes.
@@ -32,7 +32,7 @@ class KeyboardView private constructor(
     config: PianoConfiguration,
     notes: List<Note>,
     private val dims: KeyDimensions
-) : StackPane() {
+) : Pane() {
 
     private val keys: MutableMap<Note, Key> = mutableMapOf()
 
@@ -78,13 +78,17 @@ class KeyboardView private constructor(
         var counterWhiteKeys = 0
         var previousWhiteKeyX = 0.0
 
+        // Collect white and black keys separately so black keys can be added last,
+        // ensuring they are always rendered on top and receive mouse events first.
+        val blackKeyNodes = mutableListOf<Pair<KeyBlack, Double>>()
+
         notes.forEach { note ->
             if (note.mainNote.isSharp) {
                 val x = previousWhiteKeyX + dims.whiteKeyWidth - (dims.blackKeyWidth / 2)
                 val key = KeyBlack(config, note, x, dims)
                 key.noteEventListener = NoteEventListener { n, isOn -> noteEventListener.onNote(n, isOn) }
                 keys[note] = key
-                addUINode(key, x)
+                blackKeyNodes.add(key to x)
             } else {
                 val x = counterWhiteKeys * dims.whiteKeyWidth
                 val key = KeyWhite(config, note, x, dims)
@@ -95,6 +99,9 @@ class KeyboardView private constructor(
                 previousWhiteKeyX = x
             }
         }
+
+        // Add black keys after all white keys so they sit on top in z-order.
+        blackKeyNodes.forEach { (key, x) -> addUINode(key, x) }
     }
 
     /**

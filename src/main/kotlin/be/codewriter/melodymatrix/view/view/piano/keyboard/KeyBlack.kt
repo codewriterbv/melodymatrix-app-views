@@ -28,8 +28,12 @@ import javafx.util.Duration
  * @see KeyWhite
  * @see KeyboardView
  */
-class KeyBlack(val config: PianoConfiguration, val note: Note, val x: Double, val dims: KeyDimensions) :
-    Region(), Key {
+class KeyBlack(
+    val config: PianoConfiguration,
+    val note: Note,
+    val x: Double,
+    val dims: KeyDimensions
+) : Region(), Key {
 
     /**
      * Optional listener that is notified when this key is pressed or released via mouse interaction.
