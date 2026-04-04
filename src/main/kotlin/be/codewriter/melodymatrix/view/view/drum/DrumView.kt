@@ -1,8 +1,8 @@
 package stage.drum
 
 import be.codewriter.melodymatrix.view.component.ZoomableNode
+import be.codewriter.melodymatrix.view.definition.DrumPart
 import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
@@ -44,18 +44,6 @@ class DrumView : MmxView(), MmxNoteDispatcher {
     private val kitWidth = 800.0
     private val kitHeight = 500.0
 
-    private enum class DrumPart(val title: String, val isCymbal: Boolean = false) {
-        HI_HAT("Hi-hat", true),
-        CRASH("Crash", true),
-        RIDE("Ride", true),
-        SNARE("Snare"),
-        KICK("Kick"),
-        LOW_FLOOR_TOM("Low floor tom"),
-        HIGH_FLOOR_TOM("High floor tom"),
-        LOW_TOM("Low tom"),
-        HIGH_TOM("High tom")
-    }
-
     private data class DrumNode(
         val container: StackPane,
         val surface: Shape,
@@ -63,47 +51,8 @@ class DrumView : MmxView(), MmxNoteDispatcher {
         val hitFill: Color
     )
 
-    private val partToNote: Map<DrumPart, Note> = mapOf(
-        DrumPart.KICK to (Note from 36.toByte()),
-        DrumPart.SNARE to (Note from 38.toByte()),
-        DrumPart.HI_HAT to (Note from 42.toByte()),
-        DrumPart.LOW_FLOOR_TOM to (Note from 41.toByte()),
-        DrumPart.HIGH_FLOOR_TOM to (Note from 43.toByte()),
-        DrumPart.LOW_TOM to (Note from 45.toByte()),
-        DrumPart.HIGH_TOM to (Note from 48.toByte()),
-        DrumPart.CRASH to (Note from 49.toByte()),
-        DrumPart.RIDE to (Note from 51.toByte()),
-    )
-
     private val drumNodes: MutableMap<DrumPart, DrumNode> = mutableMapOf()
     private val activeHitsByPart: MutableMap<DrumPart, Int> = mutableMapOf()
-    private val noteToPart: Map<Int, DrumPart> = mapOf(
-        // Kick drum
-        35 to DrumPart.KICK,
-        36 to DrumPart.KICK,
-        // Snare family
-        37 to DrumPart.SNARE,
-        38 to DrumPart.SNARE,
-        39 to DrumPart.SNARE,
-        40 to DrumPart.SNARE,
-        // Hi-hat
-        42 to DrumPart.HI_HAT,
-        44 to DrumPart.HI_HAT,
-        46 to DrumPart.HI_HAT,
-        // Toms
-        41 to DrumPart.LOW_FLOOR_TOM,
-        43 to DrumPart.HIGH_FLOOR_TOM,
-        45 to DrumPart.LOW_TOM,
-        47 to DrumPart.LOW_TOM,
-        48 to DrumPart.HIGH_TOM,
-        50 to DrumPart.HIGH_TOM,
-        // Cymbals
-        49 to DrumPart.CRASH,
-        51 to DrumPart.RIDE,
-        53 to DrumPart.RIDE,
-        57 to DrumPart.CRASH,
-        59 to DrumPart.RIDE
-    )
 
     init {
         val pane = Pane().apply {
@@ -113,7 +62,8 @@ class DrumView : MmxView(), MmxNoteDispatcher {
 
         registerNode(pane, DrumPart.CRASH, 95.0, 72.0, 95.0, 24.0, Color.web("#cfa62f"), Color.web("#fce57c"))
         registerNode(pane, DrumPart.RIDE, 580.0, 72.0, 110.0, 26.0, Color.web("#c6a13a"), Color.web("#ffe28f"))
-        registerNode(pane, DrumPart.HI_HAT, 75.0, 175.0, 82.0, 20.0, Color.web("#b89537"), Color.web("#f8e072"))
+        registerNode(pane, DrumPart.HI_HAT_OPEN, 75.0, 150.0, 82.0, 20.0, Color.web("#b89537"), Color.web("#f8e072"))
+        registerNode(pane, DrumPart.HI_HAT_CLOSED, 75.0, 175.0, 82.0, 20.0, Color.web("#b89537"), Color.web("#f8e072"))
         registerNode(pane, DrumPart.HIGH_TOM, 300.0, 140.0, 112.0, 52.0, Color.web("#3a5f8e"), Color.web("#66afff"))
         registerNode(pane, DrumPart.LOW_TOM, 430.0, 180.0, 115.0, 55.0, Color.web("#365988"), Color.web("#60a8f6"))
         registerNode(
@@ -206,8 +156,6 @@ class DrumView : MmxView(), MmxNoteDispatcher {
             style = "-fx-font-weight: bold; -fx-font-size: 12px;"
         }
 
-        val note = partToNote[part] ?: Note.UNDEFINED
-
         val node = StackPane(surface, label).apply {
             layoutX = x
             layoutY = y
@@ -217,16 +165,16 @@ class DrumView : MmxView(), MmxNoteDispatcher {
             cursor = Cursor.HAND
             setOnMousePressed {
                 triggerHit(part, 64)
-                noteEventListener.onNote(note, true)
+                noteEventListener.onNote(part.note(), true)
             }
             setOnMouseReleased {
                 releaseHit(part)
-                noteEventListener.onNote(note, false)
+                noteEventListener.onNote(part.note(), false)
             }
             setOnMouseExited { event ->
                 if (event.isPrimaryButtonDown) {
                     releaseHit(part)
-                    noteEventListener.onNote(note, false)
+                    noteEventListener.onNote(part.note(), false)
                 }
             }
         }
@@ -242,7 +190,7 @@ class DrumView : MmxView(), MmxNoteDispatcher {
         }
 
         val midiNote = midiDataEvent.bytes[1].toInt() and 0x7f
-        val part = noteToPart[midiNote] ?: return
+        val part = DrumPart.byValue(midiNote)
 
         when (midiDataEvent.event) {
             MidiEvent.NOTE_ON -> triggerHit(part, midiDataEvent.velocity)
@@ -266,7 +214,7 @@ class DrumView : MmxView(), MmxNoteDispatcher {
         val scalePulse = ScaleTransition(Duration.millis(90.0), node.container).apply {
             toX = targetScale
             toY = targetScale
-            setAutoReverse(true)
+            isAutoReverse = true
             cycleCount = 2
         }
 

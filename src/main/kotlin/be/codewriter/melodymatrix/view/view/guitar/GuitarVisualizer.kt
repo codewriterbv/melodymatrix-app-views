@@ -3,6 +3,7 @@ package be.codewriter.melodymatrix.view.view.guitar
 import atlantafx.base.theme.Styles
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.helper.GuitarChordVoicing
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -23,6 +24,7 @@ class GuitarVisualizer(private val mode: Mode) {
     }
 
     val rootNode: VBox
+
     /** When false (default), only one most playable position is shown for NOTE mode. */
     var showAllPositions: Boolean = false
 
@@ -254,10 +256,10 @@ class GuitarVisualizer(private val mode: Mode) {
         private val OPEN_MIDI_BY_STRING = intArrayOf(40, 45, 50, 55, 59, 64)
 
         private const val FRETBOARD_STYLE = "-fx-background-color: -fx-control-inner-background; " +
-            "-fx-background-radius: 8; " +
-            "-fx-border-color: -fx-box-border; " +
-            "-fx-border-width: 1; " +
-            "-fx-border-radius: 8;"
+                "-fx-background-radius: 8; " +
+                "-fx-border-color: -fx-box-border; " +
+                "-fx-border-width: 1; " +
+                "-fx-border-radius: 8;"
     }
 }
 

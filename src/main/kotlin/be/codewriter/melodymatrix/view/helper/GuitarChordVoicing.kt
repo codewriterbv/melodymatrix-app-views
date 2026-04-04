@@ -1,21 +1,21 @@
-package be.codewriter.melodymatrix.view.view.guitar
+package be.codewriter.melodymatrix.view.helper
 
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.ChordAlteration
 import be.codewriter.melodymatrix.view.definition.ChordExtension
 import be.codewriter.melodymatrix.view.definition.ChordQuality
-import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
-import be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicing.MAX_CSV_FRET
-import be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicing.autoToneBasedVoicing
+import be.codewriter.melodymatrix.view.helper.GuitarChordVoicing.MAX_CSV_FRET
+import be.codewriter.melodymatrix.view.helper.GuitarChordVoicing.autoToneBasedVoicing
+import kotlin.math.abs
 
 /**
- * Resolves a guitar chord [Voicing] for a given [Chord].
+ * Resolves a guitar chord [Voicing] for a given [be.codewriter.melodymatrix.view.definition.Chord].
  *
  * First tries to find a voicing from a CSV fingering database via [ChordFingersLoader].
  * If none is found, falls back to an automatic tone-based algorithm that maps each chord
  * tone to the nearest fret on each string.
  *
- * @see GuitarChordView
+ * @see be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
  * @see ChordFingersLoader
  */
 internal object GuitarChordVoicing {
@@ -113,7 +113,7 @@ internal object GuitarChordVoicing {
                     continue
                 }
 
-                val distance = kotlin.math.abs(fret - target)
+                val distance = abs(fret - target)
                 if (distance < bestDistance || (distance == bestDistance && (bestFret == -1 || fret < bestFret))) {
                     bestDistance = distance
                     bestFret = fret

@@ -844,5 +844,12 @@ enum class Note(
                 .findFirst()
                 .orElse(UNDEFINED)
         }
+
+        infix fun from(value: Int): Note {
+            return entries.stream()
+                .filter { it.byteValue == value }
+                .findFirst()
+                .orElse(UNDEFINED)
+        }
     }
 }

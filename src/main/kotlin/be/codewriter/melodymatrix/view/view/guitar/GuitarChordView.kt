@@ -21,10 +21,10 @@ import javafx.scene.layout.HBox
  *
  * Shows a fretboard grid (6 strings × 13 frets) and marks the finger positions
  * for the current chord. When a chord event arrives the board is updated with the
- * best available voicing from [GuitarChordVoicing]. A legend explains the fretboard markers.
+ * best available voicing from [be.codewriter.melodymatrix.view.helper.GuitarChordVoicing]. A legend explains the fretboard markers.
  *
  * @see MmxView
- * @see GuitarChordVoicing
+ * @see be.codewriter.melodymatrix.view.helper.GuitarChordVoicing
  * @see ChordEvent
  */
 class GuitarChordView : MmxView() {

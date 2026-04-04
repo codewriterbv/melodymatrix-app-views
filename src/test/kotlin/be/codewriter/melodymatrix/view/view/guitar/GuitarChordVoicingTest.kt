@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.view.guitar
 
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.helper.ChordFingersLoader
+import be.codewriter.melodymatrix.view.helper.GuitarChordVoicing
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
