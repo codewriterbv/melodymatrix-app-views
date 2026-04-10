@@ -6,7 +6,7 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.helper.RegistryHelper
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -20,7 +20,9 @@ import javafx.scene.layout.HBox
 /**
  * Visualizer stage that displays playable guitar positions for incoming MIDI notes.
  */
-class GuitarNoteView : MmxView() {
+class GuitarNoteView(
+    settings: SettingHelper? = null
+) : MmxView() {
 
     companion object : MmxViewMetadata {
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
@@ -36,7 +38,7 @@ class GuitarNoteView : MmxView() {
     private val showAllPositionsProperty: BooleanProperty = SimpleBooleanProperty(false)
 
     init {
-        RegistryHelper.bindBoolean(showAllPositionsProperty, REGISTRY_SHOW_ALL_POSITIONS)
+        settings?.bindBoolean(showAllPositionsProperty, REGISTRY_SHOW_ALL_POSITIONS)
 
         val root = BorderPane().apply {
             top = buildToolbar()

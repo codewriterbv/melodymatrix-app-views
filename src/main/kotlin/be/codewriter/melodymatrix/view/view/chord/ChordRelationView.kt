@@ -5,7 +5,7 @@ import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.helper.RegistryHelper
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -18,7 +18,9 @@ import javafx.scene.layout.HBox
  * Visualizer stage that shows the last detected chord at the center of a radial graph and
  * surrounds it with harmonically related chords.
  */
-class ChordRelationView : MmxView() {
+class ChordRelationView(
+    private val settings: SettingHelper? = null
+) : MmxView() {
 
     override val fitToViewport: Boolean = true
 
@@ -64,12 +66,12 @@ class ChordRelationView : MmxView() {
     }
 
     private fun restoreSettings() {
-        RegistryHelper.bindBoolean(visualizer.majorEnabledProperty, "$REGISTRY_PREFIX.major")
-        RegistryHelper.bindBoolean(visualizer.minorEnabledProperty, "$REGISTRY_PREFIX.minor")
-        RegistryHelper.bindBoolean(visualizer.dominantEnabledProperty, "$REGISTRY_PREFIX.dominant")
-        RegistryHelper.bindBoolean(visualizer.diminishedEnabledProperty, "$REGISTRY_PREFIX.diminished")
-        RegistryHelper.bindBoolean(visualizer.halfDiminishedEnabledProperty, "$REGISTRY_PREFIX.halfDiminished")
-        RegistryHelper.bindBoolean(visualizer.tritoneEnabledProperty, "$REGISTRY_PREFIX.tritone")
+        settings?.bindBoolean(visualizer.majorEnabledProperty, "$REGISTRY_PREFIX.major")
+        settings?.bindBoolean(visualizer.minorEnabledProperty, "$REGISTRY_PREFIX.minor")
+        settings?.bindBoolean(visualizer.dominantEnabledProperty, "$REGISTRY_PREFIX.dominant")
+        settings?.bindBoolean(visualizer.diminishedEnabledProperty, "$REGISTRY_PREFIX.diminished")
+        settings?.bindBoolean(visualizer.halfDiminishedEnabledProperty, "$REGISTRY_PREFIX.halfDiminished")
+        settings?.bindBoolean(visualizer.tritoneEnabledProperty, "$REGISTRY_PREFIX.tritone")
     }
 
     override fun onEvent(event: MmxEvent) {

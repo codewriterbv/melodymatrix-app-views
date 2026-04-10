@@ -5,7 +5,7 @@ import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.helper.RegistryHelper
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -27,7 +27,9 @@ import javafx.scene.layout.HBox
  * @see be.codewriter.melodymatrix.view.helper.GuitarChordVoicing
  * @see ChordEvent
  */
-class GuitarChordView : MmxView() {
+class GuitarChordView(
+    settings: SettingHelper? = null
+) : MmxView() {
 
     companion object : MmxViewMetadata {
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
@@ -42,7 +44,7 @@ class GuitarChordView : MmxView() {
     private val stickyChordDisplayProperty: BooleanProperty = SimpleBooleanProperty(true)
 
     init {
-        RegistryHelper.bindBoolean(stickyChordDisplayProperty, REGISTRY_KEEP_LAST_CHORD)
+        settings?.bindBoolean(stickyChordDisplayProperty, REGISTRY_KEEP_LAST_CHORD)
 
         val root = BorderPane().apply {
             top = buildToolbar()

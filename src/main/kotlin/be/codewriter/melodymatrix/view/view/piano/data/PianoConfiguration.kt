@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.view.piano.data
 
-import be.codewriter.melodymatrix.view.helper.RegistryHelper
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
@@ -14,7 +14,10 @@ import javafx.scene.paint.Color
  * (background, key colours, effects) can bind to them directly. Changes made in the
  * settings panel are automatically reflected in the piano scene and keyboard view.
  */
-class PianoConfiguration(val viewName: String) {
+class PianoConfiguration(
+    val viewName: String,
+    private val settings: SettingHelper? = null
+) {
     /** Enables extra debug information in the piano view. */
     var showDebugInfo = SimpleBooleanProperty(true)
 
@@ -160,62 +163,63 @@ class PianoConfiguration(val viewName: String) {
     var cloudSpawnRadius = SimpleDoubleProperty(160.0)
 
     fun restoreSettings() {
-        RegistryHelper.bindBoolean(showDebugInfo, registryKey("showDebugInfo"))
+        val settings = settings ?: return
+        settings.bindBoolean(showDebugInfo, registryKey("showDebugInfo"))
 
-        RegistryHelper.bindColor(pianoWhiteKeyColor, registryKey("pianoWhiteKeyColor"))
-        RegistryHelper.bindColor(pianoWhiteKeyActiveColor, registryKey("pianoWhiteKeyActiveColor"))
-        RegistryHelper.bindDouble(pianoWhiteKeyDepth, registryKey("pianoWhiteKeyDepth"))
-        RegistryHelper.bindColor(pianoBlackKeyColor, registryKey("pianoBlackKeyColor"))
-        RegistryHelper.bindColor(pianoBlackKeyActiveColor, registryKey("pianoBlackKeyActiveColor"))
-        RegistryHelper.bindDouble(pianoBlackKeyDepth, registryKey("pianoBlackKeyDepth"))
-        RegistryHelper.bindColor(pianoKeyNameColor, registryKey("pianoKeyNameColor"))
-        RegistryHelper.bindDouble(pianoKeyNameFontSize, registryKey("pianoKeyNameFontSize"))
-        RegistryHelper.bindBoolean(pianoKeyNameVisible, registryKey("pianoKeyNameVisible"))
+        settings.bindColor(pianoWhiteKeyColor, registryKey("pianoWhiteKeyColor"))
+        settings.bindColor(pianoWhiteKeyActiveColor, registryKey("pianoWhiteKeyActiveColor"))
+        settings.bindDouble(pianoWhiteKeyDepth, registryKey("pianoWhiteKeyDepth"))
+        settings.bindColor(pianoBlackKeyColor, registryKey("pianoBlackKeyColor"))
+        settings.bindColor(pianoBlackKeyActiveColor, registryKey("pianoBlackKeyActiveColor"))
+        settings.bindDouble(pianoBlackKeyDepth, registryKey("pianoBlackKeyDepth"))
+        settings.bindColor(pianoKeyNameColor, registryKey("pianoKeyNameColor"))
+        settings.bindDouble(pianoKeyNameFontSize, registryKey("pianoKeyNameFontSize"))
+        settings.bindBoolean(pianoKeyNameVisible, registryKey("pianoKeyNameVisible"))
 
-        RegistryHelper.bindColor(backgroundColor, registryKey("backgroundColor"))
-        RegistryHelper.bindBoolean(backgroundImageEnabled, registryKey("backgroundImageEnabled"))
-        RegistryHelper.bindEnum(backgroundImage, registryKey("backgroundImage"), PianoBackgroundImage::class.java)
-        RegistryHelper.bindDouble(backgroundImageTransparency, registryKey("backgroundImageTransparency"))
+        settings.bindColor(backgroundColor, registryKey("backgroundColor"))
+        settings.bindBoolean(backgroundImageEnabled, registryKey("backgroundImageEnabled"))
+        settings.bindEnum(backgroundImage, registryKey("backgroundImage"), PianoBackgroundImage::class.java)
+        settings.bindDouble(backgroundImageTransparency, registryKey("backgroundImageTransparency"))
 
-        RegistryHelper.bindDouble(logoLeft, registryKey("logoLeft"))
-        RegistryHelper.bindDouble(logoTop, registryKey("logoTop"))
-        RegistryHelper.bindDouble(logoTransparency, registryKey("logoTransparency"))
-        RegistryHelper.bindBoolean(logoVisible, registryKey("logoVisible"))
-        RegistryHelper.bindDouble(logoWidth, registryKey("logoWidth"))
+        settings.bindDouble(logoLeft, registryKey("logoLeft"))
+        settings.bindDouble(logoTop, registryKey("logoTop"))
+        settings.bindDouble(logoTransparency, registryKey("logoTransparency"))
+        settings.bindBoolean(logoVisible, registryKey("logoVisible"))
+        settings.bindDouble(logoWidth, registryKey("logoWidth"))
 
-        RegistryHelper.bindBoolean(fireworksEnabled, registryKey("fireworksEnabled"))
-        RegistryHelper.bindColor(fireworksColor, registryKey("fireworksColor"))
-        RegistryHelper.bindBoolean(fireworksRandomColor, registryKey("fireworksRandomColor"))
-        RegistryHelper.bindDouble(fireworksRadius, registryKey("fireworksRadius"))
-        RegistryHelper.bindInt(fireworksNumberOfParticles, registryKey("fireworksNumberOfParticles"))
-        RegistryHelper.bindDouble(fireworksParticleSize, registryKey("fireworksParticleSize"))
-        RegistryHelper.bindInt(fireworksTailNumberOfParticles, registryKey("fireworksTailNumberOfParticles"))
-        RegistryHelper.bindDouble(fireworksLaunchHeightMultiplier, registryKey("fireworksLaunchHeightMultiplier"))
-        RegistryHelper.bindDouble(fireworksLiftMultiplier, registryKey("fireworksLiftMultiplier"))
-        RegistryHelper.bindEnum(
+        settings.bindBoolean(fireworksEnabled, registryKey("fireworksEnabled"))
+        settings.bindColor(fireworksColor, registryKey("fireworksColor"))
+        settings.bindBoolean(fireworksRandomColor, registryKey("fireworksRandomColor"))
+        settings.bindDouble(fireworksRadius, registryKey("fireworksRadius"))
+        settings.bindInt(fireworksNumberOfParticles, registryKey("fireworksNumberOfParticles"))
+        settings.bindDouble(fireworksParticleSize, registryKey("fireworksParticleSize"))
+        settings.bindInt(fireworksTailNumberOfParticles, registryKey("fireworksTailNumberOfParticles"))
+        settings.bindDouble(fireworksLaunchHeightMultiplier, registryKey("fireworksLaunchHeightMultiplier"))
+        settings.bindDouble(fireworksLiftMultiplier, registryKey("fireworksLiftMultiplier"))
+        settings.bindEnum(
             fireworksExplosionType,
             registryKey("fireworksExplosionType"),
             FireworksExplosionType::class.java
         )
 
-        RegistryHelper.bindBoolean(explosionEnabled, registryKey("explosionEnabled"))
-        RegistryHelper.bindColor(explosionColor, registryKey("explosionColor"))
-        RegistryHelper.bindBoolean(explosionRandomColor, registryKey("explosionRandomColor"))
-        RegistryHelper.bindDouble(explosionRadius, registryKey("explosionRadius"))
-        RegistryHelper.bindInt(explosionNumberOfParticles, registryKey("explosionNumberOfParticles"))
-        RegistryHelper.bindDouble(explosionParticleSize, registryKey("explosionParticleSize"))
-        RegistryHelper.bindDouble(explosionLiftMultiplier, registryKey("explosionLiftMultiplier"))
-        RegistryHelper.bindInt(explosionTailNumberOfParticles, registryKey("explosionTailNumberOfParticles"))
+        settings.bindBoolean(explosionEnabled, registryKey("explosionEnabled"))
+        settings.bindColor(explosionColor, registryKey("explosionColor"))
+        settings.bindBoolean(explosionRandomColor, registryKey("explosionRandomColor"))
+        settings.bindDouble(explosionRadius, registryKey("explosionRadius"))
+        settings.bindInt(explosionNumberOfParticles, registryKey("explosionNumberOfParticles"))
+        settings.bindDouble(explosionParticleSize, registryKey("explosionParticleSize"))
+        settings.bindDouble(explosionLiftMultiplier, registryKey("explosionLiftMultiplier"))
+        settings.bindInt(explosionTailNumberOfParticles, registryKey("explosionTailNumberOfParticles"))
 
-        RegistryHelper.bindBoolean(cloudEnabled, registryKey("cloudEnabled"))
-        RegistryHelper.bindColor(cloudColorStart, registryKey("cloudColorStart"))
-        RegistryHelper.bindColor(cloudColorEnd, registryKey("cloudColorEnd"))
-        RegistryHelper.bindInt(cloudParticleCount, registryKey("cloudParticleCount"))
-        RegistryHelper.bindDouble(cloudParticleSize, registryKey("cloudParticleSize"))
-        RegistryHelper.bindDouble(cloudDriftSpeed, registryKey("cloudDriftSpeed"))
-        RegistryHelper.bindDouble(cloudWobbleAmplitude, registryKey("cloudWobbleAmplitude"))
-        RegistryHelper.bindDouble(cloudOpacity, registryKey("cloudOpacity"))
-        RegistryHelper.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
+        settings.bindBoolean(cloudEnabled, registryKey("cloudEnabled"))
+        settings.bindColor(cloudColorStart, registryKey("cloudColorStart"))
+        settings.bindColor(cloudColorEnd, registryKey("cloudColorEnd"))
+        settings.bindInt(cloudParticleCount, registryKey("cloudParticleCount"))
+        settings.bindDouble(cloudParticleSize, registryKey("cloudParticleSize"))
+        settings.bindDouble(cloudDriftSpeed, registryKey("cloudDriftSpeed"))
+        settings.bindDouble(cloudWobbleAmplitude, registryKey("cloudWobbleAmplitude"))
+        settings.bindDouble(cloudOpacity, registryKey("cloudOpacity"))
+        settings.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
     }
 
     private fun registryKey(name: String): String = "view.piano.$viewName.$name"

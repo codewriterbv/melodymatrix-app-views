@@ -7,6 +7,7 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
@@ -34,11 +35,13 @@ import org.apache.logging.log4j.Logger
  * @see KeyboardView
  * @see PianoWithEffectsView
  */
-class PianoSimpleView : MmxView(), MmxNoteDispatcher {
+class PianoSimpleView(
+    settings: SettingHelper? = null
+) : MmxView(), MmxNoteDispatcher {
 
     override val fitToViewport: Boolean = true
 
-    private val config = PianoConfiguration("simple")
+    private val config = PianoConfiguration("simple", settings)
 
     private val keyboardView: KeyboardView = KeyboardView(
         config,

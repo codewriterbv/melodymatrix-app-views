@@ -7,6 +7,7 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
@@ -48,13 +49,17 @@ import be.codewriter.melodymatrix.view.component.ToggleButton as MmxToggleButton
  * @see PianoCanvas
  * @see KeyboardView
  */
-class PianoWithEffectsView(private val licenseStatus: LicenseStatus, val showDebugInfo: Boolean) : MmxView(),
+class PianoWithEffectsView(
+    private val licenseStatus: LicenseStatus,
+    val showDebugInfo: Boolean,
+    settings: SettingHelper? = null
+) : MmxView(),
     MmxNoteDispatcher {
 
     override val fitToViewport: Boolean = true
 
     private val holder = BorderPane()
-    private val config = PianoConfiguration("effects")
+    private val config = PianoConfiguration("effects", settings)
 
     private val pianoCanvas: PianoCanvas = PianoCanvas(config)
     private val keyboardView: KeyboardView = KeyboardView(config, PIANO_WIDTH, PIANO_KEYBOARD_HEIGHT.toDouble())
