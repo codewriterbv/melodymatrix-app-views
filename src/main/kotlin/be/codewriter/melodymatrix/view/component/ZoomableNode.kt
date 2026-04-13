@@ -15,7 +15,7 @@ import javafx.scene.transform.Scale
  * per-frame resize logic (e.g., canvas backing size updates).
  */
 class ZoomableNode(
-    private val content: Node,
+    private var content: Node,
     private val naturalWidth: Double,
     private val naturalHeight: Double,
     private val minWidthValue: Double = 100.0,
@@ -59,6 +59,26 @@ class ZoomableNode(
     init {
         content.transforms.add(scaleTransform)
         children.add(content)
+    }
+
+    /** Replaces wrapped content and returns the previous node. */
+    fun swapContent(newContent: Node): Node {
+        val previous = content
+        previous.transforms.remove(scaleTransform)
+        children.remove(previous)
+
+        content = newContent
+        if (!newContent.transforms.contains(scaleTransform)) {
+            newContent.transforms.add(scaleTransform)
+        }
+        children.add(newContent)
+        requestLayout()
+        return previous
+    }
+
+    /** Returns true when [node] is currently the wrapped content. */
+    fun isCurrentContent(node: Node): Boolean {
+        return content === node
     }
 
     override fun layoutChildren() {
