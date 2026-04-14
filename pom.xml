@@ -21,7 +21,7 @@
         <javafx.version>26</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
-        <kotlin.serialization.version>1.9.0</kotlin.serialization.version>
+        <kotlin.serialization.version>1.11.0</kotlin.serialization.version>
         <log4j.version>2.25.3</log4j.version>
 
         <!-- Test dependency versions -->
