@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import javafx.beans.binding.Bindings
+import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -20,6 +21,7 @@ class TestViewLicense(licenseStatus: LicenseStatus) : VBox() {
 
     init {
         spacing = 10.0
+        padding = Insets(20.0)
 
         children.setAll(
             Label("License Status"),

@@ -95,7 +95,7 @@ class TestView : VBox() {
     private fun setupDockLayout() {
         val stageSelectorDockable = createFixedDockable(
             id = "stage-selector",
-            title = "Stages",
+            title = "Available views",
             content = stageSelector
         )
 

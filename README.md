@@ -35,10 +35,10 @@ What this project doesn't contain:
 
 ### Testing a viewer
 
-* Once the application has started, select one of the included music patterns
-  ![](docs/mainscreen.png)
+* Once the application has started, select one of the included test events in the right column
+  ![](docs/testapplication.png)
 * You can adjust the speed of the "played" notes
-* Select one or more of the views to see the effect
+* Select one or more of the views to see the effect, for example the charts:
   ![](docs/view-charts.png)
 
 ### Add an extra view

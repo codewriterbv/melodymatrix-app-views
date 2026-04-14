@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.test
 
+import javafx.geometry.Insets
 import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.layout.VBox
@@ -24,6 +25,7 @@ class TestViewStages(
 
     init {
         spacing = 10.0
+        padding = Insets(20.0)
 
         val toggles = stageOptions.map { option ->
             CheckBox(option.label).apply {

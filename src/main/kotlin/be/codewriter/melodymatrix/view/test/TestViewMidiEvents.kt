@@ -5,6 +5,7 @@ import be.codewriter.melodymatrix.view.definition.*
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
+import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Label
@@ -63,6 +64,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
 
     init {
         spacing = 10.0
+        padding = Insets(20.0)
 
         val slider = TickerSlider().apply {
             min = 250.0
@@ -293,6 +295,7 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
                 ChordExtension.MINOR_SEVENTH -> listOf(0, 3, 6, 10)
                 else -> listOf(0, 3, 6)
             }
+
             ChordQuality.TRITONE -> listOf(0, 6)
         }.toMutableList()
 
