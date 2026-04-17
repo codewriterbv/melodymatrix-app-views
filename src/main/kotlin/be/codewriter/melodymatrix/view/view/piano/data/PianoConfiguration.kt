@@ -49,6 +49,9 @@ class PianoConfiguration(
     /** Shows or hides key labels on the keyboard. */
     var pianoKeyNameVisible = SimpleBooleanProperty(false)
 
+    /** Shows or hides solfège labels (Do, Re, Mi…) on white keys. */
+    var pianoKeySolfegeVisible = SimpleBooleanProperty(false)
+
     // Background settings
     /** Solid background color behind particles and keyboard. */
     var backgroundColor = SimpleObjectProperty(Color.BLACK)
@@ -175,6 +178,7 @@ class PianoConfiguration(
         settings.bindColor(pianoKeyNameColor, registryKey("pianoKeyNameColor"))
         settings.bindDouble(pianoKeyNameFontSize, registryKey("pianoKeyNameFontSize"))
         settings.bindBoolean(pianoKeyNameVisible, registryKey("pianoKeyNameVisible"))
+        settings.bindBoolean(pianoKeySolfegeVisible, registryKey("pianoKeySolfegeVisible"))
 
         settings.bindColor(backgroundColor, registryKey("backgroundColor"))
         settings.bindBoolean(backgroundImageEnabled, registryKey("backgroundImageEnabled"))

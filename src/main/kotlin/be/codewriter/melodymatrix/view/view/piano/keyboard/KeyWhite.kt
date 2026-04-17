@@ -143,7 +143,21 @@ class KeyWhite(
             textFillProperty().bind(config.pianoKeyNameColor)
         }
 
-        children.addAll(key, topHighlight, sideShadowLeft, sideShadowRight, frontShadow, noteName)
+        val solfegeText = note.mainNote.solfege ?: ""
+        val solfegeLabel = Label(solfegeText).apply {
+            prefWidth = dims.whiteKeyWidth
+            minWidth = dims.whiteKeyWidth
+            maxWidth = dims.whiteKeyWidth
+            font = Font.font(config.pianoKeyNameFontSize.value)
+            alignment = Pos.CENTER
+            textAlignment = TextAlignment.CENTER
+            translateY = dims.whiteKeyHeight - 36
+            translateX = 0.0
+            visibleProperty().bind(config.pianoKeySolfegeVisible)
+            textFillProperty().bind(config.pianoKeyNameColor)
+        }
+
+        children.addAll(key, topHighlight, sideShadowLeft, sideShadowRight, frontShadow, solfegeLabel, noteName)
         transforms.add(pressRotate)
 
         config.pianoWhiteKeyColor.addListener { _, _, _ -> setColor() }
@@ -153,6 +167,7 @@ class KeyWhite(
         // Update label font size when the slider changes.
         config.pianoKeyNameFontSize.addListener { _, _, newSize ->
             noteName.font = Font.font(newSize.toDouble())
+            solfegeLabel.font = Font.font(newSize.toDouble())
         }
 
         // Mouse interaction: give immediate visual feedback and fire the note listener.

@@ -1,5 +1,8 @@
 package be.codewriter.melodymatrix.view.view.piano.configurator
 
+import atlantafx.base.controls.ToggleSwitch
+import javafx.application.Platform
+import javafx.beans.value.ObservableValue
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -52,6 +55,29 @@ open class BaseConfigurator : BorderPane() {
     protected fun labeledControl(title: String, control: Node): VBox {
         return VBox(4.0).apply {
             children.addAll(Label(title), control)
+        }
+    }
+
+    /**
+     * Creates a [ToggleSwitch] whose label width is locked to the widest of the provided
+     * [labelOptions] so that adjacent controls don't shift when the text changes.
+     * The width is measured from the real rendered size once the node enters a scene.
+     */
+    protected fun stableToggle(labelOptions: List<String>, textBinding: ObservableValue<String>): ToggleSwitch {
+        val longest = labelOptions.maxByOrNull { it.length } ?: ""
+        return ToggleSwitch(longest).apply {
+            sceneProperty().addListener { _, _, scene ->
+                if (scene != null && minWidth == USE_COMPUTED_SIZE) {
+                    Platform.runLater {
+                        textProperty().unbind()
+                        text = longest
+                        applyCss()
+                        layout()
+                        minWidth = prefWidth(-1.0) + 8.0
+                        textProperty().bind(textBinding)
+                    }
+                }
+            }
         }
     }
 

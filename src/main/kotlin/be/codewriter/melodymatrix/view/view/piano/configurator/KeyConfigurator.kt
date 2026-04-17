@@ -1,10 +1,10 @@
 package be.codewriter.melodymatrix.view.view.piano.configurator
 
-import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.geometry.HorizontalDirection
 import javafx.scene.control.ColorPicker
+import javafx.scene.layout.HBox
 
 /**
  * Settings panel for configuring piano key colours.
@@ -60,11 +60,19 @@ class KeyConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             valueProperty().bindBidirectional(config.pianoKeyNameFontSize)
             disableProperty().bind(config.pianoKeyNameVisible.not())
         }
-        val noteNameVisible = ToggleSwitch().apply {
+        val visibleHiddenOptions = listOf("Visible", "Hidden")
+        val noteNameVisible = stableToggle(
+            visibleHiddenOptions,
+            config.pianoKeyNameVisible.map { if (it) "Visible" else "Hidden" }
+        ).apply {
             selectedProperty().bindBidirectional(config.pianoKeyNameVisible)
-            textProperty().bind(
-                selectedProperty().map { if (it) "Visible" else "Hidden" }
-            )
+            labelPosition = HorizontalDirection.RIGHT
+        }
+        val solfegeVisible = stableToggle(
+            visibleHiddenOptions,
+            config.pianoKeySolfegeVisible.map { if (it) "Visible" else "Hidden" }
+        ).apply {
+            selectedProperty().bindBidirectional(config.pianoKeySolfegeVisible)
             labelPosition = HorizontalDirection.RIGHT
         }
 
@@ -75,8 +83,13 @@ class KeyConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             sectionTitle("Black key"),
             twoLabeledControls("Normal", blackNormalColor, "Active", blackActiveColor),
             labeledControl("Depth", blackDepth),
-            sectionTitle("Key note name"),
-            labeledControl("Visible", noteNameVisible),
+            sectionTitle("Key note names"),
+            HBox(10.0).apply {
+                children.addAll(
+                    labeledControl("C4, D4, E4,...", noteNameVisible),
+                    labeledControl("Do, Re, Mi,...", solfegeVisible)
+                )
+            },
             labeledControl("Color", noteNameColor),
             labeledControl("Font size", noteNameFontSize)
         )
