@@ -1,23 +1,26 @@
 package be.codewriter.melodymatrix.view.definition
 
 /**
- * Preset filter groups that control which [ChordQuality] types are shown in the
+ * Preset filter groups that control which [Chord]s are shown in the
  * chord-relation visualizer.  Designed for a segmented button bar so the user
- * selects one preset rather than toggling nine individual switches.
+ * selects one preset rather than toggling switches.
  *
- * | Preset   | Qualities included                                                                  |
- * |----------|-------------------------------------------------------------------------------------|
- * | SIMPLE   | Major, Minor                                                                        |
- * | TRIADS   | Major, Minor, Augmented, Diminished, Sus4, Sus2                                     |
- * | JAZZ     | Major, Minor, Dominant, Diminished, Half-diminished, Augmented                      |
- * | ALL      | Every quality, including Suspended and Tritone                                      |
+ * | Preset   | Qualities included                                          | Extensions         |
+ * |----------|-------------------------------------------------------------|--------------------|
+ * | SIMPLE   | Major, Minor                                                | any                |
+ * | ELEVENTH | Major, Minor, Dominant                                      | *_ELEVENTH, 7#11   |
+ * | JAZZ     | Major, Minor, Dominant, Diminished, Half-diminished, Aug    | any                |
+ * | ALL      | Every quality                                               | any                |
  *
  * @property label Human-readable display name used in the UI button
  * @property qualities The set of [ChordQuality] values that are enabled for this preset
+ * @property extensions When non-empty, only chords whose [ChordExtension] is in this set are shown.
+ *                      An empty set means "no extension filter – show all extensions".
  */
 enum class ChordQualityPreset(
     val label: String,
-    val qualities: Set<ChordQuality>
+    val qualities: Set<ChordQuality>,
+    val extensions: Set<ChordExtension> = emptySet()
 ) {
     /** Only the two basic triad flavours – great for beginners. */
     SIMPLE(
@@ -28,16 +31,19 @@ enum class ChordQualityPreset(
         )
     ),
 
-    /** All triadic flavours: major, minor, augmented, diminished, sus4 and sus2. */
-    TRIADS(
-        "Triads",
+    /** 11th chord flavours: major 11th, minor 11th, dominant 11th, and Lydian dominant (7#11). */
+    ELEVENTH(
+        "11th Chords",
         setOf(
             ChordQuality.MAJOR,
             ChordQuality.MINOR,
-            ChordQuality.AUGMENTED,
-            ChordQuality.DIMINISHED,
-            ChordQuality.SUSPENDED_FOURTH,
-            ChordQuality.SUSPENDED_SECOND
+            ChordQuality.DOMINANT
+        ),
+        setOf(
+            ChordExtension.MAJOR_ELEVENTH,
+            ChordExtension.MINOR_ELEVENTH,
+            ChordExtension.DOMINANT_ELEVENTH,
+            ChordExtension.SEVENTH_SHARP_ELEVENTH
         )
     ),
 
@@ -56,13 +62,14 @@ enum class ChordQualityPreset(
         )
     ),
 
-    /** Every quality, including tritone dyads. */
+    /** Every quality and every extension. */
     ALL(
         "All",
         ChordQuality.entries.toSet()
     );
 
-    /** Returns `true` when [quality] is included in this preset. */
-    fun includes(quality: ChordQuality): Boolean = quality in qualities
+    /** Returns `true` when [chord] passes both the quality and extension filters of this preset. */
+    fun includes(chord: Chord): Boolean =
+        chord.quality in qualities && (extensions.isEmpty() || chord.extension in extensions)
 }
 

@@ -616,7 +616,7 @@ class ChordRelationVisualizer {
         drawIdleState()
     }
 
-    private fun isChordEnabled(chord: Chord): Boolean = presetProperty.value.includes(chord.quality)
+    private fun isChordEnabled(chord: Chord): Boolean = presetProperty.value.includes(chord)
 
     private fun drawIdleState() {
         val gc = arrowCanvas.graphicsContext2D
