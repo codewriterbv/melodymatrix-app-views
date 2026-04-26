@@ -8,6 +8,10 @@ import java.io.File
  * Viewers code can consume them without the Engine touching JavaFX types.
  */
 interface SettingStorage {
+    fun interface ChangeListener {
+        fun onChanged(key: String, value: String)
+    }
+
     fun get(key: String): String
     fun put(key: String, value: String)
 
@@ -22,6 +26,14 @@ interface SettingStorage {
 
     fun <E : Enum<E>> getEnum(key: String, enumType: Class<E>, defaultValue: E): E
     fun <E : Enum<E>> putEnum(key: String, value: E)
+
+    fun addChangeListener(listener: ChangeListener) {
+        // Optional for implementations that do not support push updates.
+    }
+
+    fun removeChangeListener(listener: ChangeListener) {
+        // Optional for implementations that do not support push updates.
+    }
 
     fun getSettingsFile(): File
 }
