@@ -17,7 +17,6 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.ArcType
 import javafx.scene.shape.StrokeLineCap
@@ -39,6 +38,8 @@ import kotlin.math.sin
  * @see ChordRelationView
  */
 class CircleOfFifthsView : MmxView() {
+
+    override val fitToViewport: Boolean = true
 
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Circle of Fifths"
@@ -301,7 +302,7 @@ class CircleOfFifthsView : MmxView() {
         highlightAlpha.addListener { _, _, _ -> redraw() }
 
         val zoomable = ZoomableNode(
-            content = StackPane(canvas),
+            content = canvas,
             naturalWidth = SIZE,
             naturalHeight = SIZE,
             minWidthValue = 200.0,
