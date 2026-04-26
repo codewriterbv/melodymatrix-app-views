@@ -7,6 +7,7 @@ import be.codewriter.melodymatrix.view.view.MmxViewSurface
 import be.codewriter.melodymatrix.view.view.chart.ChartsView
 import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
 import be.codewriter.melodymatrix.view.view.chord.ChordView
+import be.codewriter.melodymatrix.view.view.chord.CircleOfFifthsView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
@@ -64,6 +65,7 @@ class TestView : VBox() {
         StageOption("Piano Simple", "tab-piano-simple") { PianoSimpleView() },
         StageOption("Chord", "tab-chord") { ChordView() },
         StageOption("Chord Relations", "tab-chord-relations") { ChordRelationView() },
+        StageOption("Circle of Fifths", "tab-circle-of-fifths") { CircleOfFifthsView() },
         StageOption("Guitar Note", "tab-guitar-note") { GuitarNoteView() },
         StageOption("Guitar Chord", "tab-guitar-chord") { GuitarChordView() },
         StageOption("Charts", "tab-charts") { ChartsView() },

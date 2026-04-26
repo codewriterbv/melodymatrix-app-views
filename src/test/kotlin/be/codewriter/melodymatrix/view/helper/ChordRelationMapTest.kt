@@ -24,13 +24,12 @@ class ChordRelationMapTest {
                 RelationExpectation(Chord.F_MAJOR, RelationshipType.SUBDOMINANT, 60.0),
                 RelationExpectation(Chord.A_MINOR, RelationshipType.RELATIVE_MINOR, 120.0),
                 RelationExpectation(Chord.C_MINOR, RelationshipType.PARALLEL, 180.0),
-                RelationExpectation(Chord.D_MINOR, RelationshipType.SUPERTONIC, 240.0)
+                RelationExpectation(Chord.D_MINOR, RelationshipType.SUPERTONIC, 240.0),
+                RelationExpectation(Chord.B_DIMINISHED, RelationshipType.LEADING_TONE, 300.0)
             ),
             toExpectations(relations)
         )
 
-        // Leading-tone diminished triads are currently absent from the Chord enum and filtered out.
-        assertTrue(relations.none { it.relationship == RelationshipType.LEADING_TONE })
         assertTrue(relations.none { it.chord == Chord.UNDEFINED })
     }
 
@@ -52,12 +51,12 @@ class ChordRelationMapTest {
                 RelationExpectation(Chord.E_MAJOR, RelationshipType.MAJOR_DOMINANT, 60.0),
                 RelationExpectation(Chord.D_MINOR, RelationshipType.MINOR_SUBDOMINANT, 120.0),
                 RelationExpectation(Chord.A_MAJOR, RelationshipType.PARALLEL, 180.0),
+                RelationExpectation(Chord.B_DIMINISHED, RelationshipType.SUPERTONIC_DIM, 240.0),
                 RelationExpectation(Chord.G_MAJOR, RelationshipType.FLAT_SEVENTH, 300.0)
             ),
             toExpectations(relations)
         )
 
-        assertTrue(relations.none { it.relationship == RelationshipType.SUPERTONIC_DIM })
         assertTrue(relations.none { it.chord == Chord.UNDEFINED })
     }
 

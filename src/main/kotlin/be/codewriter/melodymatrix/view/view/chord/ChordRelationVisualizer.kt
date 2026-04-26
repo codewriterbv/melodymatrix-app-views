@@ -2,13 +2,13 @@ package be.codewriter.melodymatrix.view.view.chord
 
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.ChordQuality
+import be.codewriter.melodymatrix.view.definition.ChordQualityPreset
 import be.codewriter.melodymatrix.view.definition.RelationshipType
 import be.codewriter.melodymatrix.view.helper.ChordRelationMap
 import be.codewriter.melodymatrix.view.helper.RelatedChord
 import javafx.animation.*
-import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Pos
 import javafx.geometry.VPos
 import javafx.scene.canvas.Canvas
@@ -105,12 +105,9 @@ class ChordRelationVisualizer {
         val pulse: SimpleDoubleProperty = SimpleDoubleProperty(0.0)
     )
 
-    val majorEnabledProperty: BooleanProperty = SimpleBooleanProperty(true)
-    val minorEnabledProperty: BooleanProperty = SimpleBooleanProperty(true)
-    val dominantEnabledProperty: BooleanProperty = SimpleBooleanProperty(false)
-    val diminishedEnabledProperty: BooleanProperty = SimpleBooleanProperty(false)
-    val halfDiminishedEnabledProperty: BooleanProperty = SimpleBooleanProperty(false)
-    val tritoneEnabledProperty: BooleanProperty = SimpleBooleanProperty(false)
+    /** Active preset that controls which chord qualities are shown. Default: [ChordQualityPreset.SIMPLE]. */
+    val presetProperty: SimpleObjectProperty<ChordQualityPreset> =
+        SimpleObjectProperty(ChordQualityPreset.SIMPLE)
 
     private var currentChord: Chord = Chord.UNDEFINED
     private var animating = false
@@ -157,12 +154,7 @@ class ChordRelationVisualizer {
     }
 
     init {
-        majorEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
-        minorEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
-        dominantEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
-        diminishedEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
-        halfDiminishedEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
-        tritoneEnabledProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
+        presetProperty.addListener { _, _, _ -> refreshAfterFilterChange() }
         pulseClock.addListener { _, _, _ -> redrawArrows() }
         pulseTimeline.play()
         drawIdleState()
@@ -624,14 +616,7 @@ class ChordRelationVisualizer {
         drawIdleState()
     }
 
-    private fun isChordEnabled(chord: Chord): Boolean = when (chord.quality) {
-        ChordQuality.MAJOR -> majorEnabledProperty.value
-        ChordQuality.MINOR -> minorEnabledProperty.value
-        ChordQuality.DOMINANT -> dominantEnabledProperty.value
-        ChordQuality.DIMINISHED -> diminishedEnabledProperty.value
-        ChordQuality.HALF_DIMINISHED -> halfDiminishedEnabledProperty.value
-        ChordQuality.TRITONE -> tritoneEnabledProperty.value
-    }
+    private fun isChordEnabled(chord: Chord): Boolean = presetProperty.value.includes(chord)
 
     private fun drawIdleState() {
         val gc = arrowCanvas.graphicsContext2D
@@ -910,6 +895,9 @@ class ChordRelationVisualizer {
         ChordQuality.MINOR -> minorFill(current)
         ChordQuality.DOMINANT -> dominantFill(current)
         ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED, ChordQuality.TRITONE -> dimFill(current)
+        ChordQuality.AUGMENTED,
+        ChordQuality.SUSPENDED_FOURTH,
+        ChordQuality.SUSPENDED_SECOND -> majorFill(current)
     }
 
     private fun chordStroke(chord: Chord, current: Boolean) = if (current) when (chord.quality) {
@@ -917,6 +905,9 @@ class ChordRelationVisualizer {
         ChordQuality.MINOR -> Color.web("#FCD34D")
         ChordQuality.DOMINANT -> Color.web("#C4B5FD")
         ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED, ChordQuality.TRITONE -> Color.web("#FCA5A5")
+        ChordQuality.AUGMENTED,
+        ChordQuality.SUSPENDED_FOURTH,
+        ChordQuality.SUSPENDED_SECOND -> Color.web("#6EE7B7")
     } else Color.web("#334155")
 
     private fun orbitXY(angleDeg: Double): Pair<Double, Double> {

@@ -40,6 +40,9 @@ object ChordRelationMap {
             ChordQuality.DIMINISHED,
             ChordQuality.HALF_DIMINISHED,
             ChordQuality.TRITONE -> dimRelations(p)
+            ChordQuality.AUGMENTED,
+            ChordQuality.SUSPENDED_FOURTH,
+            ChordQuality.SUSPENDED_SECOND -> majorRelations(p)  // treat as major-adjacent
         }
     }
 
