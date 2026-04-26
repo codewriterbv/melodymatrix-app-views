@@ -297,6 +297,9 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             }
 
             ChordQuality.TRITONE -> listOf(0, 6)
+            ChordQuality.AUGMENTED -> listOf(0, 4, 8)
+            ChordQuality.SUSPENDED_FOURTH -> listOf(0, 5, 7)
+            ChordQuality.SUSPENDED_SECOND -> listOf(0, 2, 7)
         }.toMutableList()
 
         when (chord.extension) {

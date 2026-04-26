@@ -143,6 +143,9 @@ internal object GuitarChordVoicing {
             ChordQuality.MINOR -> intervals.addAll(listOf(0, 3, 7))
             ChordQuality.DIMINISHED, ChordQuality.HALF_DIMINISHED -> intervals.addAll(listOf(0, 3, 6))
             ChordQuality.TRITONE -> intervals.addAll(listOf(0, 6))
+            ChordQuality.AUGMENTED -> intervals.addAll(listOf(0, 4, 8))
+            ChordQuality.SUSPENDED_FOURTH -> intervals.addAll(listOf(0, 5, 7))
+            ChordQuality.SUSPENDED_SECOND -> intervals.addAll(listOf(0, 2, 7))
         }
 
         when (chord.extension) {
@@ -153,6 +156,24 @@ internal object GuitarChordVoicing {
             ChordExtension.MAJOR_NINTH -> intervals.addAll(listOf(11, 2))
             ChordExtension.MINOR_NINTH -> intervals.addAll(listOf(10, 2))
             ChordExtension.SIX_NINE -> intervals.addAll(listOf(9, 2))
+            ChordExtension.ADD_NINTH -> intervals.add(2)
+            ChordExtension.SIXTH -> intervals.add(9)
+            ChordExtension.MAJOR_ELEVENTH -> intervals.addAll(listOf(11, 2, 5))
+            ChordExtension.DOMINANT_ELEVENTH -> intervals.addAll(listOf(10, 2, 5))
+            ChordExtension.MINOR_ELEVENTH -> intervals.addAll(listOf(10, 2, 5))
+            ChordExtension.MAJOR_THIRTEENTH -> intervals.addAll(listOf(11, 2, 5, 9))
+            ChordExtension.DOMINANT_THIRTEENTH -> intervals.addAll(listOf(10, 2, 5, 9))
+            ChordExtension.MINOR_THIRTEENTH -> intervals.addAll(listOf(10, 2, 5, 9))
+            ChordExtension.DIMINISHED_NINTH -> intervals.addAll(listOf(9, 1))
+            ChordExtension.SEVENTH_FLAT_NINTH -> intervals.addAll(listOf(10, 1))
+            ChordExtension.SEVENTH_SHARP_NINTH -> intervals.addAll(listOf(10, 3))
+            ChordExtension.SEVENTH_SHARP_ELEVENTH -> intervals.addAll(listOf(10, 6))
+            ChordExtension.NINTH_SHARP_ELEVENTH -> intervals.addAll(listOf(10, 2, 6))
+            ChordExtension.THIRTEENTH_SHARP_ELEVENTH -> intervals.addAll(listOf(10, 2, 6, 9))
+            ChordExtension.SEVENTH_ADD_ELEVENTH -> intervals.addAll(listOf(10, 5))
+            ChordExtension.SEVENTH_ADD_THIRTEENTH -> intervals.addAll(listOf(10, 9))
+            ChordExtension.NINTH_ADD_THIRTEENTH -> intervals.addAll(listOf(10, 2, 9))
+            ChordExtension.NINTH_SUSPENDED_FOURTH -> intervals.addAll(listOf(10, 2))
             ChordExtension.NONE -> {
                 // No extension to add.
             }

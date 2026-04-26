@@ -29,5 +29,14 @@ enum class ChordQuality(val label: String) {
     HALF_DIMINISHED("half diminished"),
 
     /** Tritone dyad (root and augmented fourth / diminished fifth) */
-    TRITONE("tritone")
+    TRITONE("tritone"),
+
+    /** Augmented triad (root, major third, augmented fifth) */
+    AUGMENTED("augmented"),
+
+    /** Suspended fourth chord (root, perfect fourth, perfect fifth) */
+    SUSPENDED_FOURTH("sus4"),
+
+    /** Suspended second chord (root, major second, perfect fifth) */
+    SUSPENDED_SECOND("sus2")
 }
