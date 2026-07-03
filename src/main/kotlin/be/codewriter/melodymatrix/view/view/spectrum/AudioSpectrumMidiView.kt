@@ -9,12 +9,14 @@ import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.animation.AnimationTimer
-import javafx.geometry.Insets
 import javafx.geometry.VPos
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.ColumnConstraints
+import javafx.scene.layout.GridPane
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
+import javafx.scene.layout.RowConstraints
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
@@ -46,20 +48,42 @@ import kotlin.math.roundToInt
  */
 class AudioSpectrumMidiView : MmxView() {
 
-    private val naturalW = 900.0
-    private val naturalH = 520.0
-    private val pianoRollHeight = 270.0
-    private val spectrumHeight = 230.0
+    override val fitToViewport: Boolean = true
 
-    private val pianoRollCanvas = Canvas(naturalW, pianoRollHeight)
-    private val spectrumCanvas = Canvas(naturalW, spectrumHeight)
-    private val canvasStack = StackPane(
-        VBox(pianoRollCanvas, spectrumCanvas).apply {
-            spacing = 6.0
-            padding = Insets(6.0)
-        }
-    ).apply {
+    private val pianoRollCanvas = Canvas()
+    private val spectrumCanvas = Canvas()
+
+    private val pianoRollPane: Pane = Pane(pianoRollCanvas).apply {
+        style = "-fx-background-color: #0f1822;"
+        pianoRollCanvas.widthProperty().bind(widthProperty())
+        pianoRollCanvas.heightProperty().bind(heightProperty())
+    }
+    private val spectrumPane: Pane = Pane(spectrumCanvas).apply {
+        style = "-fx-background-color: #141c28;"
+        spectrumCanvas.widthProperty().bind(widthProperty())
+        spectrumCanvas.heightProperty().bind(heightProperty())
+    }
+
+    private val rootGrid: GridPane = GridPane().apply {
         style = "-fx-background-color: #101820;"
+        columnConstraints.add(
+            ColumnConstraints().apply {
+                percentWidth = 100.0
+                hgrow = Priority.ALWAYS
+            }
+        )
+        rowConstraints.addAll(
+            RowConstraints().apply {
+                percentHeight = PIANO_ROLL_HEIGHT_PERCENT
+                vgrow = Priority.ALWAYS
+            },
+            RowConstraints().apply {
+                percentHeight = 100.0 - PIANO_ROLL_HEIGHT_PERCENT
+                vgrow = Priority.ALWAYS
+            }
+        )
+        add(pianoRollPane, 0, 0)
+        add(spectrumPane, 0, 1)
     }
 
     private val latestSpectrum = AtomicReference<AudioSpectrumEvent?>()
@@ -81,12 +105,12 @@ class AudioSpectrumMidiView : MmxView() {
 
     init {
         setupSurface(
-            rootNode = canvasStack,
-            naturalWidth = naturalW,
-            naturalHeight = naturalH,
-            captureNode = canvasStack,
-            captureWidth = naturalW.toInt(),
-            captureHeight = naturalH.toInt()
+            rootNode = rootGrid,
+            naturalWidth = NATURAL_WIDTH,
+            naturalHeight = NATURAL_HEIGHT,
+            captureNode = rootGrid,
+            captureWidth = NATURAL_WIDTH.toInt(),
+            captureHeight = NATURAL_HEIGHT.toInt()
         ) {
             timer.stop()
         }
@@ -494,6 +518,10 @@ class AudioSpectrumMidiView : MmxView() {
             "Overlays a live audio-input spectrum with a scrolling MIDI piano-roll."
 
         override fun getViewImagePath(): String = "/view/midi.png"
+
+        private const val NATURAL_WIDTH: Double = 900.0
+        private const val NATURAL_HEIGHT: Double = 520.0
+        private const val PIANO_ROLL_HEIGHT_PERCENT: Double = 55.0
 
         private const val ROLL_WINDOW_MILLIS: Long = 5_000
         private const val MIN_PITCH: Int = 21   // A0
