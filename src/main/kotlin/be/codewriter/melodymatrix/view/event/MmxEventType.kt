@@ -13,5 +13,8 @@ enum class MmxEventType {
     PLAY,
 
     /** Chord detection event type */
-    CHORD
+    CHORD,
+
+    /** Live audio spectrum event type carrying FFT bin magnitudes */
+    AUDIO_SPECTRUM
 }

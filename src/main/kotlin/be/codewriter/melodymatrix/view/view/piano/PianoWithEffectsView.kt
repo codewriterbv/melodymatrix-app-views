@@ -288,11 +288,15 @@ class PianoWithEffectsView(
             MmxEventType.CHORD -> {
                 // Not needed here
             }
-        }
-    }
 
-    companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Piano with visual effects"
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed here
+            }
+            }
+            }
+
+            companion object : MmxViewMetadata {
+            override fun getViewTitle(): String = "Piano with visual effects"
         override fun getViewDescription(): String =
             "Renders an animated piano keyboard view with configurable visual effects."
 

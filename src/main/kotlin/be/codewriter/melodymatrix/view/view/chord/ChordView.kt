@@ -144,8 +144,12 @@ class ChordView : MmxView() {
                     chordNotesLabel.text = if (isChordOn) notesText() else "Notes: -"
                 }
             }
-        }
-    }
+
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed here
+            }
+            }
+            }
 
     /**
      * Processes a MIDI event by updating the set of active notes and refreshing the staff display.

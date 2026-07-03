@@ -13,6 +13,7 @@ import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
+import be.codewriter.melodymatrix.view.view.spectrum.AudioSpectrumMidiView
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.Node
@@ -49,6 +50,7 @@ class TestView : VBox() {
     private val rightColumnDividerPosition = 0.66
 
     private val midiSimulator = MidiSimulator()
+    private val audioSpectrumSimulator = AudioSpectrumSimulator()
     private val licenseStatus = LicenseStatus()
 
     private val bento = Bento()
@@ -71,8 +73,9 @@ class TestView : VBox() {
         StageOption("Charts", "tab-charts") { ChartsView() },
         StageOption("Scale", "tab-scale") { StaffView() },
         StageOption("Drum", "tab-drum") { DrumView() },
-        StageOption("LED Strip", "tab-led-strip") { LedStripView() }
-    )
+        StageOption("LED Strip", "tab-led-strip") { LedStripView() },
+        StageOption("Audio Spectrum + MIDI", "tab-audio-spectrum-midi") { AudioSpectrumMidiView() }
+        )
 
     private val optionsById = stageOptions.associateBy { it.id }
     private val activeVisualizers: MutableMap<String, ActiveVisualizer> = linkedMapOf()
@@ -175,7 +178,8 @@ class TestView : VBox() {
         activeVisualizers.clear()
         midiSimulator.stop()
         midiSimulator.scheduler.shutdownNow()
-    }
+        audioSpectrumSimulator.stop()
+        }
 
     /**
      * Toggles a visualizer on or off based on the selection state from [TestViewStages].
@@ -224,6 +228,7 @@ class TestView : VBox() {
         }
 
         midiSimulator.registerListener(stage)
+        audioSpectrumSimulator.registerListener(stage)
 
         // Wire keyboard interactions to the MIDI simulator for views that support it (e.g., Piano); other stages will simply ignore the events.
         if (stage is MmxNoteDispatcher) {
@@ -292,6 +297,7 @@ class TestView : VBox() {
      */
     private fun disposeVisualizer(active: ActiveVisualizer) {
         midiSimulator.removeListener(active.stage)
+        audioSpectrumSimulator.removeListener(active.stage)
         active.stage.dispose()
     }
 

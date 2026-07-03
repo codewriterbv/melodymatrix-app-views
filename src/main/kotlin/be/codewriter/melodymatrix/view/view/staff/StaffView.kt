@@ -149,11 +149,15 @@ class StaffView : MmxView() {
             MmxEventType.CHORD -> {
                 // Not needed here
             }
-        }
-    }
 
-    companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Treble and Bass Clef Staff"
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed here
+            }
+            }
+            }
+
+            companion object : MmxViewMetadata {
+            override fun getViewTitle(): String = "Treble and Bass Clef Staff"
         override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
         override fun getViewImagePath(): String = "/view/scale.png"
     }

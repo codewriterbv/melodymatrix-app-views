@@ -131,10 +131,14 @@ class DrumView : MmxView(), MmxNoteDispatcher {
             MmxEventType.CHORD -> {
                 // Not needed here
             }
-        }
-    }
 
-    private fun registerNode(
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed here
+            }
+            }
+            }
+
+            private fun registerNode(
         stage: Pane,
         part: DrumPart,
         x: Double,

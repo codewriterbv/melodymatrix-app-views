@@ -276,11 +276,15 @@ class MidiView : MmxView() {
             MmxEventType.CHORD -> {
                 // Not needed here
             }
-        }
-    }
 
-    /**
-     * Populates the detail panel with the field values of the selected MIDI event.
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed here
+            }
+            }
+            }
+
+            /**
+            * Populates the detail panel with the field values of the selected MIDI event.
      *
      * Updates all bound [StringProperty] fields so the GridPane labels refresh automatically.
      * The method is annotated with [ExperimentalStdlibApi] because it relies on experimental

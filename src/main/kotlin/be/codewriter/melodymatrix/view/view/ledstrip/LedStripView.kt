@@ -441,8 +441,12 @@ class LedStripView : MmxView() {
             MmxEventType.CHORD -> {
                 // Not needed in this viewer
             }
-        }
-    }
+
+            MmxEventType.AUDIO_SPECTRUM -> {
+                // Not needed in this viewer
+            }
+            }
+            }
 
     companion object : MmxViewMetadata {
         override fun getViewTitle(): String = "Let's flash some lights..."
