@@ -3,11 +3,7 @@ package be.codewriter.melodymatrix.view.view.piano
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.event.MidiDataEvent
-import be.codewriter.melodymatrix.view.event.MmxEvent
-import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.event.NoteEventListener
-import be.codewriter.melodymatrix.view.event.PlayEvent
+import be.codewriter.melodymatrix.view.event.*
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
@@ -85,7 +81,6 @@ class PianoWithEffectsView(
     private var lastTime = 0L
 
 
-
     init {
         config.showDebugInfo.value = showDebugInfo
         config.restoreSettings()
@@ -155,7 +150,6 @@ class PianoWithEffectsView(
         }
     }
 
-
     private fun createSettingsToolbar(): HBox {
         return HBox(8.0).apply {
             alignment = Pos.CENTER_LEFT
@@ -174,6 +168,9 @@ class PianoWithEffectsView(
                 createSettingsButton("Image", config.backgroundImageEnabled) {
                     ImageConfigurator(config, licenseStatus)
                 },
+                createSettingsButton("Blocks", config.fallingBlocksEnabled) {
+                    NoteBlocksConfigurator(config)
+                },
                 createSettingsButton("Explosion", config.explosionEnabled) {
                     ExplosionConfigurator(config)
                 },
@@ -182,12 +179,8 @@ class PianoWithEffectsView(
                 },
                 createSettingsButton("Clouds", config.cloudEnabled) {
                     CloudConfigurator(config)
-                },
-                createSettingsButton("Falling Notes", config.fallingBlocksEnabled) {
-                    NoteBlocksConfigurator(config)
                 }
-
-                )
+            )
             if (showDebugInfo) {
                 children.add(MmxToggleButton("FPS", config.showDebugInfo, TOOLBAR_CONTROL_HEIGHT))
             }
@@ -358,11 +351,11 @@ class PianoWithEffectsView(
                     pianoCanvas.clearScheduledNotes()
                 }
             }
-            }
-            }
+        }
+    }
 
-            companion object : MmxViewMetadata {
-            override fun getViewTitle(): String = "Piano with visual effects"
+    companion object : MmxViewMetadata {
+        override fun getViewTitle(): String = "Piano with visual effects"
         override fun getViewDescription(): String =
             "Renders an animated piano keyboard view with configurable visual effects."
 
@@ -376,5 +369,5 @@ class PianoWithEffectsView(
         const val PIANO_WIDTH = 1280.0
         const val PIANO_HEIGHT = PIANO_BACKGROUND_HEIGHT + PIANO_KEYBOARD_HEIGHT
 
-        }
+    }
 }
