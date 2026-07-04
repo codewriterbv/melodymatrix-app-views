@@ -7,6 +7,7 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.event.PlayEvent
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
@@ -82,6 +83,8 @@ class PianoWithEffectsView(
     private var fpsTimer: AnimationTimer? = null
     private var frameCount = 0
     private var lastTime = 0L
+
+
 
     init {
         config.showDebugInfo.value = showDebugInfo
@@ -179,9 +182,12 @@ class PianoWithEffectsView(
                 },
                 createSettingsButton("Clouds", config.cloudEnabled) {
                     CloudConfigurator(config)
+                },
+                createSettingsButton("Falling Notes", config.fallingBlocksEnabled) {
+                    NoteBlocksConfigurator(config)
                 }
 
-            )
+                )
             if (showDebugInfo) {
                 children.add(MmxToggleButton("FPS", config.showDebugInfo, TOOLBAR_CONTROL_HEIGHT))
             }
@@ -278,11 +284,64 @@ class PianoWithEffectsView(
                     keyboardView.getEffectOrigin(midiDataEvent.note)?.let { keyOrigin ->
                         pianoCanvas.playNote(midiDataEvent, keyOrigin)
                     }
+
+                    if (config.risingBlocksEnabled.value &&
+                        (midiDataEvent.event == MidiEvent.NOTE_ON || midiDataEvent.event == MidiEvent.NOTE_OFF)
+                    ) {
+                        keyboardView.getKeyBlockRect(midiDataEvent.note)?.let { keyRect ->
+                            if (midiDataEvent.event == MidiEvent.NOTE_ON && midiDataEvent.velocity > 0) {
+                                pianoCanvas.beginRisingNote(
+                                    note = midiDataEvent.note,
+                                    velocity = midiDataEvent.velocity,
+                                    channel = midiDataEvent.channel,
+                                    keyRect = keyRect
+                                )
+                            } else {
+                                pianoCanvas.endRisingNote(midiDataEvent.note)
+                            }
+                        }
+                    }
                 }
             }
 
             MmxEventType.PLAY -> {
-                // Not needed here
+                val playEvent = event as? PlayEvent ?: return
+                if (!config.fallingBlocksEnabled.value) {
+                    logger.debug(
+                        "[FALLING] PLAY received but falling blocks disabled: note={} startTime={}ns",
+                        playEvent.note, playEvent.startTime
+                    )
+                    return
+                }
+                Platform.runLater {
+                    val keyRect = keyboardView.getKeyBlockRect(playEvent.note)
+                    if (keyRect == null) {
+                        logger.warn(
+                            "[FALLING] No key rect for note {} — falling block skipped",
+                            playEvent.note
+                        )
+                        return@runLater
+                    }
+                    // PlayEvent.startTime is wall-clock nanoseconds since epoch (as set by
+                    // PlaybackEventScheduler / MidiSimulator). Divide by 1M to get ms.
+                    val landWallClockMs = playEvent.startTime / 1_000_000L
+                    val durationMs = playEvent.duration.toMillis().toLong().coerceAtLeast(0L)
+                    val nowMs = System.currentTimeMillis()
+                    logger.debug(
+                        "[FALLING] scheduling: note={} land=+{}ms (wallClock={}) durationMs={} lookAhead={}s keyRect=[x={}, w={}]",
+                        playEvent.note, landWallClockMs - nowMs, landWallClockMs, durationMs,
+                        config.noteBlockLookAheadSeconds.value, keyRect.minX, keyRect.width
+                    )
+                    pianoCanvas.scheduleFallingNote(
+                        note = playEvent.note,
+                        landTimestampMs = landWallClockMs,
+                        durationMs = durationMs,
+                        velocity = playEvent.velocity,
+                        // PlayEvent has no channel field in v1; default to channel 0.
+                        channel = 0,
+                        keyRect = keyRect
+                    )
+                }
             }
 
             MmxEventType.CHORD -> {
@@ -291,6 +350,13 @@ class PianoWithEffectsView(
 
             MmxEventType.AUDIO_SPECTRUM -> {
                 // Not needed here
+            }
+
+            MmxEventType.PLAYBACK_STOP -> {
+                logger.info("[FALLING] PLAYBACK_STOP received — clearing scheduled falling blocks")
+                Platform.runLater {
+                    pianoCanvas.clearScheduledNotes()
+                }
             }
             }
             }
@@ -309,5 +375,6 @@ class PianoWithEffectsView(
         const val PIANO_KEYBOARD_HEIGHT = 120
         const val PIANO_WIDTH = 1280.0
         const val PIANO_HEIGHT = PIANO_BACKGROUND_HEIGHT + PIANO_KEYBOARD_HEIGHT
-    }
+
+        }
 }

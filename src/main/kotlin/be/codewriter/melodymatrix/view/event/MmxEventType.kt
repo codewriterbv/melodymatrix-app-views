@@ -16,5 +16,11 @@ enum class MmxEventType {
     CHORD,
 
     /** Live audio spectrum event type carrying FFT bin magnitudes */
-    AUDIO_SPECTRUM
-}
+    AUDIO_SPECTRUM,
+
+    /**
+     * Signals that the current recording playback has been stopped/cancelled.
+     * Views should discard any pre-scheduled playback state (e.g. falling note blocks).
+     */
+    PLAYBACK_STOP
+    }

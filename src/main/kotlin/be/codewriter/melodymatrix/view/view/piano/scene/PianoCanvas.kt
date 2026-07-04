@@ -1,15 +1,21 @@
 package be.codewriter.melodymatrix.view.view.piano.scene
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
+import be.codewriter.melodymatrix.view.definition.Note
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_WIDTH
 import be.codewriter.melodymatrix.view.view.piano.animation.AnimationCalculator
 import be.codewriter.melodymatrix.view.view.piano.animation.AnimationState
+import be.codewriter.melodymatrix.view.view.piano.animation.NoteBlockConfig
+import be.codewriter.melodymatrix.view.view.piano.animation.NoteBlockData
 import be.codewriter.melodymatrix.view.view.piano.data.PianoBackgroundImage
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.animation.AnimationTimer
 import javafx.geometry.Point2D
+import javafx.geometry.Rectangle2D
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
@@ -69,6 +75,15 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
             latestAnimationState = state
         }
         animationCalculator?.start()
+
+        // Drop any in-flight note blocks when the corresponding toggle is switched off,
+        // so previously-visible blocks disappear immediately instead of finishing their trajectory.
+        config.fallingBlocksEnabled.addListener { _, _, enabled ->
+            if (enabled != true) animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
+        }
+        config.risingBlocksEnabled.addListener { _, _, enabled ->
+            if (enabled != true) animationCalculator?.clearNoteBlocks(clearFalling = false, clearRising = true)
+        }
 
         // Create animation timer for 60 FPS updates
         animationTimer = object : AnimationTimer() {
@@ -139,7 +154,64 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
                 explosionType = config.fireworksExplosionType.value
             )
         }
-    }
+        }
+
+        /**
+        * Schedules a Synthesia-style falling note block that lands on the given [note]'s
+        * key column at [landTimestampMs].
+        *
+        * @param note            Target note (identifies the key column)
+        * @param landTimestampMs Absolute wall-clock time (System.currentTimeMillis()) when
+        *                        the bottom of the block should reach the top of the keyboard
+        * @param durationMs      Sustain length in milliseconds; determines block height
+        * @param velocity        MIDI velocity (0–127)
+        * @param channel         MIDI channel (0–15)
+        * @param keyRect         Key column rectangle from `KeyboardView.getKeyBlockRect`
+        */
+        fun scheduleFallingNote(
+            note: Note,
+            landTimestampMs: Long,
+            durationMs: Long,
+            velocity: Int,
+            channel: Int,
+            keyRect: Rectangle2D
+        ) {
+            if (animationCalculator == null) {
+                logger.warn("[FALLING] scheduleFallingNote called but animationCalculator is null")
+                return
+            }
+            logger.debug(
+                "[FALLING] canvas.scheduleFallingNote: note={} land=+{}ms durationMs={} keyRect=[x={}, w={}]",
+                note, landTimestampMs - System.currentTimeMillis(), durationMs, keyRect.minX, keyRect.width
+            )
+            animationCalculator?.scheduleFallingBlock(
+                note = note,
+                landTimestampMs = landTimestampMs,
+                durationMs = durationMs,
+                velocity = velocity,
+                channel = channel,
+                keyRect = keyRect
+            )
+        }
+
+        /** Starts a rising note block for [note], growing upward until [endRisingNote] is called. */
+        fun beginRisingNote(note: Note, velocity: Int, channel: Int, keyRect: Rectangle2D) {
+        animationCalculator?.startRisingBlock(note, velocity, channel, keyRect)
+        }
+
+        /** Marks the open rising block for [note] as released; it will drift up and off. */
+        fun endRisingNote(note: Note) {
+            animationCalculator?.endRisingBlock(note)
+        }
+
+        /**
+         * Discards every scheduled falling block. Called when playback is stopped mid-recording
+         * so pre-scheduled blocks do not keep animating past the stop.
+         */
+        fun clearScheduledNotes() {
+            logger.info("[FALLING] clearScheduledNotes: dropping all falling blocks")
+            animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
+        }
 
     /** Redraws the full canvas for the current animation frame. Called by the [AnimationTimer]. */
     private fun update() {
@@ -155,6 +227,17 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
             wobbleAmplitude = config.cloudWobbleAmplitude.value,
             opacity = config.cloudOpacity.value,
             spawnRadius = config.cloudSpawnRadius.value
+        )
+
+        animationCalculator?.updateNoteBlockConfig(
+            NoteBlockConfig(
+                lookAheadSeconds = config.noteBlockLookAheadSeconds.value,
+                colorMode = config.noteBlockColorMode.value,
+                fixedColor = config.noteBlockFixedColor.value,
+                lowVelocityColor = config.noteBlockLowVelocityColor.value,
+                highVelocityColor = config.noteBlockHighVelocityColor.value,
+                opacity = config.noteBlockOpacity.value
+            )
         )
 
         // Apply state to visual elements
@@ -175,6 +258,9 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
             ctx.globalAlpha = savedAlpha
         }
 
+        // Note blocks sit in front of the background but behind particle effects
+        // (clouds, explosions, fireworks) so effects still "pop" over the falling grid.
+        state?.let(::drawNoteBlocks)
         state?.let(::drawAboveKeyParticles)
         state?.let(::drawParticles)
 
@@ -204,6 +290,78 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
             )
             ctx.fillOval(particle.x, particle.y, particle.size, particle.size)
         }
+    }
+
+    /**
+     * Draws Synthesia-style falling and rising note blocks from the given [AnimationState].
+     *
+     * Falling blocks (playback reference) are drawn first, then rising blocks (user input)
+     * on top so the performer's own notes remain visible over the incoming reference.
+     */
+    private fun drawNoteBlocks(state: AnimationState) {
+        if (state.fallingBlocks.isEmpty() && state.risingBlocks.isEmpty()) return
+
+        val cornerRadius = config.noteBlockCornerRadius.value
+        val arcDiameter = (cornerRadius * 2.0).coerceAtLeast(0.0)
+        val outline = config.noteBlockOutlineEnabled.value
+        val outlineColor = config.noteBlockOutlineColor.value
+        val outlineWidth = config.noteBlockOutlineWidth.value
+
+        val savedAlpha = ctx.globalAlpha
+        val savedLineWidth = ctx.lineWidth
+
+        val drawnFalling = drawBlockList(state.fallingBlocks, arcDiameter, outline, outlineColor, outlineWidth)
+        val drawnRising = drawBlockList(state.risingBlocks, arcDiameter, outline, outlineColor, outlineWidth)
+
+        val nowMs = System.currentTimeMillis()
+        if (state.fallingBlocks.isNotEmpty() && nowMs - lastDrawHeartbeatMs > 500L) {
+            lastDrawHeartbeatMs = nowMs
+            val first = state.fallingBlocks.first()
+            logger.info(
+                "[FALLING] draw: falling total={} drawn={} rising drawn={}; first block: x={} y={} w={} h={} colour={} opacity={}",
+                state.fallingBlocks.size, drawnFalling, drawnRising,
+                "%.1f".format(first.x), "%.1f".format(first.y),
+                "%.1f".format(first.width), "%.1f".format(first.height),
+                first.color, "%.2f".format(first.opacity)
+            )
+        }
+
+        ctx.globalAlpha = savedAlpha
+        ctx.lineWidth = savedLineWidth
+    }
+
+    /** Returns the number of blocks actually drawn (after visibility clipping). */
+    private fun drawBlockList(
+        blocks: List<NoteBlockData>,
+        arcDiameter: Double,
+        outline: Boolean,
+        outlineColor: Color,
+        outlineWidth: Double
+    ): Int {
+        var drawn = 0
+        blocks.forEach { block ->
+            if (block.height <= 0.0 || block.width <= 0.0) return@forEach
+            // Skip fully off-canvas blocks (should be rare, physics prunes most).
+            if (block.y + block.height < 0.0 || block.y > PIANO_BACKGROUND_HEIGHT) return@forEach
+
+            ctx.globalAlpha = block.opacity.coerceIn(0.0, 1.0)
+            ctx.fill = block.color
+            ctx.fillRoundRect(block.x, block.y, block.width, block.height, arcDiameter, arcDiameter)
+
+            if (outline && outlineWidth > 0.0) {
+                ctx.stroke = outlineColor
+                ctx.lineWidth = outlineWidth
+                ctx.strokeRoundRect(block.x, block.y, block.width, block.height, arcDiameter, arcDiameter)
+            }
+            drawn++
+        }
+        return drawn
+    }
+
+    private var lastDrawHeartbeatMs = 0L
+
+    companion object {
+        private val logger: Logger = LogManager.getLogger(PianoCanvas::class.java.name)
     }
 
     /** Draws all above-key smoke particles from the given [AnimationState]. */

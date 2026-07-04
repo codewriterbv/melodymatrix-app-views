@@ -4,7 +4,10 @@ import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.data.FireworksExplosionType
 import javafx.geometry.Point2D
+import javafx.geometry.Rectangle2D
 import javafx.scene.paint.Color
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -67,7 +70,32 @@ class AnimationCalculator(
             val liftMultiplier: Double,
             val explosionType: FireworksExplosionType
         ) : AnimationCommand
-    }
+
+        /** Schedules a falling note block that will "land" on the keyboard at [landTimestampMs]. */
+        data class ScheduleFallingBlock(
+            val note: Note,
+            val landTimestampMs: Long,
+            val durationMs: Long,
+            val velocity: Int,
+            val channel: Int,
+            val keyRect: Rectangle2D
+        ) : AnimationCommand
+
+        /** Starts a rising note block that grows upward from the top of the keyboard. */
+        data class StartRisingBlock(
+            val note: Note,
+            val velocity: Int,
+            val channel: Int,
+            val keyRect: Rectangle2D,
+            val startTimestampMs: Long
+        ) : AnimationCommand
+
+        /** Marks the rising block for [note] as closed so its height stops growing. */
+        data class EndRisingBlock(val note: Note, val endTimestampMs: Long) : AnimationCommand
+
+        /** Clears scheduled falling blocks and/or in-flight rising blocks. */
+        data class ClearNoteBlocks(val clearFalling: Boolean, val clearRising: Boolean) : AnimationCommand
+        }
 
     private val executor: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { task ->
@@ -86,6 +114,13 @@ class AnimationCalculator(
     private val cloudGenerator = CloudGenerator()
     private val fireworksGenerator = FireworksGenerator()
     private val explosionGenerator = ExplosionGenerator()
+
+    private val fallingBlocks = mutableListOf<FallingBlockInfo>()
+    private val risingBlocks = mutableListOf<RisingBlockInfo>()
+    private var lastFallingHeartbeatMs = 0L
+
+    @Volatile
+    private var noteBlockConfig: NoteBlockConfig = NoteBlockConfig.DEFAULT
 
     /**
      * Starts the 60 FPS animation loop. No-ops if already running.
@@ -116,12 +151,16 @@ class AnimationCalculator(
         val deltaTime = (currentTime - lastUpdateTime) / 1_000_000_000.0 // Convert to seconds
         lastUpdateTime = currentTime
 
+        val nowMs = System.currentTimeMillis()
+        val cfg = noteBlockConfig
+
         val state = synchronized(stateLock) {
             drainQueuedCommands()
             // Perform heavy calculations here
             updateParticles(deltaTime)
             updateKeyAnimations(deltaTime)
             updateFireEffect(deltaTime)
+            updateNoteBlocks(deltaTime, nowMs, cfg)
 
             // Create immutable state snapshot
             AnimationState(
@@ -129,7 +168,9 @@ class AnimationCalculator(
                 particlePositions = activeParticles.map { it.toData() },
                 aboveKeyParticles = aboveKeyParticles.map { it.toData() },
                 fireEmitterState = calculateFireState(),
-                keyStates = activeKeys.mapValues { it.value.toState() }
+                keyStates = activeKeys.mapValues { it.value.toState() },
+                fallingBlocks = fallingBlocks.map { it.toData(nowMs, cfg) },
+                risingBlocks = risingBlocks.map { it.toData(cfg) }
             )
         }
 
@@ -276,6 +317,82 @@ class AnimationCalculator(
         )
     }
 
+    /**
+     * Enqueues a Synthesia-style falling block that lands on [note]'s key at [landTimestampMs].
+     *
+     * @param note             Target note; used purely to identify the target key column
+     * @param landTimestampMs  Absolute wall-clock time (System.currentTimeMillis()) at which
+     *                         the bottom of the block should align with the top of the keyboard
+     * @param durationMs       Sustain length of the source note; determines block height
+     * @param velocity         MIDI velocity 0–127 (used for BY_VELOCITY colouring)
+     * @param channel          MIDI channel 0–15 (used for BY_CHANNEL colouring)
+     * @param keyRect          Key column rectangle (x + width) from `KeyboardView.getKeyBlockRect`
+     */
+    fun scheduleFallingBlock(
+        note: Note,
+        landTimestampMs: Long,
+        durationMs: Long,
+        velocity: Int,
+        channel: Int,
+        keyRect: Rectangle2D
+    ) {
+        logger.debug(
+            "[FALLING] enqueue command: note={} land=+{}ms durationMs={}",
+            note, landTimestampMs - System.currentTimeMillis(), durationMs
+        )
+        commandQueue.add(
+            AnimationCommand.ScheduleFallingBlock(
+                note = note,
+                landTimestampMs = landTimestampMs,
+                durationMs = durationMs,
+                velocity = velocity,
+                channel = channel,
+                keyRect = keyRect
+            )
+        )
+    }
+
+    /**
+     * Enqueues the start of a rising block for the given [note].
+     *
+     * The block sprouts at the top of the keyboard and grows upward each frame
+     * until [endRisingBlock] is called for the same [note], after which it
+     * detaches and drifts upward until it leaves the canvas.
+     */
+    fun startRisingBlock(note: Note, velocity: Int, channel: Int, keyRect: Rectangle2D) {
+        commandQueue.add(
+            AnimationCommand.StartRisingBlock(
+                note = note,
+                velocity = velocity,
+                channel = channel,
+                keyRect = keyRect,
+                startTimestampMs = System.currentTimeMillis()
+            )
+        )
+    }
+
+    /** Enqueues the release of the currently-open rising block for [note]. */
+    fun endRisingBlock(note: Note) {
+        commandQueue.add(AnimationCommand.EndRisingBlock(note, System.currentTimeMillis()))
+    }
+
+    /**
+     * Clears scheduled falling blocks and/or in-flight rising blocks.
+     * Called when the corresponding user toggle flips from enabled→disabled,
+     * and also useful for future wiring of playback pause / seek.
+     */
+    fun clearNoteBlocks(clearFalling: Boolean = true, clearRising: Boolean = false) {
+        commandQueue.add(AnimationCommand.ClearNoteBlocks(clearFalling, clearRising))
+    }
+
+    /**
+     * Updates the appearance/timing configuration used by note-block rendering.
+     * Meant to be called every frame with the current settings snapshot.
+     */
+    fun updateNoteBlockConfig(config: NoteBlockConfig) {
+        noteBlockConfig = config
+    }
+
     /** Drains all queued commands and applies them to the current animation state. */
     private fun drainQueuedCommands() {
         while (true) {
@@ -324,9 +441,53 @@ class AnimationCalculator(
                         )
                     )
                 }
-            }
-        }
-    }
+
+                is AnimationCommand.ScheduleFallingBlock -> {
+                    val info = FallingBlockInfo(
+                        note = command.note,
+                        landTimestampMs = command.landTimestampMs,
+                        durationMs = command.durationMs,
+                        velocity = command.velocity,
+                        channel = command.channel,
+                        x = command.keyRect.minX,
+                        width = command.keyRect.width
+                    )
+                    fallingBlocks.add(info)
+                    logger.info(
+                        "[FALLING] applied to state: note={} land=+{}ms durationMs={} totalFalling={}",
+                        info.note, info.landTimestampMs - System.currentTimeMillis(),
+                        info.durationMs, fallingBlocks.size
+                    )
+                }
+
+                is AnimationCommand.StartRisingBlock -> {
+                    // Replace any existing open block for the same note (stuck notes).
+                    risingBlocks.removeAll { it.note == command.note && it.isOpen }
+                    risingBlocks.add(
+                        RisingBlockInfo(
+                            note = command.note,
+                            velocity = command.velocity,
+                            channel = command.channel,
+                            x = command.keyRect.minX,
+                            width = command.keyRect.width,
+                            y = PIANO_BACKGROUND_HEIGHT,
+                            height = 0.0,
+                            isOpen = true
+                        )
+                    )
+                }
+
+                is AnimationCommand.EndRisingBlock -> {
+                    risingBlocks.firstOrNull { it.note == command.note && it.isOpen }?.isOpen = false
+                }
+
+                is AnimationCommand.ClearNoteBlocks -> {
+                    if (command.clearFalling) fallingBlocks.clear()
+                    if (command.clearRising) risingBlocks.clear()
+                }
+                }
+                }
+                }
 
     /** Advances all active explosion/fireworks particles by [deltaTime] seconds, removing expired ones. */
     private fun updateParticles(deltaTime: Double) {
@@ -370,6 +531,56 @@ class AnimationCalculator(
     private fun calculateFireState(): FireState {
         // Simplified fire state calculation
         return FireState(0.0, PIANO_BACKGROUND_HEIGHT - 5.0, 1.0)
+    }
+
+    /**
+     * Advances falling and rising note blocks by [deltaTime] seconds using [cfg]'s
+     * look-ahead-derived scroll rate, and prunes blocks that have left the canvas.
+     */
+    private fun updateNoteBlocks(deltaTime: Double, nowMs: Long, cfg: NoteBlockConfig) {
+        val lookAhead = cfg.lookAheadSeconds.coerceAtLeast(0.1)
+        val pxPerSecond = PIANO_BACKGROUND_HEIGHT / lookAhead
+
+        // Falling blocks: purely time-driven; nothing to mutate per frame, but drop
+        // blocks whose top has scrolled off the bottom of the canvas.
+        val beforeCount = fallingBlocks.size
+        fallingBlocks.removeAll { block ->
+            val elapsedSincePlan = (nowMs - block.landTimestampMs) / 1000.0
+            val bottomY = PIANO_BACKGROUND_HEIGHT + elapsedSincePlan * pxPerSecond
+            val topY = bottomY - block.durationMs / 1000.0 * pxPerSecond
+            topY > PIANO_BACKGROUND_HEIGHT
+        }
+        if (beforeCount > 0 && fallingBlocks.size != beforeCount) {
+            logger.debug("[FALLING] pruned {} block(s), {} remaining", beforeCount - fallingBlocks.size, fallingBlocks.size)
+        }
+        // Periodic heartbeat when blocks are active, throttled to once per ~500ms.
+        if (fallingBlocks.isNotEmpty() && nowMs - lastFallingHeartbeatMs > 500L) {
+            lastFallingHeartbeatMs = nowMs
+            val sample = fallingBlocks.first()
+            val bottomY = PIANO_BACKGROUND_HEIGHT + (nowMs - sample.landTimestampMs) / 1000.0 * pxPerSecond
+            val topY = bottomY - sample.durationMs / 1000.0 * pxPerSecond
+            logger.info(
+                "[FALLING] state: {} block(s); first: note={} land=+{}ms topY={} bottomY={} pxPerSec={}",
+                fallingBlocks.size, sample.note, sample.landTimestampMs - nowMs,
+                "%.1f".format(topY), "%.1f".format(bottomY), "%.1f".format(pxPerSecond)
+            )
+        }
+
+        // Rising blocks: while open, height grows; while closed, block drifts upward.
+        val riseIter = risingBlocks.iterator()
+        while (riseIter.hasNext()) {
+            val block = riseIter.next()
+            if (block.isOpen) {
+                val grow = deltaTime * pxPerSecond
+                block.height += grow
+                block.y = PIANO_BACKGROUND_HEIGHT - block.height
+            } else {
+                block.y -= deltaTime * pxPerSecond
+                if (block.y + block.height < 0.0) {
+                    riseIter.remove()
+                }
+            }
+        }
     }
 
 
@@ -446,4 +657,67 @@ class AnimationCalculator(
     ) {
         fun toState() = KeyState(isPressed, animationProgress)
     }
-}
+
+    private companion object {
+        val logger: Logger = LogManager.getLogger(AnimationCalculator::class.java.name)
+    }
+
+    /**
+     * Runtime state for a scheduled falling block. Position is derived every frame
+     * from wall-clock delta to [landTimestampMs] so the block always lands accurately
+     * regardless of frame jitter.
+     */
+    data class FallingBlockInfo(
+        val note: Note,
+        val landTimestampMs: Long,
+        val durationMs: Long,
+        val velocity: Int,
+        val channel: Int,
+        val x: Double,
+        val width: Double
+    ) {
+        fun toData(nowMs: Long, cfg: NoteBlockConfig): NoteBlockData {
+            val pxPerSecond = PIANO_BACKGROUND_HEIGHT / cfg.lookAheadSeconds.coerceAtLeast(0.1)
+            val heightPx = durationMs / 1000.0 * pxPerSecond
+            // Y-down canvas: bottom of block increases as time approaches landTimestampMs.
+            //   nowMs << landTimestampMs → bottomY near 0 (top of canvas)
+            //   nowMs == landTimestampMs → bottomY == PIANO_BACKGROUND_HEIGHT (top of keyboard)
+            //   nowMs >  landTimestampMs → bottomY > PIANO_BACKGROUND_HEIGHT (off canvas)
+            val elapsedSincePlan = (nowMs - landTimestampMs) / 1000.0
+            val bottomY = PIANO_BACKGROUND_HEIGHT + elapsedSincePlan * pxPerSecond
+            val topY = bottomY - heightPx
+            return NoteBlockData(
+                x = x,
+                y = topY,
+                width = width,
+                height = heightPx,
+                color = cfg.resolveColor(velocity, channel),
+                opacity = cfg.opacity
+            )
+        }
+    }
+
+    /**
+     * Runtime state for a rising block. While [isOpen] is true, [height] grows every
+     * frame; once closed, the block drifts upward until it leaves the canvas.
+     */
+    data class RisingBlockInfo(
+        val note: Note,
+        val velocity: Int,
+        val channel: Int,
+        val x: Double,
+        val width: Double,
+        var y: Double,
+        var height: Double,
+        var isOpen: Boolean
+    ) {
+        fun toData(cfg: NoteBlockConfig): NoteBlockData = NoteBlockData(
+            x = x,
+            y = y,
+            width = width,
+            height = height,
+            color = cfg.resolveColor(velocity, channel),
+            opacity = cfg.opacity
+        )
+    }
+    }

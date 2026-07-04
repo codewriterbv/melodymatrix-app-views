@@ -8,15 +8,12 @@ import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
+import be.codewriter.melodymatrix.view.view.spectrum.AudioSpectrumMidiView.Companion.ROLL_WINDOW_MILLIS
 import javafx.animation.AnimationTimer
 import javafx.geometry.VPos
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.RowConstraints
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
 import javafx.scene.text.TextAlignment
@@ -126,6 +123,10 @@ class AudioSpectrumMidiView : MmxView() {
             }
 
             MmxEventType.CHORD -> {
+                // Not needed here
+            }
+
+            MmxEventType.PLAYBACK_STOP -> {
                 // Not needed here
             }
         }

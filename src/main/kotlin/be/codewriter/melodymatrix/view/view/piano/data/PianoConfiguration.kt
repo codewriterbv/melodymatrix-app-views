@@ -165,6 +165,47 @@ class PianoConfiguration(
     /** X-radius around a pressed key within which new particles are spawned. */
     var cloudSpawnRadius = SimpleDoubleProperty(160.0)
 
+    // Note-block (Synthesia-style) settings
+    /** Enables falling note blocks driven by scheduled [be.codewriter.melodymatrix.view.event.PlayEvent]s. */
+    var fallingBlocksEnabled = SimpleBooleanProperty(false)
+
+    /** Enables rising note blocks driven by live MIDI NOTE_ON/OFF events. */
+    var risingBlocksEnabled = SimpleBooleanProperty(false)
+
+    /**
+     * Look-ahead / trail window in seconds.
+     * Controls how far in advance falling blocks appear and how quickly rising blocks scroll upward.
+     * Internally converted to pixels/second = PIANO_BACKGROUND_HEIGHT / lookAheadSeconds.
+     */
+    var noteBlockLookAheadSeconds = SimpleDoubleProperty(3.0)
+
+    /** How note blocks are coloured (fixed / velocity / channel). */
+    var noteBlockColorMode = SimpleObjectProperty(NoteBlockColorMode.FIXED)
+
+    /** Colour used when [noteBlockColorMode] is [NoteBlockColorMode.FIXED]. */
+    var noteBlockFixedColor = SimpleObjectProperty(Color.web("#4d66cc"))
+
+    /** Low-velocity colour used when [noteBlockColorMode] is [NoteBlockColorMode.BY_VELOCITY]. */
+    var noteBlockLowVelocityColor = SimpleObjectProperty(Color.web("#2e7dff"))
+
+    /** High-velocity colour used when [noteBlockColorMode] is [NoteBlockColorMode.BY_VELOCITY]. */
+    var noteBlockHighVelocityColor = SimpleObjectProperty(Color.web("#ff3b3b"))
+
+    /** Corner radius (px) applied to each block. */
+    var noteBlockCornerRadius = SimpleDoubleProperty(6.0)
+
+    /** Fill opacity for note blocks (0.3–1.0). */
+    var noteBlockOpacity = SimpleDoubleProperty(0.9)
+
+    /** Whether to draw a stroke outline around each block. */
+    var noteBlockOutlineEnabled = SimpleBooleanProperty(true)
+
+    /** Outline colour used when [noteBlockOutlineEnabled] is true. */
+    var noteBlockOutlineColor = SimpleObjectProperty(Color.WHITE)
+
+    /** Outline stroke width in pixels. */
+    var noteBlockOutlineWidth = SimpleDoubleProperty(1.0)
+
     fun restoreSettings() {
         val settings = settings ?: return
         settings.bindBoolean(showDebugInfo, registryKey("showDebugInfo"))
@@ -224,7 +265,20 @@ class PianoConfiguration(
         settings.bindDouble(cloudWobbleAmplitude, registryKey("cloudWobbleAmplitude"))
         settings.bindDouble(cloudOpacity, registryKey("cloudOpacity"))
         settings.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
-    }
+
+        settings.bindBoolean(fallingBlocksEnabled, registryKey("fallingBlocksEnabled"))
+        settings.bindBoolean(risingBlocksEnabled, registryKey("risingBlocksEnabled"))
+        settings.bindDouble(noteBlockLookAheadSeconds, registryKey("noteBlockLookAheadSeconds"))
+        settings.bindEnum(noteBlockColorMode, registryKey("noteBlockColorMode"), NoteBlockColorMode::class.java)
+        settings.bindColor(noteBlockFixedColor, registryKey("noteBlockFixedColor"))
+        settings.bindColor(noteBlockLowVelocityColor, registryKey("noteBlockLowVelocityColor"))
+        settings.bindColor(noteBlockHighVelocityColor, registryKey("noteBlockHighVelocityColor"))
+        settings.bindDouble(noteBlockCornerRadius, registryKey("noteBlockCornerRadius"))
+        settings.bindDouble(noteBlockOpacity, registryKey("noteBlockOpacity"))
+        settings.bindBoolean(noteBlockOutlineEnabled, registryKey("noteBlockOutlineEnabled"))
+        settings.bindColor(noteBlockOutlineColor, registryKey("noteBlockOutlineColor"))
+        settings.bindDouble(noteBlockOutlineWidth, registryKey("noteBlockOutlineWidth"))
+        }
 
     private fun registryKey(name: String): String = "view.piano.$viewName.$name"
 

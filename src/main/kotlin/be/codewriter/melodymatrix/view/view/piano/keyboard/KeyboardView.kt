@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.NoteEventListener
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.geometry.Point2D
+import javafx.geometry.Rectangle2D
 import javafx.scene.Node
 import javafx.scene.layout.Pane
 
@@ -141,6 +142,23 @@ class KeyboardView private constructor(
             dims.whiteKeyWidth / 2
         }
         return Point2D(centerX, 0.0)
+    }
+
+    /**
+     * Returns the horizontal bounds of the key associated with [note], for aligning
+     * Synthesia-style note blocks pixel-perfectly with the keyboard.
+     *
+     * The returned rectangle uses `x` and `width` of the key column; `y` and `height`
+     * are unused by callers (they position blocks vertically themselves) but included
+     * for future flexibility.
+     *
+     * @param note The note whose key rectangle is requested
+     * @return A [Rectangle2D] with the key's X and width, or `null` if the note has no key
+     */
+    fun getKeyBlockRect(note: Note): Rectangle2D? {
+        val key = keys[note] ?: return null
+        val width = if (note.mainNote.isSharp) dims.blackKeyWidth else dims.whiteKeyWidth
+        return Rectangle2D(key.keyX(), 0.0, width, 0.0)
     }
 
     companion object {

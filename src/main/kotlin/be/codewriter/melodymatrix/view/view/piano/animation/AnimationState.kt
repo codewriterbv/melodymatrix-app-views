@@ -11,14 +11,18 @@ import javafx.scene.paint.Color
  * @property aboveKeyParticles  Particles rendered above the keyboard keys (smoke/steam effect)
  * @property fireEmitterState   State of the fire emitter effect
  * @property keyStates          Per-note pressed/animation state for the keyboard
+ * @property fallingBlocks      Synthesia-style falling blocks scheduled from playback events
+ * @property risingBlocks       Synthesia-style rising blocks driven by live NOTE_ON/OFF events
  */
-data class AnimationState(
+ data class AnimationState(
     val timestamp: Long,
     val particlePositions: List<ParticleData>,
     val aboveKeyParticles: List<AboveKeyParticleData>,
     val fireEmitterState: FireState,
-    val keyStates: Map<Note, KeyState>
-)
+    val keyStates: Map<Note, KeyState>,
+    val fallingBlocks: List<NoteBlockData> = emptyList(),
+    val risingBlocks: List<NoteBlockData> = emptyList()
+ )
 
 /**
  * Positional and visual data for a single explosion or fireworks particle.

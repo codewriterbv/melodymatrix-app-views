@@ -4,6 +4,8 @@ import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.PlayEvent
+import javafx.util.Duration
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.concurrent.Executors
@@ -67,6 +69,11 @@ class MidiSimulator {
     /**
      * Advances to the next note in the sequence and schedules the following one.
      *
+     * After firing the current NOTE_ON, this also announces the **next** note in the sequence
+     * via a [PlayEvent] so downstream views (e.g., Synthesia-style falling blocks) can
+     * visualise the upcoming note descending toward the keyboard and land in sync with its
+     * NOTE_ON.
+     *
      * If the sequence has been exhausted and [repeat] is false, playback stops.
      */
     private fun play() {
@@ -90,6 +97,28 @@ class MidiSimulator {
                 )
             )
         )
+
+        // Announce the next note `delay` ms ahead so falling-block views have time to render
+        // a descending block that lands on beat. Velocity is a preview only; the actual
+        // NOTE_ON will pick its own random velocity when the next iteration runs.
+        val nextIdx = when {
+            idx + 1 < notes.size -> idx + 1
+            repeat -> 0
+            else -> -1
+        }
+        if (nextIdx >= 0) {
+            val nextNote = notes[nextIdx]
+            val nextLandNanos = (System.currentTimeMillis() + delay) * 1_000_000L
+            notifyListeners(
+                PlayEvent(
+                    note = nextNote,
+                    startTime = nextLandNanos,
+                    duration = Duration.millis(delay.toDouble() * 0.9),
+                    velocity = 80
+                )
+            )
+        }
+
         scheduler.schedule({ play() }, delay, TimeUnit.MILLISECONDS)
     }
 

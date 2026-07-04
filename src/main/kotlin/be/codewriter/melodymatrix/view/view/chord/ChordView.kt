@@ -148,8 +148,12 @@ class ChordView : MmxView() {
             MmxEventType.AUDIO_SPECTRUM -> {
                 // Not needed here
             }
+
+            MmxEventType.PLAYBACK_STOP -> {
+                // Not needed here
             }
-            }
+        }
+    }
 
     /**
      * Processes a MIDI event by updating the set of active notes and refreshing the staff display.

@@ -143,11 +143,15 @@ class ChartsView : MmxView() {
             MmxEventType.AUDIO_SPECTRUM -> {
                 // Not needed here
             }
-            }
-            }
 
-            companion object : MmxViewMetadata {
-            override fun getViewTitle(): String = "Charts showing the notes distribution"
+            MmxEventType.PLAYBACK_STOP -> {
+                // Not needed here
+            }
+        }
+    }
+
+    companion object : MmxViewMetadata {
+        override fun getViewTitle(): String = "Charts showing the notes distribution"
         override fun getViewDescription(): String = "Visualizes played notes using multiple chart types."
         override fun getViewImagePath(): String = "/view/charts.png"
         var chartHolders: MutableList<ChartHolder> = mutableListOf()
