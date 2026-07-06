@@ -59,7 +59,7 @@ class I18nBundleCoverageTest {
         val dirs = mutableListOf<Path>()
         Files.walk(i18nRoot).use { paths ->
             paths.filter { Files.isDirectory(it) && Files.exists(it.resolve("en.properties")) }
-                .forEach { dirs += it }
+                .forEach { dirs.add(it) }
         }
         return dirs.sorted()
     }
