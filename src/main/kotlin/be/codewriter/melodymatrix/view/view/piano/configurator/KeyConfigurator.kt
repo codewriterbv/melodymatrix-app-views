@@ -60,38 +60,31 @@ class KeyConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             valueProperty().bindBidirectional(config.pianoKeyNameFontSize)
             disableProperty().bind(config.pianoKeyNameVisible.not())
         }
-        val visibleHiddenOptions = listOf("Visible", "Hidden")
-        val noteNameVisible = stableToggle(
-            visibleHiddenOptions,
-            config.pianoKeyNameVisible.map { if (it) "Visible" else "Hidden" }
-        ).apply {
+        val noteNameVisible = stableToggle(visibleHiddenBinding(config.pianoKeyNameVisible)).apply {
             selectedProperty().bindBidirectional(config.pianoKeyNameVisible)
             labelPosition = HorizontalDirection.RIGHT
         }
-        val solfegeVisible = stableToggle(
-            visibleHiddenOptions,
-            config.pianoKeySolfegeVisible.map { if (it) "Visible" else "Hidden" }
-        ).apply {
+        val solfegeVisible = stableToggle(visibleHiddenBinding(config.pianoKeySolfegeVisible)).apply {
             selectedProperty().bindBidirectional(config.pianoKeySolfegeVisible)
             labelPosition = HorizontalDirection.RIGHT
         }
 
         contentBox.children.addAll(
-            sectionTitle("White key"),
-            twoLabeledControls("Normal", whiteNormalColor, "Active", whiteActiveColor),
-            labeledControl("Depth", whiteDepth),
-            sectionTitle("Black key"),
-            twoLabeledControls("Normal", blackNormalColor, "Active", blackActiveColor),
-            labeledControl("Depth", blackDepth),
-            sectionTitle("Key note names"),
+            sectionTitle("keyConfig.section.white_key"),
+            twoLabeledControls("keyConfig.normal", whiteNormalColor, "keyConfig.active", whiteActiveColor),
+            labeledControl("keyConfig.depth", whiteDepth),
+            sectionTitle("keyConfig.section.black_key"),
+            twoLabeledControls("keyConfig.normal", blackNormalColor, "keyConfig.active", blackActiveColor),
+            labeledControl("keyConfig.depth", blackDepth),
+            sectionTitle("keyConfig.section.note_names"),
             HBox(10.0).apply {
                 children.addAll(
-                    labeledControl("C4, D4, E4,...", noteNameVisible),
-                    labeledControl("Do, Re, Mi,...", solfegeVisible)
+                    labeledControl("keyConfig.style_letters", noteNameVisible),
+                    labeledControl("keyConfig.style_solfege", solfegeVisible)
                 )
             },
-            labeledControl("Color", noteNameColor),
-            labeledControl("Font size", noteNameFontSize)
+            labeledControl("keyConfig.color", noteNameColor),
+            labeledControl("keyConfig.font_size", noteNameFontSize)
         )
     }
 }

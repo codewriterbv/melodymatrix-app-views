@@ -21,20 +21,13 @@ import javafx.scene.shape.Rectangle
 /**
  * Settings panel for configuring the piano scene background and logo overlay.
  *
- * Provides controls for solid background colour, background image selection (thumbnail grid),
- * image transparency, and logo visibility/position/transparency. The image and logo controls
- * are bidirectionally bound to [PianoConfiguration] properties. Logo controls are disabled
- * when the license is not valid.
- *
- * @param config        Observable configuration to bind to
- * @param licenseStatus The current license status; used to gate logo settings
  * @see PianoConfiguration
  */
 class ImageConfigurator(config: PianoConfiguration, licenseStatus: LicenseStatus) : BaseConfigurator() {
 
     init {
         val backgroundImageVisible = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.backgroundImageEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.backgroundImageEnabled)
         }
@@ -81,7 +74,7 @@ class ImageConfigurator(config: PianoConfiguration, licenseStatus: LicenseStatus
         val logoVisible = ToggleSwitch().apply {
             disableProperty().bind(Bindings.not(licenseStatus.isValid))
             selectedProperty().bindBidirectional(config.logoVisible)
-            textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.logoVisible))
             labelPosition = HorizontalDirection.RIGHT
         }
         val logoTransparency = TickerSlider().apply {
@@ -126,16 +119,16 @@ class ImageConfigurator(config: PianoConfiguration, licenseStatus: LicenseStatus
         }
 
         contentBox.children.addAll(
-            sectionTitle("Background image"),
+            sectionTitle("imageConfig.section.background"),
             backgroundImageVisible,
-            labeledControl("Selection", imageSelectionPane),
-            labeledControl("Transparency", imageTransparency),
-            sectionTitle("MelodyMatrix logo"),
-            labeledControl("Visible", logoVisible),
-            labeledControl("Transparency", logoTransparency),
-            labeledControl("Size", logoWidth),
-            labeledControl("Left", logoLeft),
-            labeledControl("Top", logoTop),
+            labeledControl("imageConfig.selection", imageSelectionPane),
+            labeledControl("imageConfig.transparency", imageTransparency),
+            sectionTitle("imageConfig.section.logo"),
+            labeledControl("imageConfig.visible", logoVisible),
+            labeledControl("imageConfig.transparency", logoTransparency),
+            labeledControl("imageConfig.size", logoWidth),
+            labeledControl("imageConfig.left", logoLeft),
+            labeledControl("imageConfig.top", logoTop),
         )
     }
 }

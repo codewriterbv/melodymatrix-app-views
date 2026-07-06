@@ -14,12 +14,6 @@ import javafx.scene.control.SpinnerValueFactory
 /**
  * Settings panel for configuring the fireworks particle effect.
  *
- * Provides controls to enable/disable the fireworks, choose the explosion type, colour
- * (or random palette), burst radius, particle count, particle size, tail particle count,
- * and launch height multiplier.
- * All controls are bidirectionally bound to [PianoConfiguration] fireworks properties.
- *
- * @param config Observable configuration to bind to
  * @see PianoConfiguration
  * @see FireworksExplosionType
  */
@@ -27,7 +21,7 @@ class FireworksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
     init {
         val fireworksVisible = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.fireworksEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.fireworksEnabled)
         }
@@ -84,15 +78,15 @@ class FireworksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
         contentBox.children.addAll(
             fireworksVisible,
-            labeledControl("Fireworks Radius", fireworksRadius),
-            labeledControl("Number of Particles", numParticles),
-            labeledControl("Number of Tail Particles", tailNumParticles),
-            labeledControl("Launch Height", launchHeightMultiplier),
-            labeledControl("Vertical Lift", liftMultiplier),
-            labeledControl("Explosion Type", explosionType),
-            labeledControl("Particle Size", particleSize),
-            labeledControl("Random Color", randomColor),
-            labeledControl("Fixed Color", color)
+            labeledControl("fireworksConfig.radius", fireworksRadius),
+            labeledControl("fireworksConfig.num_particles", numParticles),
+            labeledControl("fireworksConfig.num_tail_particles", tailNumParticles),
+            labeledControl("fireworksConfig.launch_height", launchHeightMultiplier),
+            labeledControl("fireworksConfig.vertical_lift", liftMultiplier),
+            labeledControl("fireworksConfig.explosion_type", explosionType),
+            labeledControl("fireworksConfig.particle_size", particleSize),
+            labeledControl("fireworksConfig.random_color", randomColor),
+            labeledControl("fireworksConfig.fixed_color", color)
         )
     }
 }

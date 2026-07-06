@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.view.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.component.TickerSlider
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.piano.data.NoteBlockColorMode
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import javafx.beans.binding.Bindings
@@ -20,23 +21,18 @@ import javafx.scene.paint.Color
 /**
  * Settings panel for the Synthesia-style note-block visualisation (falling & rising blocks).
  *
- * Scope note: this configurator is used only from `PianoWithEffectsView`; `PianoSimpleView`
- * has no animation canvas and therefore does not expose these settings.
- *
- * @param config Observable configuration to bind to
  * @see PianoConfiguration
- * @see be.codewriter.melodymatrix.view.view.piano.animation.NoteBlockConfig
  */
 class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
     init {
         val fallingEnabled = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { if (it) "Enabled" else "Disabled" })
+            textProperty().bind(enabledDisabledBinding(config.fallingBlocksEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.fallingBlocksEnabled)
         }
         val risingEnabled = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { if (it) "Enabled" else "Disabled" })
+            textProperty().bind(enabledDisabledBinding(config.risingBlocksEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.risingBlocksEnabled)
         }
@@ -55,10 +51,11 @@ class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             valueProperty().bindBidirectional(config.noteBlockColorMode)
         }
 
-        val fixedColorPicker = labeledPicker("Fixed", config.noteBlockFixedColor)
-        val velocityLowPicker = labeledPicker("Low velocity", config.noteBlockLowVelocityColor)
-        val velocityHighPicker = labeledPicker("High velocity", config.noteBlockHighVelocityColor)
-        val channelPaletteInfo = Label("Uses a fixed 16-colour palette (one per MIDI channel).").apply {
+        val fixedColorPicker = labeledPicker("blocksConfig.fixed", config.noteBlockFixedColor)
+        val velocityLowPicker = labeledPicker("blocksConfig.low_velocity", config.noteBlockLowVelocityColor)
+        val velocityHighPicker = labeledPicker("blocksConfig.high_velocity", config.noteBlockHighVelocityColor)
+        val channelPaletteInfo = Label().apply {
+            textProperty().bind(I18n.binding(pianoBundle, "blocksConfig.channel_palette_info"))
             style = "-fx-font-size: 11px; -fx-text-fill: -color-fg-muted;"
             isWrapText = true
         }
@@ -85,7 +82,7 @@ class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
         }
 
         val outlineEnabled = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { if (it) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.noteBlockOutlineEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.noteBlockOutlineEnabled)
         }
@@ -106,22 +103,25 @@ class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             .apply { alignment = Pos.CENTER_LEFT }
 
         contentBox.children.addAll(
-            labeledControl("Show falling blocks (playback)", fallingEnabled),
-            labeledControl("Show rising blocks (input)", risingEnabled),
-            labeledControl("Look-ahead / trail (seconds)", lookAhead),
-            labeledControl("Colour mode", colorMode),
-            labeledControl("Block colour", colorPickerRow),
-            labeledControl("Corner radius", cornerRadius),
-            labeledControl("Opacity", opacity),
-            labeledControl("Outline", outlineEnabled),
-            labeledControl("Outline colour", outlineColor),
-            labeledControl("Outline width", outlineWidth)
+            labeledControl("blocksConfig.falling_playback", fallingEnabled),
+            labeledControl("blocksConfig.rising_input", risingEnabled),
+            labeledControl("blocksConfig.look_ahead", lookAhead),
+            labeledControl("blocksConfig.color_mode", colorMode),
+            labeledControl("blocksConfig.block_color", colorPickerRow),
+            labeledControl("blocksConfig.corner_radius", cornerRadius),
+            labeledControl("blocksConfig.opacity", opacity),
+            labeledControl("blocksConfig.outline", outlineEnabled),
+            labeledControl("blocksConfig.outline_color", outlineColor),
+            labeledControl("blocksConfig.outline_width", outlineWidth)
         )
     }
 
-    private fun labeledPicker(label: String, prop: Property<Color>) = VBox(2.0).apply {
+    private fun labeledPicker(labelKey: String, prop: Property<Color>) = VBox(2.0).apply {
         children.addAll(
-            Label(label).apply { style = "-fx-font-size: 10px;" },
+            Label().apply {
+                textProperty().bind(I18n.binding(pianoBundle, labelKey))
+                style = "-fx-font-size: 10px;"
+            },
             ColorPicker().apply { valueProperty().bindBidirectional(prop) }
         )
     }

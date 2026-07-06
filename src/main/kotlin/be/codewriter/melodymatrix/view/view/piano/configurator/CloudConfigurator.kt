@@ -2,31 +2,27 @@ package be.codewriter.melodymatrix.view.view.piano.configurator
 
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.component.TickerSlider
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
+import javafx.beans.property.Property
 import javafx.geometry.HorizontalDirection
 import javafx.geometry.Pos
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.beans.property.Property
 import javafx.scene.paint.Color
 
 /**
  * Settings panel for configuring the above-key smoke/steam particle effect.
  *
- * Provides a toggle, colour pickers, and sliders for all [CloudGenerator] parameters.
- * All controls are bidirectionally bound to [PianoConfiguration] cloud properties.
- *
- * @param config Observable configuration to bind to
  * @see PianoConfiguration
- * @see CloudGenerator
  */
 class CloudConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
     init {
         val cloudVisible = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.cloudEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.cloudEnabled)
         }
@@ -75,24 +71,29 @@ class CloudConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
         contentBox.children.addAll(
             cloudVisible,
-            labeledControl("Smoke Color", HBox(5.0,
-                labeledPicker("Start", config.cloudColorStart),
-                labeledPicker("End", config.cloudColorEnd)
-            ).apply { alignment = Pos.CENTER_LEFT }),
-            labeledControl("Particle Count", particleCount),
-            labeledControl("Cloud Size", particleSize),
-            labeledControl("Drift Speed", driftSpeed),
-            labeledControl("Wobble Amplitude", wobbleAmplitude),
-            labeledControl("Opacity", opacity),
-            labeledControl("Spawn Radius (on key press)", spawnRadius)
+            labeledControl(
+                "cloudConfig.smoke_color", HBox(
+                    5.0,
+                    labeledPicker("cloudConfig.start", config.cloudColorStart),
+                    labeledPicker("cloudConfig.end", config.cloudColorEnd)
+                ).apply { alignment = Pos.CENTER_LEFT }
+            ),
+            labeledControl("cloudConfig.particle_count", particleCount),
+            labeledControl("cloudConfig.cloud_size", particleSize),
+            labeledControl("cloudConfig.drift_speed", driftSpeed),
+            labeledControl("cloudConfig.wobble_amplitude", wobbleAmplitude),
+            labeledControl("cloudConfig.opacity", opacity),
+            labeledControl("cloudConfig.spawn_radius", spawnRadius)
         )
     }
 
-    private fun labeledPicker(label: String, prop: Property<Color>) = VBox(2.0).apply {
+    private fun labeledPicker(labelKey: String, prop: Property<Color>) = VBox(2.0).apply {
         children.addAll(
-            Label(label).apply { style = "-fx-font-size: 10px;" },
+            Label().apply {
+                textProperty().bind(I18n.binding(pianoBundle, labelKey))
+                style = "-fx-font-size: 10px;"
+            },
             ColorPicker().apply { valueProperty().bindBidirectional(prop) }
         )
     }
 }
-

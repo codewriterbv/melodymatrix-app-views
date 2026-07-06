@@ -9,18 +9,13 @@ import javafx.scene.control.ColorPicker
 /**
  * Settings panel for configuring the explosion particle effect.
  *
- * Provides controls to enable/disable the explosion, choose the colour (or random palette),
- * and tune the explosion radius, particle count, and particle size.
- * All controls are bidirectionally bound to [PianoConfiguration] explosion properties.
- *
- * @param config Observable configuration to bind to
  * @see PianoConfiguration
  */
 class ExplosionConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
     init {
         val explosionVisible = ToggleSwitch().apply {
-            textProperty().bind(selectedProperty().map { selected -> if (selected) "Visible" else "Hidden" })
+            textProperty().bind(visibleHiddenBinding(config.explosionEnabled))
             labelPosition = HorizontalDirection.RIGHT
             selectedProperty().bindBidirectional(config.explosionEnabled)
         }
@@ -64,13 +59,13 @@ class ExplosionConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
         contentBox.children.addAll(
             explosionVisible,
-            labeledControl("Explosion Radius", explosionRadius),
-            labeledControl("Number of Particles", numParticles),
-            labeledControl("Number of Tail Particles", tailNumParticles),
-            labeledControl("Particle Size", particleSize),
-            labeledControl("Vertical Lift", liftMultiplier),
-            labeledControl("Random Color", randomColor),
-            labeledControl("Fixed Color", color)
+            labeledControl("explosionConfig.radius", explosionRadius),
+            labeledControl("explosionConfig.num_particles", numParticles),
+            labeledControl("explosionConfig.num_tail_particles", tailNumParticles),
+            labeledControl("explosionConfig.particle_size", particleSize),
+            labeledControl("explosionConfig.vertical_lift", liftMultiplier),
+            labeledControl("explosionConfig.random_color", randomColor),
+            labeledControl("explosionConfig.fixed_color", color)
         )
     }
 }

@@ -5,6 +5,8 @@ import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.*
 import be.codewriter.melodymatrix.view.helper.SettingHelper
+import be.codewriter.melodymatrix.view.i18n.BundleRef
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
@@ -80,6 +82,9 @@ class PianoWithEffectsView(
     private var frameCount = 0
     private var lastTime = 0L
 
+    // i18n bundle for the toolbar labels & tooltips; must be declared before the init block
+    // so `createSettingsToolbar()` can dereference it safely.
+    private val bundle: BundleRef = I18n.registerBundle(bundleBaseName)
 
     init {
         config.showDebugInfo.value = showDebugInfo
@@ -157,55 +162,64 @@ class PianoWithEffectsView(
             children.addAll(
                 ColorPicker().apply {
                     valueProperty().bindBidirectional(config.backgroundColor)
-                    tooltip = Tooltip("Background color")
+                    tooltip = Tooltip().apply {
+                        textProperty().bind(I18n.binding(bundle, "effects.tooltip.background_color"))
+                    }
                     minHeight = TOOLBAR_CONTROL_HEIGHT
                     prefHeight = TOOLBAR_CONTROL_HEIGHT
                     maxHeight = TOOLBAR_CONTROL_HEIGHT
                 },
-                createSettingsButton("Piano Keys") {
+                createSettingsButton("effects.toolbar.piano_keys") {
                     KeyConfigurator(config)
                 },
-                createSettingsButton("Image", config.backgroundImageEnabled) {
+                createSettingsButton("effects.toolbar.image", config.backgroundImageEnabled) {
                     ImageConfigurator(config, licenseStatus)
                 },
-                createSettingsButton("Blocks", config.fallingBlocksEnabled) {
+                createSettingsButton("effects.toolbar.blocks", config.fallingBlocksEnabled) {
                     NoteBlocksConfigurator(config)
                 },
-                createSettingsButton("Explosion", config.explosionEnabled) {
+                createSettingsButton("effects.toolbar.explosion", config.explosionEnabled) {
                     ExplosionConfigurator(config)
                 },
-                createSettingsButton("Fireworks", config.fireworksEnabled) {
+                createSettingsButton("effects.toolbar.fireworks", config.fireworksEnabled) {
                     FireworksConfigurator(config)
                 },
-                createSettingsButton("Clouds", config.cloudEnabled) {
+                createSettingsButton("effects.toolbar.clouds", config.cloudEnabled) {
                     CloudConfigurator(config)
                 }
             )
             if (showDebugInfo) {
-                children.add(MmxToggleButton("FPS", config.showDebugInfo, TOOLBAR_CONTROL_HEIGHT))
+                children.add(
+                    MmxToggleButton(
+                        titleBinding = I18n.binding(bundle, "effects.toolbar.fps"),
+                        property = config.showDebugInfo,
+                        controlHeight = TOOLBAR_CONTROL_HEIGHT
+                    )
+                )
             }
         }
     }
 
-    private fun createSettingsButton(title: String, contentSupplier: () -> BaseConfigurator): Button {
-        return styledToolbarButton(Button(title).apply {
+    private fun createSettingsButton(titleKey: String, contentSupplier: () -> BaseConfigurator): Button {
+        return styledToolbarButton(Button().apply {
+            textProperty().bind(I18n.binding(bundle, titleKey))
             setOnAction {
-                openSettingsModal(title, contentSupplier())
+                openSettingsModal(I18n.get(bundle, titleKey), contentSupplier())
             }
         })
     }
 
     private fun createSettingsButton(
-        title: String,
+        titleKey: String,
         enabledProperty: BooleanProperty,
         contentSupplier: () -> BaseConfigurator
     ): Button {
         return styledToolbarButton(
             MmxToggleButton(
-                title = title,
+                titleBinding = I18n.binding(bundle, titleKey),
                 property = enabledProperty,
                 controlHeight = TOOLBAR_CONTROL_HEIGHT,
-                onButtonAction = { openSettingsModal(title, contentSupplier()) },
+                onButtonAction = { openSettingsModal(I18n.get(bundle, titleKey), contentSupplier()) },
                 toggleOnButtonAction = false
             )
         )
