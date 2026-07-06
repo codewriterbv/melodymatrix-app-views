@@ -2,7 +2,9 @@ package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
 import be.codewriter.melodymatrix.view.event.NoteEventListener
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
+import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.MmxViewSurface
 import be.codewriter.melodymatrix.view.view.chart.ChartsView
 import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
@@ -62,27 +64,31 @@ class TestView : VBox() {
     private val licenseLeaf = bento.dockBuilding().leaf("license-leaf")
 
     private val stageOptions = listOf(
-        StageOption("Midi", "tab-midi") { MidiView() },
-        StageOption("Piano", "tab-piano-effects") { PianoWithEffectsView(licenseStatus, true) },
-        StageOption("Piano Simple", "tab-piano-simple") { PianoSimpleView() },
-        StageOption("Chord", "tab-chord") { ChordView() },
-        StageOption("Chord Relations", "tab-chord-relations") { ChordRelationView() },
-        StageOption("Circle of Fifths", "tab-circle-of-fifths") { CircleOfFifthsView() },
-        StageOption("Guitar Note", "tab-guitar-note") { GuitarNoteView() },
-        StageOption("Guitar Chord", "tab-guitar-chord") { GuitarChordView() },
-        StageOption("Charts", "tab-charts") { ChartsView() },
-        StageOption("Scale", "tab-scale") { StaffView() },
-        StageOption("Drum", "tab-drum") { DrumView() },
-        StageOption("LED Strip", "tab-led-strip") { LedStripView() },
-        StageOption("Audio Spectrum + MIDI", "tab-audio-spectrum-midi") { AudioSpectrumMidiView() }
-        )
+        StageOption(MidiView.Companion, "tab-midi") { MidiView() },
+        StageOption(PianoWithEffectsView.Companion, "tab-piano-effects") {
+            PianoWithEffectsView(licenseStatus, true)
+        },
+        StageOption(PianoSimpleView.Companion, "tab-piano-simple") { PianoSimpleView() },
+        StageOption(ChordView.Companion, "tab-chord") { ChordView() },
+        StageOption(ChordRelationView.Companion, "tab-chord-relations") { ChordRelationView() },
+        StageOption(CircleOfFifthsView.Companion, "tab-circle-of-fifths") { CircleOfFifthsView() },
+        StageOption(GuitarNoteView.Companion, "tab-guitar-note") { GuitarNoteView() },
+        StageOption(GuitarChordView.Companion, "tab-guitar-chord") { GuitarChordView() },
+        StageOption(ChartsView.Companion, "tab-charts") { ChartsView() },
+        StageOption(StaffView.Companion, "tab-scale") { StaffView() },
+        StageOption(DrumView.Companion, "tab-drum") { DrumView() },
+        StageOption(LedStripView.Companion, "tab-led-strip") { LedStripView() },
+        StageOption(AudioSpectrumMidiView.Companion, "tab-audio-spectrum-midi") { AudioSpectrumMidiView() }
+    )
 
     private val optionsById = stageOptions.associateBy { it.id }
     private val activeVisualizers: MutableMap<String, ActiveVisualizer> = linkedMapOf()
     private val stageSelector = TestViewStages(
-        stageOptions.map { TestViewStages.Option(it.id, it.label) },
+        stageOptions.map { TestViewStages.Option(it.id, it.metadata.titleBinding()) },
         ::toggleVisualizer
     )
+
+    private val commonBundle = I18n.registerBundle("i18n/common")
 
     init {
         spacing = 10.0
@@ -100,19 +106,19 @@ class TestView : VBox() {
     private fun setupDockLayout() {
         val stageSelectorDockable = createFixedDockable(
             id = "stage-selector",
-            title = "Available views",
+            titleBinding = I18n.binding(commonBundle, "testview.dockable.available_views"),
             content = stageSelector
         )
 
         val midiEventsDockable = createFixedDockable(
             id = "midi-events",
-            title = "MIDI Events",
+            titleBinding = I18n.binding(commonBundle, "testview.dockable.midi_events"),
             content = TestViewMidiEvents(midiSimulator)
         )
 
         val licenseDockable = createFixedDockable(
             id = "license-status",
-            title = "License",
+            titleBinding = I18n.binding(commonBundle, "testview.dockable.license"),
             content = TestViewLicense(licenseStatus)
         )
 
@@ -154,11 +160,11 @@ class TestView : VBox() {
      */
     private fun createFixedDockable(
         id: String,
-        title: String,
+        titleBinding: javafx.beans.binding.StringBinding,
         content: Node
     ): Dockable {
         return bento.dockBuilding().dockable(id).apply {
-            this.titleProperty().set(title)
+            this.titleProperty().bind(titleBinding)
             this.nodeProperty().set(content)
             this.isClosable = false
             this.isCanBeDragged = false
@@ -215,7 +221,7 @@ class TestView : VBox() {
         val content = createVisualizerContent(stage)
 
         val dockable: Dockable = bento.dockBuilding().dockable(option.id).apply {
-            titleProperty().set(option.label)
+            titleProperty().bind(option.metadata.titleBinding())
             nodeProperty().set(content)
             isCanBeDroppedToNewWindow = false
             addCloseListener { _, _ ->
@@ -304,12 +310,12 @@ class TestView : VBox() {
     /**
      * Describes a visualizer option shown in the stage selector panel.
      *
-     * @property label         Human-readable name displayed in the selector
+     * @property metadata      Metadata source for the title binding and image path
      * @property id            Unique string identifier used as the dockable ID
      * @property stageSupplier Factory lambda that creates a new [MmxViewSurface] instance
      */
     private data class StageOption(
-        val label: String,
+        val metadata: MmxViewMetadata,
         val id: String,
         val stageSupplier: () -> MmxViewSurface
     )

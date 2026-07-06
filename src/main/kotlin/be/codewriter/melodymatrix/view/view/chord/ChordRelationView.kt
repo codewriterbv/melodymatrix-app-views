@@ -30,10 +30,8 @@ class ChordRelationView(
     companion object : MmxViewMetadata {
         private const val REGISTRY_PREFIX = "view.chordRelation"
 
-        override fun getViewTitle(): String = "Chord Relationship"
-        override fun getViewDescription(): String =
-            "Shows harmonic relationships between the last detected chord and related chords."
-
+        override val bundleBaseName = "i18n/view/chord"
+        override val bundleKeyPrefix = "relation."
         override fun getViewImagePath(): String = "/view/chord-relation.png"
 
         private const val TOOLBAR_CONTROL_HEIGHT = 34.0

@@ -42,10 +42,8 @@ class CircleOfFifthsView : MmxView() {
     override val fitToViewport: Boolean = true
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Circle of Fifths"
-        override fun getViewDescription(): String =
-            "Highlights the detected chord on the Circle of Fifths (Kwintencirkel)."
-
+        override val bundleBaseName = "i18n/view/chord"
+        override val bundleKeyPrefix = "circleOfFifths."
         override fun getViewImagePath(): String = "/view/chord-relation.png"
 
         // ── Canvas geometry ─────────────────────────────────────────────────

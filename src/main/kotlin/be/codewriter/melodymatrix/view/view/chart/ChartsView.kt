@@ -151,8 +151,7 @@ class ChartsView : MmxView() {
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Charts showing the notes distribution"
-        override fun getViewDescription(): String = "Visualizes played notes using multiple chart types."
+        override val bundleBaseName = "i18n/view/chart"
         override fun getViewImagePath(): String = "/view/charts.png"
         var chartHolders: MutableList<ChartHolder> = mutableListOf()
         lateinit var borderPane: BorderPane

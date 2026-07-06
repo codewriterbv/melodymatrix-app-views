@@ -355,10 +355,8 @@ class PianoWithEffectsView(
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Piano with visual effects"
-        override fun getViewDescription(): String =
-            "Renders an animated piano keyboard view with configurable visual effects."
-
+        override val bundleBaseName = "i18n/view/piano"
+        override val bundleKeyPrefix = "effects."
         override fun getViewImagePath(): String = "/view/piano.png"
         private val logger: Logger = LogManager.getLogger(PianoWithEffectsView::class.java.name)
 

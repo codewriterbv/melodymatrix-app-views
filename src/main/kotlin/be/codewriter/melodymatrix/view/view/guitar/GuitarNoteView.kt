@@ -28,8 +28,8 @@ class GuitarNoteView(
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
         private const val REGISTRY_SHOW_ALL_POSITIONS = "view.guitarNote.showAllPositions"
 
-        override fun getViewTitle(): String = "Guitar Note"
-        override fun getViewDescription(): String = "Displays playable guitar positions for notes."
+        override val bundleBaseName = "i18n/view/guitar"
+        override val bundleKeyPrefix = "note."
         override fun getViewImagePath(): String = "/view/guitar-chord.png"
     }
 

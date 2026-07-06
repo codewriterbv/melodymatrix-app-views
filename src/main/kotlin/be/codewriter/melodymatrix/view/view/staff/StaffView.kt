@@ -161,8 +161,7 @@ class StaffView : MmxView() {
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Treble and Bass Clef Staff"
-        override fun getViewDescription(): String = "Highlights played notes on a two-octave staff view."
+        override val bundleBaseName = "i18n/view/staff"
         override fun getViewImagePath(): String = "/view/scale.png"
     }
 }

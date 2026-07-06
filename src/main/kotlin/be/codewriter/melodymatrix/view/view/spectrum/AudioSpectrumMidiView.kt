@@ -514,10 +514,7 @@ class AudioSpectrumMidiView : MmxView() {
     )
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Audio Spectrum + MIDI"
-        override fun getViewDescription(): String =
-            "Overlays a live audio-input spectrum with a scrolling MIDI piano-roll."
-
+        override val bundleBaseName = "i18n/view/spectrum"
         override fun getViewImagePath(): String = "/view/midi.png"
 
         private const val NATURAL_WIDTH: Double = 900.0

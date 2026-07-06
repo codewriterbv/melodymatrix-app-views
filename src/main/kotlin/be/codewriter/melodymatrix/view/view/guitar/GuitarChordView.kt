@@ -35,8 +35,8 @@ class GuitarChordView(
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0
         private const val REGISTRY_KEEP_LAST_CHORD = "view.guitarChord.keepLastChord"
 
-        override fun getViewTitle(): String = "Guitar Chord"
-        override fun getViewDescription(): String = "Displays guitar fretboard finger settings for chords."
+        override val bundleBaseName = "i18n/view/guitar"
+        override val bundleKeyPrefix = "chord."
         override fun getViewImagePath(): String = "/view/guitar-chord.png"
     }
 

@@ -343,8 +343,7 @@ class MidiView : MmxView() {
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "MIDI data received from the instrument"
-        override fun getViewDescription(): String = "Shows a live MIDI event table and decoded byte-level details."
+        override val bundleBaseName = "i18n/view/midi"
         override fun getViewImagePath(): String = "/view/midi.png"
         private val logger: Logger = LogManager.getLogger(MidiView::class.java.name)
     }

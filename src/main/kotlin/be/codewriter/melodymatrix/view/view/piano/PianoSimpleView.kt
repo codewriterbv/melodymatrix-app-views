@@ -124,10 +124,8 @@ class PianoSimpleView(
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Piano (Simple)"
-        override fun getViewDescription(): String =
-            "A compact piano keyboard showing the centre octaves (C3 – C6) without effects."
-
+        override val bundleBaseName = "i18n/view/piano"
+        override val bundleKeyPrefix = "simple."
         override fun getViewImagePath(): String = "/view/piano.png"
 
         private val logger: Logger = LogManager.getLogger(PianoSimpleView::class.java.name)

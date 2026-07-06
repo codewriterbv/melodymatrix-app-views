@@ -243,8 +243,7 @@ class DrumView : MmxView(), MmxNoteDispatcher {
     }
 
     companion object : MmxViewMetadata {
-        override fun getViewTitle(): String = "Hi Drummer!"
-        override fun getViewDescription(): String = "Shows a drum notation reference and reacts to drum MIDI events."
+        override val bundleBaseName = "i18n/view/drum"
         override fun getViewImagePath(): String = "/view/drum.png"
     }
 }
