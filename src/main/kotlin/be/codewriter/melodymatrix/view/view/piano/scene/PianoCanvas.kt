@@ -2,8 +2,6 @@ package be.codewriter.melodymatrix.view.view.piano.scene
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_BACKGROUND_HEIGHT
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView.Companion.PIANO_WIDTH
@@ -23,6 +21,8 @@ import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.RadialGradient
 import javafx.scene.paint.Stop
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 /**
  * JavaFX [Canvas] that renders the animated piano scene above the keyboard.
@@ -154,64 +154,64 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
                 explosionType = config.fireworksExplosionType.value
             )
         }
-        }
+    }
 
-        /**
-        * Schedules a Synthesia-style falling note block that lands on the given [note]'s
-        * key column at [landTimestampMs].
-        *
-        * @param note            Target note (identifies the key column)
-        * @param landTimestampMs Absolute wall-clock time (System.currentTimeMillis()) when
-        *                        the bottom of the block should reach the top of the keyboard
-        * @param durationMs      Sustain length in milliseconds; determines block height
-        * @param velocity        MIDI velocity (0–127)
-        * @param channel         MIDI channel (0–15)
-        * @param keyRect         Key column rectangle from `KeyboardView.getKeyBlockRect`
-        */
-        fun scheduleFallingNote(
-            note: Note,
-            landTimestampMs: Long,
-            durationMs: Long,
-            velocity: Int,
-            channel: Int,
-            keyRect: Rectangle2D
-        ) {
-            if (animationCalculator == null) {
-                logger.warn("[FALLING] scheduleFallingNote called but animationCalculator is null")
-                return
-            }
-            logger.debug(
-                "[FALLING] canvas.scheduleFallingNote: note={} land=+{}ms durationMs={} keyRect=[x={}, w={}]",
-                note, landTimestampMs - System.currentTimeMillis(), durationMs, keyRect.minX, keyRect.width
-            )
-            animationCalculator?.scheduleFallingBlock(
-                note = note,
-                landTimestampMs = landTimestampMs,
-                durationMs = durationMs,
-                velocity = velocity,
-                channel = channel,
-                keyRect = keyRect
-            )
+    /**
+     * Schedules a Synthesia-style falling note block that lands on the given [note]'s
+     * key column at [landTimestampMs].
+     *
+     * @param note            Target note (identifies the key column)
+     * @param landTimestampMs Absolute wall-clock time (System.currentTimeMillis()) when
+     *                        the bottom of the block should reach the top of the keyboard
+     * @param durationMs      Sustain length in milliseconds; determines block height
+     * @param velocity        MIDI velocity (0–127)
+     * @param channel         MIDI channel (0–15)
+     * @param keyRect         Key column rectangle from `KeyboardView.getKeyBlockRect`
+     */
+    fun scheduleFallingNote(
+        note: Note,
+        landTimestampMs: Long,
+        durationMs: Long,
+        velocity: Int,
+        channel: Int,
+        keyRect: Rectangle2D
+    ) {
+        if (animationCalculator == null) {
+            logger.warn("[FALLING] scheduleFallingNote called but animationCalculator is null")
+            return
         }
+        logger.debug(
+            "[FALLING] canvas.scheduleFallingNote: note={} land=+{}ms durationMs={} keyRect=[x={}, w={}]",
+            note, landTimestampMs - System.currentTimeMillis(), durationMs, keyRect.minX, keyRect.width
+        )
+        animationCalculator?.scheduleFallingBlock(
+            note = note,
+            landTimestampMs = landTimestampMs,
+            durationMs = durationMs,
+            velocity = velocity,
+            channel = channel,
+            keyRect = keyRect
+        )
+    }
 
-        /** Starts a rising note block for [note], growing upward until [endRisingNote] is called. */
-        fun beginRisingNote(note: Note, velocity: Int, channel: Int, keyRect: Rectangle2D) {
+    /** Starts a rising note block for [note], growing upward until [endRisingNote] is called. */
+    fun beginRisingNote(note: Note, velocity: Int, channel: Int, keyRect: Rectangle2D) {
         animationCalculator?.startRisingBlock(note, velocity, channel, keyRect)
-        }
+    }
 
-        /** Marks the open rising block for [note] as released; it will drift up and off. */
-        fun endRisingNote(note: Note) {
-            animationCalculator?.endRisingBlock(note)
-        }
+    /** Marks the open rising block for [note] as released; it will drift up and off. */
+    fun endRisingNote(note: Note) {
+        animationCalculator?.endRisingBlock(note)
+    }
 
-        /**
-         * Discards every scheduled falling block. Called when playback is stopped mid-recording
-         * so pre-scheduled blocks do not keep animating past the stop.
-         */
-        fun clearScheduledNotes() {
-            logger.info("[FALLING] clearScheduledNotes: dropping all falling blocks")
-            animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
-        }
+    /**
+     * Discards every scheduled falling block. Called when playback is stopped mid-recording
+     * so pre-scheduled blocks do not keep animating past the stop.
+     */
+    fun clearScheduledNotes() {
+        logger.debug("[FALLING] clearScheduledNotes: dropping all falling blocks")
+        animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
+    }
 
     /** Redraws the full canvas for the current animation frame. Called by the [AnimationTimer]. */
     private fun update() {
@@ -317,7 +317,7 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
         if (state.fallingBlocks.isNotEmpty() && nowMs - lastDrawHeartbeatMs > 500L) {
             lastDrawHeartbeatMs = nowMs
             val first = state.fallingBlocks.first()
-            logger.info(
+            logger.debug(
                 "[FALLING] draw: falling total={} drawn={} rising drawn={}; first block: x={} y={} w={} h={} colour={} opacity={}",
                 state.fallingBlocks.size, drawnFalling, drawnRising,
                 "%.1f".format(first.x), "%.1f".format(first.y),

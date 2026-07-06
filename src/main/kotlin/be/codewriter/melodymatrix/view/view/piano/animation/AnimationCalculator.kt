@@ -95,7 +95,7 @@ class AnimationCalculator(
 
         /** Clears scheduled falling blocks and/or in-flight rising blocks. */
         data class ClearNoteBlocks(val clearFalling: Boolean, val clearRising: Boolean) : AnimationCommand
-        }
+    }
 
     private val executor: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { task ->
@@ -453,7 +453,7 @@ class AnimationCalculator(
                         width = command.keyRect.width
                     )
                     fallingBlocks.add(info)
-                    logger.info(
+                    logger.debug(
                         "[FALLING] applied to state: note={} land=+{}ms durationMs={} totalFalling={}",
                         info.note, info.landTimestampMs - System.currentTimeMillis(),
                         info.durationMs, fallingBlocks.size
@@ -485,9 +485,9 @@ class AnimationCalculator(
                     if (command.clearFalling) fallingBlocks.clear()
                     if (command.clearRising) risingBlocks.clear()
                 }
-                }
-                }
-                }
+            }
+        }
+    }
 
     /** Advances all active explosion/fireworks particles by [deltaTime] seconds, removing expired ones. */
     private fun updateParticles(deltaTime: Double) {
@@ -551,7 +551,11 @@ class AnimationCalculator(
             topY > PIANO_BACKGROUND_HEIGHT
         }
         if (beforeCount > 0 && fallingBlocks.size != beforeCount) {
-            logger.debug("[FALLING] pruned {} block(s), {} remaining", beforeCount - fallingBlocks.size, fallingBlocks.size)
+            logger.debug(
+                "[FALLING] pruned {} block(s), {} remaining",
+                beforeCount - fallingBlocks.size,
+                fallingBlocks.size
+            )
         }
         // Periodic heartbeat when blocks are active, throttled to once per ~500ms.
         if (fallingBlocks.isNotEmpty() && nowMs - lastFallingHeartbeatMs > 500L) {
@@ -559,7 +563,7 @@ class AnimationCalculator(
             val sample = fallingBlocks.first()
             val bottomY = PIANO_BACKGROUND_HEIGHT + (nowMs - sample.landTimestampMs) / 1000.0 * pxPerSecond
             val topY = bottomY - sample.durationMs / 1000.0 * pxPerSecond
-            logger.info(
+            logger.debug(
                 "[FALLING] state: {} block(s); first: note={} land=+{}ms topY={} bottomY={} pxPerSec={}",
                 fallingBlocks.size, sample.note, sample.landTimestampMs - nowMs,
                 "%.1f".format(topY), "%.1f".format(bottomY), "%.1f".format(pxPerSecond)
@@ -720,4 +724,4 @@ class AnimationCalculator(
             opacity = cfg.opacity
         )
     }
-    }
+}

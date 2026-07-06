@@ -309,7 +309,7 @@ class PianoWithEffectsView(
                 Platform.runLater {
                     val keyRect = keyboardView.getKeyBlockRect(playEvent.note)
                     if (keyRect == null) {
-                        logger.warn(
+                        logger.debug(
                             "[FALLING] No key rect for note {} — falling block skipped",
                             playEvent.note
                         )
@@ -346,7 +346,7 @@ class PianoWithEffectsView(
             }
 
             MmxEventType.PLAYBACK_STOP -> {
-                logger.info("[FALLING] PLAYBACK_STOP received — clearing scheduled falling blocks")
+                logger.debug("[FALLING] PLAYBACK_STOP received — clearing scheduled falling blocks")
                 Platform.runLater {
                     pianoCanvas.clearScheduledNotes()
                 }
