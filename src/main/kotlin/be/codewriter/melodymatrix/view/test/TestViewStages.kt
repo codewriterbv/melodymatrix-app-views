@@ -57,7 +57,9 @@ class TestViewStages(
 
         children.setAll(
             buildLanguageRow(),
-            Label("Select visualizer tabs for the main view"),
+            Label().apply {
+                textProperty().bind(I18n.binding(commonBundle, "testview.stage_selector_hint"))
+            },
             *toggles.toTypedArray()
         )
     }

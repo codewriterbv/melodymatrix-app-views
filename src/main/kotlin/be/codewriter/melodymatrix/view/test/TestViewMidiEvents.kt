@@ -2,6 +2,7 @@ package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.definition.*
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import javafx.beans.value.ObservableValue
@@ -77,8 +78,11 @@ class TestViewMidiEvents(val midiSimulator: MidiSimulator) : VBox() {
             }
         }
 
+        // Developer-only test panel: button labels below stay English on
+        // purpose so contributors can hunt features without translation churn.
+        val commonBundle = I18n.registerBundle("i18n/common")
         children.setAll(
-            Label("Midi events selection"),
+            Label().apply { textProperty().bind(I18n.binding(commonBundle, "testview.midi_events_hint")) },
             slider,
             createButton(
                 "Play all notes (repeat)", Note.entries

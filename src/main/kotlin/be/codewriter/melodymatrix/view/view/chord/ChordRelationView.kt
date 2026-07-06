@@ -6,6 +6,7 @@ import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.SettingHelper
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -121,7 +122,9 @@ class ChordRelationView(
             buttons.firstOrNull { (it.userData as ChordQualityPreset) == newPreset }?.isSelected = true
         }
 
-        val label = Label("Show:").apply {
+        val bundle = I18n.registerBundle("i18n/view/chord")
+        val label = Label().apply {
+            textProperty().bind(I18n.binding(bundle, "relation.label.show"))
             style = "-fx-font-size: 12; -fx-text-fill: -color-fg-muted;"
         }
 

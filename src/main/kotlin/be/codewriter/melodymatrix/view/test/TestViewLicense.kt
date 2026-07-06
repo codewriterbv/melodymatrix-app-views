@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.test
 
 import be.codewriter.melodymatrix.view.data.LicenseStatus
+import be.codewriter.melodymatrix.view.i18n.I18n
 import javafx.beans.binding.Bindings
 import javafx.geometry.Insets
 import javafx.scene.Node
@@ -19,41 +20,35 @@ import javafx.scene.layout.VBox
  */
 class TestViewLicense(licenseStatus: LicenseStatus) : VBox() {
 
+    private val commonBundle = I18n.registerBundle("i18n/common")
+
     init {
         spacing = 10.0
         padding = Insets(20.0)
 
         children.setAll(
-            Label("License Status"),
+            Label().apply { textProperty().bind(I18n.binding(commonBundle, "testview.license_status")) },
             Label().apply {
                 textProperty().bind(
                     Bindings.`when`(licenseStatus.isValid)
-                        .then("Is valid")
-                        .otherwise("Is not valid")
+                        .then(I18n.binding(commonBundle, "testview.license.is_valid"))
+                        .otherwise(I18n.binding(commonBundle, "testview.license.is_not_valid"))
                 )
             },
-            createButton(
-                "Toggle license validity",
-                licenseStatus
-            )
+            createToggleButton(licenseStatus)
         )
     }
 
     /**
-     * Creates a toggle button bound to the given license status.
-     *
-     * @param label         The button label text
-     * @param licenseStatus The license status to toggle on click
-     * @return A [Button] node wired to flip the [LicenseStatus.isValid] property
+     * Creates a toggle button bound to the given license status; label follows the active language.
      */
-    private fun createButton(label: String, licenseStatus: LicenseStatus): Node {
-        val view = Button(label).apply {
+    private fun createToggleButton(licenseStatus: LicenseStatus): Node {
+        return Button().apply {
+            textProperty().bind(I18n.binding(commonBundle, "testview.license.toggle"))
             minWidth = 200.0
-            setOnMouseClicked { _ ->
+            setOnMouseClicked {
                 licenseStatus.isValid.set(!licenseStatus.isValid.get())
             }
         }
-
-        return view
     }
 }

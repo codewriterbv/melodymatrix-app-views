@@ -8,6 +8,7 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.helper.FileLoader
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
@@ -33,13 +34,21 @@ class ChordView : MmxView() {
 
     val notes: MutableMap<Note, Label> = mutableMapOf()
     private val activeNotes: MutableSet<Note> = mutableSetOf()
-    private val chordLabel = Label("Chord: -")
-    private val chordNotesLabel = Label("Notes: -")
+    private val bundle = I18n.registerBundle("i18n/view/chord")
+    private val chordLabel = Label()
+    private val chordNotesLabel = Label()
 
     init {
         val inputStream: InputStream? = FileLoader.getResource("/fonts/musiqwik/Musiqwik-rvL8.ttf")
         val font = Font.loadFont(inputStream, 40.0)
 
+        chordLabel.text = defaultChordText()
+        chordNotesLabel.text = defaultNotesText()
+        // Keep the labels' idle text in sync when the language changes.
+        I18n.currentLocale.addListener { _, _, _ ->
+            if (activeNotes.isEmpty()) chordNotesLabel.text = defaultNotesText()
+            if (chordLabel.text.endsWith("-") || chordLabel.text.isBlank()) chordLabel.text = defaultChordText()
+        }
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
         chordNotesLabel.style = "-fx-font-size: 16;"
 
@@ -140,8 +149,8 @@ class ChordView : MmxView() {
                 val chordEvent = event as? ChordEvent ?: return
                 Platform.runLater {
                     val isChordOn = (chordEvent.chord != Chord.UNDEFINED) && chordEvent.on
-                    chordLabel.text = if (isChordOn) "Chord: ${chordEvent.chord.label}" else "Chord: -"
-                    chordNotesLabel.text = if (isChordOn) notesText() else "Notes: -"
+                    chordLabel.text = if (isChordOn) "${chordPrefix()} ${chordEvent.chord.label}" else defaultChordText()
+                    chordNotesLabel.text = if (isChordOn) notesText() else defaultNotesText()
                 }
             }
 
@@ -191,8 +200,13 @@ class ChordView : MmxView() {
             .map { "${it.mainNote.label}${it.octave.octave}" }
             .toList()
 
-        return if (labels.isEmpty()) "Notes: -" else "Notes: ${labels.joinToString(", ")}"
+        return if (labels.isEmpty()) defaultNotesText() else "${notesPrefix()} ${labels.joinToString(", ")}"
     }
+
+    private fun chordPrefix(): String = I18n.get(bundle, "chord.label.chord")
+    private fun notesPrefix(): String = I18n.get(bundle, "chord.label.notes")
+    private fun defaultChordText(): String = "${chordPrefix()} -"
+    private fun defaultNotesText(): String = "${notesPrefix()} -"
 
     /**
      * Refreshes the visual highlighting of note labels based on the current active notes.
