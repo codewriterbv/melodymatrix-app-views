@@ -70,6 +70,6 @@ class I18nBundleCoverageTest {
         private val classesRoot: Path = Paths.get(MmxView::class.java.protectionDomain.codeSource.location.toURI())
         private val moduleRoot: Path = classesRoot.parent.parent
         private val i18nRoot: Path = moduleRoot.resolve("src/main/resources/i18n")
-        private val LOCALES = listOf("nl", "fr", "de")
+        private val LOCALES = listOf("nl", "fr", "de", "es", "it", "pt", "ja", "zh", "pl")
     }
 }

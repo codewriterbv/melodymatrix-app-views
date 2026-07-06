@@ -9,30 +9,35 @@ import java.util.Locale
  * bundles and a **native** [displayName] (rendered in the language's own
  * script) suitable for showing in the language selector combo box.
  *
- * The [flag] emoji is a purely decorative hint used by UI components; it
- * is safe to ignore if not needed.
+ * `pt-BR` is used for Portuguese so translations target the Brazilian
+ * variant (largest lusophone music-consumption market); `zh-CN` is used
+ * for Chinese so translations target Simplified Chinese.
  */
 enum class SupportedLocale(
     val locale: Locale,
-    val displayName: String,
-    val flag: String
+    val displayName: String
 ) {
-    EN(Locale.ENGLISH, "English", "🇬🇧"),
-    NL(Locale.of("nl"), "Nederlands", "🇳🇱"),
-    FR(Locale.FRENCH, "Français", "🇫🇷"),
-    DE(Locale.GERMAN, "Deutsch", "🇩🇪");
+    EN(Locale.ENGLISH, "English"),
+    NL(Locale.of("nl"), "Nederlands"),
+    FR(Locale.FRENCH, "Français"),
+    DE(Locale.GERMAN, "Deutsch"),
+    ES(Locale.of("es"), "Español"),
+    IT(Locale.ITALIAN, "Italiano"),
+    PT(Locale.of("pt", "BR"), "Português (Brasil)"),
+    JA(Locale.JAPANESE, "日本語"),
+    ZH(Locale.of("zh", "CN"), "简体中文"),
+    PL(Locale.of("pl"), "Polski");
 
-    /** Short language tag ("en", "nl", "fr", "de"). */
+    /** Short language tag ("en", "nl", "fr", "de", "es", "it", "pt", "ja", "zh", "pl"). */
     val tag: String get() = locale.language
-
-    /** `"🇳🇱 Nederlands"`-style label used by the language combo cell renderer. */
-    val labelWithFlag: String get() = "$flag $displayName"
 
     companion object {
         /**
          * Resolves the [SupportedLocale] matching the given language [tag]
-         * (e.g. `"en"`, `"nl"`, `"fr"`, `"de"`, or richer BCP-47 forms like
-         * `"nl-BE"`). Only the language portion is considered.
+         * (e.g. `"en"`, `"pt"`, `"zh"`, or richer BCP-47 forms like
+         * `"pt-BR"` / `"zh-CN"`). Only the language portion is considered,
+         * so `"pt-PT"` still resolves to Brazilian Portuguese — English
+         * fallback is only for unsupported languages.
          *
          * @return the matching entry, or `null` when [tag] is `null`,
          *         blank, or does not correspond to a supported language.

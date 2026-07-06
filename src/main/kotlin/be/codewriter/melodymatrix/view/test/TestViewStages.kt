@@ -71,25 +71,25 @@ class TestViewStages(
         val combo = ComboBox(FXCollections.observableArrayList(SupportedLocale.entries)).apply {
             value = I18n.currentLocale.get()
             val localeConverter = object : StringConverter<SupportedLocale>() {
-                override fun toString(locale: SupportedLocale?): String = locale?.labelWithFlag ?: ""
+                override fun toString(locale: SupportedLocale?): String = locale?.displayName ?: ""
                 override fun fromString(string: String?): SupportedLocale? =
-                    items.firstOrNull { it.labelWithFlag == string }
+                    items.firstOrNull { it.displayName == string }
             }
             converter = localeConverter
             cellFactory = Callback {
                 object : ListCell<SupportedLocale>() {
                     override fun updateItem(item: SupportedLocale?, empty: Boolean) {
                         super.updateItem(item, empty)
-                        text = if (empty || item == null) null else item.labelWithFlag
+                        text = if (empty || item == null) null else item.displayName
                     }
                 }
-            }
-            buttonCell = object : ListCell<SupportedLocale>() {
+                }
+                buttonCell = object : ListCell<SupportedLocale>() {
                 override fun updateItem(item: SupportedLocale?, empty: Boolean) {
                     super.updateItem(item, empty)
-                    text = if (empty || item == null) null else item.labelWithFlag
+                    text = if (empty || item == null) null else item.displayName
                 }
-            }
+                }
             setOnAction {
                 value?.let { selected ->
                     if (selected != I18n.currentLocale.get()) {
