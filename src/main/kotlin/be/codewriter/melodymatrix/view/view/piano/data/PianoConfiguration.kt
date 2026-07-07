@@ -1,6 +1,7 @@
 package be.codewriter.melodymatrix.view.view.piano.data
 
 import be.codewriter.melodymatrix.view.helper.SettingHelper
+import be.codewriter.melodymatrix.view.helper.SettingStorage
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
@@ -263,11 +264,7 @@ class PianoConfiguration(
         settings.bindDouble(cloudOpacity, registryKey("cloudOpacity"))
         settings.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
 
-        // Backward-compatible migration: old configs stored separate falling/rising toggles.
-        val legacyBlocksEnabled =
-            settings.getBoolean(registryKey("fallingBlocksEnabled"), false) ||
-                settings.getBoolean(registryKey("risingBlocksEnabled"), false)
-        noteBlocksEnabled.set(settings.getBoolean(registryKey("noteBlocksEnabled"), legacyBlocksEnabled))
+        noteBlocksEnabled.set(resolveNoteBlocksEnabled(settings, viewName))
         settings.bindBoolean(noteBlocksEnabled, registryKey("noteBlocksEnabled"))
         settings.bindDouble(noteBlockLookAheadSeconds, registryKey("noteBlockLookAheadSeconds"))
         settings.bindEnum(noteBlockColorMode, registryKey("noteBlockColorMode"), NoteBlockColorMode::class.java)
@@ -282,5 +279,17 @@ class PianoConfiguration(
         }
 
     private fun registryKey(name: String): String = "view.piano.$viewName.$name"
+
+    companion object {
+        internal fun resolveNoteBlocksEnabled(settings: SettingStorage, viewName: String): Boolean {
+            fun key(name: String): String = "view.piano.$viewName.$name"
+
+            // Backward-compatible migration: old configs stored separate falling/rising toggles.
+            val legacyBlocksEnabled =
+                settings.getBoolean(key("fallingBlocksEnabled"), false) ||
+                    settings.getBoolean(key("risingBlocksEnabled"), false)
+            return settings.getBoolean(key("noteBlocksEnabled"), legacyBlocksEnabled)
+        }
+    }
 
 }
