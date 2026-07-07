@@ -10,17 +10,15 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import javafx.geometry.HPos
 import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
+import javafx.scene.layout.*
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-
 
 /**
  * Visualizer stage that displays raw MIDI data in a detailed inspector table.
@@ -34,6 +32,8 @@ import org.apache.logging.log4j.Logger
  * @see MidiDataEvent
  */
 class MidiView : MmxView() {
+
+    override val fitToViewport: Boolean = true
 
     val midiDataEventList: ObservableList<MidiDataEvent> = FXCollections.observableArrayList()
     val midiData0Value: StringProperty = SimpleStringProperty("")
@@ -55,25 +55,50 @@ class MidiView : MmxView() {
     val controllerValueBits: StringProperty = SimpleStringProperty("")
     val pitchBendValue: StringProperty = SimpleStringProperty("")
     val pitchBendValueBits: StringProperty = SimpleStringProperty("")
+    val eventCountValue: StringProperty = SimpleStringProperty("0")
     val table: TableView<MidiDataEvent> = TableView<MidiDataEvent>()
 
     init {
+        midiDataEventList.addListener(ListChangeListener<MidiDataEvent> {
+            eventCountValue.set(midiDataEventList.size.toString())
+        })
+
         table.apply {
             items = midiDataEventList
+            prefWidth = 460.0
+            columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS
+            placeholder = Label("Waiting for MIDI events...").apply {
+                style = "-fx-text-fill: #9fb1c8; -fx-font-size: 13px; -fx-font-style: italic;"
+            }
+            style =
+                "-fx-background-color: #0f1722; -fx-background-radius: 14; -fx-border-color: #233247; -fx-border-radius: 14; -fx-padding: 6;"
             columns.addAll(
                 TableColumn<MidiDataEvent, String>("Event").apply {
                     cellValueFactory = PropertyValueFactory("event")
-                    prefWidth = 200.0
+                    style = "-fx-alignment: CENTER-LEFT; -fx-font-weight: bold;"
                 },
                 TableColumn<MidiDataEvent, String>("Note").apply {
                     cellValueFactory = PropertyValueFactory("note")
-                    prefWidth = 150.0
+                    style = "-fx-alignment: CENTER-LEFT;"
                 },
                 TableColumn<MidiDataEvent, String>("Velocity").apply {
                     cellValueFactory = PropertyValueFactory("velocity")
-                    prefWidth = 100.0
+                    style = "-fx-alignment: CENTER-RIGHT;"
                 }
             )
+            setRowFactory {
+                object : TableRow<MidiDataEvent>() {
+                    override fun updateItem(item: MidiDataEvent?, empty: Boolean) {
+                        super.updateItem(item, empty)
+                        style = when {
+                            empty -> "-fx-background-color: transparent;"
+                            isSelected -> "-fx-background-color: #2b4d73; -fx-text-fill: #f8fafc; -fx-background-insets: 1;"
+                            item != null -> rowStyleFor(item)
+                            else -> "-fx-background-color: transparent;"
+                        }
+                    }
+                }
+            }
             selectionModel.selectedItemProperty().addListener { _, _, newValue ->
                 if (newValue != null) {
                     showValues(newValue)
@@ -81,10 +106,41 @@ class MidiView : MmxView() {
             }
         }
 
+        val clearEventsButton = Button("Clear events").apply {
+            style =
+                "-fx-background-color: #2f6fb1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 9; -fx-padding: 8 14 8 14;"
+            setOnAction {
+                midiDataEventList.clear()
+                clearDecodedValues()
+            }
+        }
+
+        val eventCounterLabel = Label().apply {
+            textProperty().bind(eventCountValue.concat(" events"))
+            style =
+                "-fx-background-color: rgba(118,195,255,0.18); -fx-text-fill: #dbeeff; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 999; -fx-padding: 5 10 5 10;"
+        }
+
+        val tablePanel = VBox(12.0).apply {
+            children.addAll(
+                Label("MIDI Event Monitor").apply {
+                    style = "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f2f7ff;"
+                },
+                Label("Live stream of MIDI traffic with event-aware row highlighting.").apply {
+                    style = "-fx-font-size: 13px; -fx-text-fill: #8ea3bc;"
+                },
+                HBox(10.0, clearEventsButton, eventCounterLabel),
+                table
+            )
+        }
+        VBox.setVgrow(table, Priority.ALWAYS)
+
         val midiInfo = GridPane().apply {
-            hgap = 5.0
-            vgap = 5.0
+            hgap = 10.0
+            vgap = 10.0
             padding = Insets(25.0)
+            style =
+                "-fx-background-color: #101a28; -fx-background-radius: 14; -fx-border-color: #223246; -fx-border-radius: 14; -fx-border-width: 1;"
             isGridLinesVisible = false
             columnConstraints.addAll(
                 ColumnConstraints(200.0),
@@ -92,163 +148,120 @@ class MidiView : MmxView() {
                 ColumnConstraints(150.0)
             )
 
-            add(Button("Clear table").apply {
-                setOnMouseClicked { _ ->
-                    midiDataEventList.clear()
-                }
-            }, 0, 0, 3, 1)
+            add(sectionTitleLabel("MIDI Data"), 0, 0, 3, 1)
 
-            add(Label("MIDI data").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
-            }, 0, 2, 3, 1)
+            add(infoLabel("Data[0]: MIDI status"), 0, 1)
+            add(valueLabel(midiData0Value), 1, 1)
+            add(valueLabel(midiData0Bits), 2, 1)
 
-            add(Label("Data[0]: Midi Status"), 0, 3)
-            add(Label().apply {
-                textProperty().bind(midiData0Value)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 3)
-            add(Label().apply {
-                textProperty().bind(midiData0Bits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 3)
+            add(infoLabel("Event"), 1, 2)
+            add(valueLabel(midiDataEventValue), 2, 2)
 
-            add(Label("Event"), 1, 4)
-            add(Label().apply {
-                textProperty().bind(midiDataEventValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 4)
+            add(infoLabel("Channel"), 1, 3)
+            add(valueLabel(midiDataChannelValue), 2, 3)
 
-            add(Label("Channel"), 1, 5)
-            add(Label().apply {
-                textProperty().bind(midiDataChannelValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 5)
+            add(infoLabel("Data[1]"), 0, 4)
+            add(valueLabel(midiData1Value), 1, 4)
+            add(valueLabel(midiData1Bits), 2, 4)
 
-            add(Label("Data[1]"), 0, 6)
-            add(Label("Value").apply {
-                textProperty().bind(midiData1Value)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 6)
-            add(Label("Bits").apply {
-                textProperty().bind(midiData1Bits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 6)
+            add(infoLabel("Data[2]"), 0, 5)
+            add(valueLabel(midiData2Value), 1, 5)
+            add(valueLabel(midiData2Bits), 2, 5)
 
-            add(Label("Data[2]"), 0, 7)
-            add(Label("Value").apply {
-                textProperty().bind(midiData2Value)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 7)
-            add(Label("Bits").apply {
-                textProperty().bind(midiData2Bits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 7)
+            add(sectionDivider(), 0, 6, 3, 1)
 
-            add(Separator(), 0, 8, 3, 1)
+            add(sectionTitleLabel("Decoded Event Details"), 0, 7, 3, 1)
 
-            add(Label("Data for last events").apply {
-                style = "-fx-font-size: 20px; -fx-font-weight: bold;"
-            }, 0, 9, 3, 1)
+            add(sectionSubtitleLabel("Note On/Off"), 0, 8, 3, 1)
 
-            add(Label("Note On or Off").apply {
-                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
-            }, 0, 10, 3, 1)
+            add(infoLabel("Note"), 0, 9)
+            add(valueLabel(noteValue), 1, 9)
+            add(valueLabel(noteValueBits), 2, 9)
 
-            add(Label("Note"), 0, 11)
-            add(Label("Value").apply {
-                textProperty().bind(noteValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 11)
-            add(Label("Value").apply {
-                textProperty().bind(noteValueBits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 11)
+            add(infoLabel("Note velocity"), 0, 10)
+            add(valueLabel(noteVelocityValue), 1, 10)
+            add(valueLabel(noteVelocityValueBits), 2, 10)
 
-            add(Label("Note velocity"), 0, 12)
-            add(Label("Value").apply {
-                textProperty().bind(noteVelocityValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 12)
-            add(Label("Value").apply {
-                textProperty().bind(noteVelocityValueBits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 12)
+            add(sectionSubtitleLabel("Instrument change"), 0, 11, 3, 1)
 
-            add(Label("Instrument change").apply {
-                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
-            }, 0, 13, 3, 1)
+            add(infoLabel("Selected instrument"), 0, 12)
+            add(valueLabel(lastInstrument), 1, 12)
 
-            add(Label("Selected instrument"), 0, 14)
-            add(Label().apply {
-                textProperty().bind(lastInstrument)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 14)
+            add(sectionSubtitleLabel("Controller message"), 0, 13, 3, 1)
 
-            add(Label("Controller message").apply {
-                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
-            }, 0, 15, 3, 1)
+            add(infoLabel("Controller number"), 0, 14)
+            add(valueLabel(controllerNumber), 1, 14)
+            add(valueLabel(controllerNumberBits), 2, 14)
 
-            add(Label("Controller number"), 0, 16)
-            add(Label("Value").apply {
-                textProperty().bind(controllerNumber)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 16)
-            add(Label("Value").apply {
-                textProperty().bind(controllerNumberBits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 16)
+            add(infoLabel("Controller value"), 0, 15)
+            add(valueLabel(controllerValue), 1, 15)
+            add(valueLabel(controllerValueBits), 2, 15)
 
-            add(Label("Controller value"), 0, 17)
-            add(Label("Value").apply {
-                textProperty().bind(controllerValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 17)
-            add(Label("Value").apply {
-                textProperty().bind(controllerValueBits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 17)
+            add(sectionSubtitleLabel("Pitch bend message"), 0, 16, 3, 1)
 
-            add(Label("Pitch bend message").apply {
-                style = "-fx-font-size: 16px; -fx-font-weight: bold;"
-            }, 0, 18, 3, 1)
-
-            add(Label("Pitch bend"), 0, 19)
-            add(Label("Value").apply {
-                textProperty().bind(pitchBendValue)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 1, 19)
-            add(Label("Value").apply {
-                textProperty().bind(pitchBendValueBits)
-                style = "-fx-font-family: 'Courier New', Courier, monospace; -fx-font-weight: bold;"
-                GridPane.setHalignment(this, HPos.RIGHT)
-            }, 2, 19)
+            add(infoLabel("Pitch bend"), 0, 17)
+            add(valueLabel(pitchBendValue), 1, 17)
+            add(valueLabel(pitchBendValueBits), 2, 17)
         }
 
         val root = HBox().apply {
-            spacing = 10.0
-            padding = Insets(25.0)
-            children.addAll(table, midiInfo)
+            spacing = 18.0
+            padding = Insets(20.0)
+            style = "-fx-background-color: linear-gradient(to bottom, #091019, #0f1a27);"
+            children.addAll(tablePanel, midiInfo)
         }
+        HBox.setHgrow(tablePanel, Priority.ALWAYS)
+        HBox.setHgrow(midiInfo, Priority.NEVER)
 
         setupSurface(root, 1000.0, 800.0, root)
+    }
+
+    private fun rowStyleFor(item: MidiDataEvent): String {
+        return when (item.event) {
+            MidiEvent.NOTE_ON -> "-fx-background-color: rgba(34, 197, 94, 0.35); -fx-text-fill: #ecfff3;"
+            MidiEvent.NOTE_OFF -> "-fx-background-color: rgba(239, 68, 68, 0.34); -fx-text-fill: #fff0f0;"
+            MidiEvent.SELECT_INSTRUMENT -> "-fx-background-color: rgba(168, 85, 247, 0.32); -fx-text-fill: #f8eeff;"
+            MidiEvent.CONTROLLER -> "-fx-background-color: rgba(14, 165, 233, 0.32); -fx-text-fill: #ebf9ff;"
+            MidiEvent.PITCH_BEND -> "-fx-background-color: rgba(245, 158, 11, 0.32); -fx-text-fill: #fff6e8;"
+            else -> if (table.items.indexOf(item) % 2 == 0) {
+                "-fx-background-color: rgba(255,255,255,0.03); -fx-text-fill: #e5ecf4;"
+            } else {
+                "-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: #e5ecf4;"
+            }
+        }
+    }
+
+    private fun sectionTitleLabel(text: String): Label {
+        return Label(text).apply {
+            style = "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #e6edf7;"
+        }
+    }
+
+    private fun sectionSubtitleLabel(text: String): Label {
+        return Label(text).apply {
+            style = "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b5d4ff;"
+        }
+    }
+
+    private fun sectionDivider(): Separator {
+        return Separator().apply {
+            style = "-fx-opacity: 0.5;"
+        }
+    }
+
+    private fun infoLabel(text: String): Label {
+        return Label(text).apply {
+            style = "-fx-text-fill: #9fb1c8; -fx-font-size: 13px; -fx-font-weight: 600;"
+        }
+    }
+
+    private fun valueLabel(property: StringProperty): Label {
+        return Label().apply {
+            textProperty().bind(property)
+            style =
+                "-fx-font-family: 'JetBrains Mono', 'Courier New', Courier, monospace; -fx-font-weight: bold; -fx-text-fill: #f8fbff; -fx-background-color: rgba(255,255,255,0.04); -fx-background-radius: 6; -fx-padding: 3 6 3 6;"
+            GridPane.setHalignment(this, HPos.RIGHT)
+        }
     }
 
     /**
@@ -307,6 +320,7 @@ class MidiView : MmxView() {
             midiData1Bits.set(byteToBitsString(midiDataEvent.bytes[1]))
             midiData2Value.set(midiDataEvent.bytes[2].toString())
             midiData2Bits.set(byteToBitsString(midiDataEvent.bytes[2]))
+            clearDecodedValues()
 
             if (midiDataEvent.event == MidiEvent.NOTE_ON || midiDataEvent.event == MidiEvent.NOTE_OFF) {
                 noteValue.set(midiDataEvent.note.name)
@@ -325,6 +339,20 @@ class MidiView : MmxView() {
                 pitchBendValueBits.set(byteToBitsString(midiDataEvent.bytes[1]) + " " + byteToBitsString(midiDataEvent.bytes[2]))
             }
         }
+    }
+
+    private fun clearDecodedValues() {
+        noteValue.set("")
+        noteValueBits.set("")
+        noteVelocityValue.set("")
+        noteVelocityValueBits.set("")
+        lastInstrument.set("")
+        controllerNumber.set("")
+        controllerNumberBits.set("")
+        controllerValue.set("")
+        controllerValueBits.set("")
+        pitchBendValue.set("")
+        pitchBendValueBits.set("")
     }
 
     /**
