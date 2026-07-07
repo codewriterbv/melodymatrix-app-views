@@ -76,13 +76,10 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
         }
         animationCalculator?.start()
 
-        // Drop any in-flight note blocks when the corresponding toggle is switched off,
-        // so previously-visible blocks disappear immediately instead of finishing their trajectory.
-        config.fallingBlocksEnabled.addListener { _, _, enabled ->
-            if (enabled != true) animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
-        }
-        config.risingBlocksEnabled.addListener { _, _, enabled ->
-            if (enabled != true) animationCalculator?.clearNoteBlocks(clearFalling = false, clearRising = true)
+        // Drop any in-flight note blocks when the toggle is switched off so visible
+        // blocks disappear immediately instead of finishing their trajectory.
+        config.noteBlocksEnabled.addListener { _, _, enabled ->
+            if (enabled != true) animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = true)
         }
 
         // Create animation timer for 60 FPS updates
@@ -211,6 +208,12 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
     fun clearScheduledNotes() {
         logger.debug("[FALLING] clearScheduledNotes: dropping all falling blocks")
         animationCalculator?.clearNoteBlocks(clearFalling = true, clearRising = false)
+    }
+
+    /** Discards all rising note blocks (used when entering playback mode). */
+    fun clearRisingNotes() {
+        logger.debug("[RISING] clearRisingNotes: dropping all rising blocks")
+        animationCalculator?.clearNoteBlocks(clearFalling = false, clearRising = true)
     }
 
     /** Redraws the full canvas for the current animation frame. Called by the [AnimationTimer]. */

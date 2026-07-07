@@ -166,11 +166,8 @@ class PianoConfiguration(
     var cloudSpawnRadius = SimpleDoubleProperty(160.0)
 
     // Note-block (Synthesia-style) settings
-    /** Enables falling note blocks driven by scheduled [be.codewriter.melodymatrix.view.event.PlayEvent]s. */
-    var fallingBlocksEnabled = SimpleBooleanProperty(false)
-
-    /** Enables rising note blocks driven by live MIDI NOTE_ON/OFF events. */
-    var risingBlocksEnabled = SimpleBooleanProperty(false)
+    /** Enables note blocks; playback renders falling blocks and live input renders rising blocks. */
+    var noteBlocksEnabled = SimpleBooleanProperty(false)
 
     /**
      * Look-ahead / trail window in seconds.
@@ -266,8 +263,12 @@ class PianoConfiguration(
         settings.bindDouble(cloudOpacity, registryKey("cloudOpacity"))
         settings.bindDouble(cloudSpawnRadius, registryKey("cloudSpawnRadius"))
 
-        settings.bindBoolean(fallingBlocksEnabled, registryKey("fallingBlocksEnabled"))
-        settings.bindBoolean(risingBlocksEnabled, registryKey("risingBlocksEnabled"))
+        // Backward-compatible migration: old configs stored separate falling/rising toggles.
+        val legacyBlocksEnabled =
+            settings.getBoolean(registryKey("fallingBlocksEnabled"), false) ||
+                settings.getBoolean(registryKey("risingBlocksEnabled"), false)
+        noteBlocksEnabled.set(settings.getBoolean(registryKey("noteBlocksEnabled"), legacyBlocksEnabled))
+        settings.bindBoolean(noteBlocksEnabled, registryKey("noteBlocksEnabled"))
         settings.bindDouble(noteBlockLookAheadSeconds, registryKey("noteBlockLookAheadSeconds"))
         settings.bindEnum(noteBlockColorMode, registryKey("noteBlockColorMode"), NoteBlockColorMode::class.java)
         settings.bindColor(noteBlockFixedColor, registryKey("noteBlockFixedColor"))

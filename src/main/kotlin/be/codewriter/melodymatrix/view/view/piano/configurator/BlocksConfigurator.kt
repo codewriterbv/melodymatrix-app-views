@@ -23,18 +23,13 @@ import javafx.scene.paint.Color
  *
  * @see PianoConfiguration
  */
-class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
+class BlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
 
     init {
-        val fallingEnabled = ToggleSwitch().apply {
-            textProperty().bind(enabledDisabledBinding(config.fallingBlocksEnabled))
+        val blocksEnabled = ToggleSwitch().apply {
+            textProperty().bind(enabledDisabledBinding(config.noteBlocksEnabled))
             labelPosition = HorizontalDirection.RIGHT
-            selectedProperty().bindBidirectional(config.fallingBlocksEnabled)
-        }
-        val risingEnabled = ToggleSwitch().apply {
-            textProperty().bind(enabledDisabledBinding(config.risingBlocksEnabled))
-            labelPosition = HorizontalDirection.RIGHT
-            selectedProperty().bindBidirectional(config.risingBlocksEnabled)
+            selectedProperty().bindBidirectional(config.noteBlocksEnabled)
         }
 
         val lookAhead = TickerSlider().apply {
@@ -103,8 +98,7 @@ class NoteBlocksConfigurator(config: PianoConfiguration) : BaseConfigurator() {
             .apply { alignment = Pos.CENTER_LEFT }
 
         contentBox.children.addAll(
-            labeledControl("blocksConfig.falling_playback", fallingEnabled),
-            labeledControl("blocksConfig.rising_input", risingEnabled),
+            labeledControl("blocksConfig.falling_playback", blocksEnabled),
             labeledControl("blocksConfig.look_ahead", lookAhead),
             labeledControl("blocksConfig.color_mode", colorMode),
             labeledControl("blocksConfig.block_color", colorPickerRow),

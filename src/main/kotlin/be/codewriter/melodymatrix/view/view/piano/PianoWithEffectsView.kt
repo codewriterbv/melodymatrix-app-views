@@ -62,6 +62,7 @@ class PianoWithEffectsView(
 
     private val pianoCanvas: PianoCanvas = PianoCanvas(config)
     private val keyboardView: KeyboardView = KeyboardView(config, PIANO_WIDTH, PIANO_KEYBOARD_HEIGHT.toDouble())
+    private val playbackEventGate = PlaybackEventGate()
 
     /**
      * Optional listener that receives note events when the user clicks a key with the mouse.
@@ -175,8 +176,8 @@ class PianoWithEffectsView(
                 createSettingsButton("effects.toolbar.image", config.backgroundImageEnabled) {
                     ImageConfigurator(config, licenseStatus)
                 },
-                createSettingsButton("effects.toolbar.blocks", config.fallingBlocksEnabled) {
-                    NoteBlocksConfigurator(config)
+                createSettingsButton("effects.toolbar.blocks", config.noteBlocksEnabled) {
+                    BlocksConfigurator(config)
                 },
                 createSettingsButton("effects.toolbar.explosion", config.explosionEnabled) {
                     ExplosionConfigurator(config)
@@ -292,7 +293,7 @@ class PianoWithEffectsView(
                         pianoCanvas.playNote(midiDataEvent, keyOrigin)
                     }
 
-                    if (config.risingBlocksEnabled.value &&
+                    if (config.noteBlocksEnabled.value && playbackEventGate.shouldRenderRisingBlocks() &&
                         (midiDataEvent.event == MidiEvent.NOTE_ON || midiDataEvent.event == MidiEvent.NOTE_OFF)
                     ) {
                         keyboardView.getKeyBlockRect(midiDataEvent.note)?.let { keyRect ->
@@ -313,7 +314,8 @@ class PianoWithEffectsView(
 
             MmxEventType.PLAY -> {
                 val playEvent = event as? PlayEvent ?: return
-                if (!config.fallingBlocksEnabled.value) {
+                val enteringPlayback = playbackEventGate.onPlayEvent()
+                if (!config.noteBlocksEnabled.value) {
                     logger.debug(
                         "[FALLING] PLAY received but falling blocks disabled: note={} startTime={}ns",
                         playEvent.note, playEvent.startTime
@@ -321,6 +323,10 @@ class PianoWithEffectsView(
                     return
                 }
                 Platform.runLater {
+                    if (enteringPlayback) {
+                        // During playback we only want falling reference blocks on screen.
+                        pianoCanvas.clearRisingNotes()
+                    }
                     val keyRect = keyboardView.getKeyBlockRect(playEvent.note)
                     if (keyRect == null) {
                         logger.debug(
@@ -360,6 +366,7 @@ class PianoWithEffectsView(
             }
 
             MmxEventType.PLAYBACK_STOP -> {
+                playbackEventGate.onPlaybackStop()
                 logger.debug("[FALLING] PLAYBACK_STOP received — clearing scheduled falling blocks")
                 Platform.runLater {
                     pianoCanvas.clearScheduledNotes()
