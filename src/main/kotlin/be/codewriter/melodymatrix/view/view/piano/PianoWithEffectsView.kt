@@ -63,6 +63,8 @@ class PianoWithEffectsView(
     private val pianoCanvas: PianoCanvas = PianoCanvas(config)
     private val keyboardView: KeyboardView = KeyboardView(config, PIANO_WIDTH, PIANO_KEYBOARD_HEIGHT.toDouble())
     private val playbackEventGate = PlaybackEventGate()
+    private val bufferedPlayEvents = mutableListOf<PlayEvent>()
+    private val playEventBufferLock = Any()
 
     /**
      * Optional listener that receives note events when the user clicks a key with the mouse.
@@ -90,6 +92,12 @@ class PianoWithEffectsView(
     init {
         config.showDebugInfo.value = showDebugInfo
         config.restoreSettings()
+
+        config.noteBlocksEnabled.addListener { _, oldValue, newValue ->
+            if (oldValue != true && newValue == true && playbackEventGate.isPlaybackActive()) {
+                Platform.runLater { replayBufferedPlayEvents() }
+            }
+        }
 
         val pianoView = VBox().apply {
             prefWidth = PIANO_WIDTH
@@ -315,6 +323,9 @@ class PianoWithEffectsView(
             MmxEventType.PLAY -> {
                 val playEvent = event as? PlayEvent ?: return
                 val enteringPlayback = playbackEventGate.onPlayEvent()
+                synchronized(playEventBufferLock) {
+                    bufferedPlayEvents.add(playEvent)
+                }
                 if (!config.noteBlocksEnabled.value) {
                     logger.debug(
                         "[FALLING] PLAY received but falling blocks disabled: note={} startTime={}ns",
@@ -327,33 +338,7 @@ class PianoWithEffectsView(
                         // During playback we only want falling reference blocks on screen.
                         pianoCanvas.clearRisingNotes()
                     }
-                    val keyRect = keyboardView.getKeyBlockRect(playEvent.note)
-                    if (keyRect == null) {
-                        logger.debug(
-                            "[FALLING] No key rect for note {} — falling block skipped",
-                            playEvent.note
-                        )
-                        return@runLater
-                    }
-                    // PlayEvent.startTime is wall-clock nanoseconds since epoch (as set by
-                    // PlaybackEventScheduler / MidiSimulator). Divide by 1M to get ms.
-                    val landWallClockMs = playEvent.startTime / 1_000_000L
-                    val durationMs = playEvent.duration.toMillis().toLong().coerceAtLeast(0L)
-                    val nowMs = System.currentTimeMillis()
-                    logger.debug(
-                        "[FALLING] scheduling: note={} land=+{}ms (wallClock={}) durationMs={} lookAhead={}s keyRect=[x={}, w={}]",
-                        playEvent.note, landWallClockMs - nowMs, landWallClockMs, durationMs,
-                        config.noteBlockLookAheadSeconds.value, keyRect.minX, keyRect.width
-                    )
-                    pianoCanvas.scheduleFallingNote(
-                        note = playEvent.note,
-                        landTimestampMs = landWallClockMs,
-                        durationMs = durationMs,
-                        velocity = playEvent.velocity,
-                        // PlayEvent has no channel field in v1; default to channel 0.
-                        channel = 0,
-                        keyRect = keyRect
-                    )
+                    scheduleFallingBlock(playEvent)
                 }
             }
 
@@ -367,12 +352,60 @@ class PianoWithEffectsView(
 
             MmxEventType.PLAYBACK_STOP -> {
                 playbackEventGate.onPlaybackStop()
+                synchronized(playEventBufferLock) {
+                    bufferedPlayEvents.clear()
+                }
                 logger.debug("[FALLING] PLAYBACK_STOP received — clearing scheduled falling blocks")
                 Platform.runLater {
                     pianoCanvas.clearScheduledNotes()
                 }
             }
         }
+    }
+
+    private fun replayBufferedPlayEvents() {
+        val nowMs = System.currentTimeMillis()
+        val pendingEvents = synchronized(playEventBufferLock) {
+            bufferedPlayEvents.filter { playEvent ->
+                val landWallClockMs = playEvent.startTime / 1_000_000L
+                landWallClockMs >= nowMs
+            }
+        }
+        if (pendingEvents.isEmpty()) {
+            logger.debug("[FALLING] Re-enable requested during playback but no future PLAY events remain")
+            return
+        }
+
+        logger.debug("[FALLING] Replaying {} buffered PLAY events after re-enabling blocks", pendingEvents.size)
+        pendingEvents.forEach(::scheduleFallingBlock)
+    }
+
+    private fun scheduleFallingBlock(playEvent: PlayEvent) {
+        val keyRect = keyboardView.getKeyBlockRect(playEvent.note)
+        if (keyRect == null) {
+            logger.debug("[FALLING] No key rect for note {} — falling block skipped", playEvent.note)
+            return
+        }
+
+        // PlayEvent.startTime is wall-clock nanoseconds since epoch (as set by
+        // PlaybackEventScheduler / MidiSimulator). Divide by 1M to get ms.
+        val landWallClockMs = playEvent.startTime / 1_000_000L
+        val durationMs = playEvent.duration.toMillis().toLong().coerceAtLeast(0L)
+        val nowMs = System.currentTimeMillis()
+        logger.debug(
+            "[FALLING] scheduling: note={} land=+{}ms (wallClock={}) durationMs={} lookAhead={}s keyRect=[x={}, w={}]",
+            playEvent.note, landWallClockMs - nowMs, landWallClockMs, durationMs,
+            config.noteBlockLookAheadSeconds.value, keyRect.minX, keyRect.width
+        )
+        pianoCanvas.scheduleFallingNote(
+            note = playEvent.note,
+            landTimestampMs = landWallClockMs,
+            durationMs = durationMs,
+            velocity = playEvent.velocity,
+            // PlayEvent has no channel field in v1; default to channel 0.
+            channel = 0,
+            keyRect = keyRect
+        )
     }
 
     companion object : MmxViewMetadata {

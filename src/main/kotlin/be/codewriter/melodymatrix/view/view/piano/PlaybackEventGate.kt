@@ -20,6 +20,9 @@ class PlaybackEventGate {
         playbackActive = false
     }
 
+    fun isPlaybackActive(): Boolean = playbackActive
+
     fun shouldRenderRisingBlocks(): Boolean = !playbackActive
 }
+
 

@@ -11,8 +11,10 @@ class PlaybackEventGateTest {
         val gate = PlaybackEventGate()
 
         assertTrue(gate.shouldRenderRisingBlocks())
+        assertFalse(gate.isPlaybackActive())
         assertTrue(gate.onPlayEvent())
         assertFalse(gate.shouldRenderRisingBlocks())
+        assertTrue(gate.isPlaybackActive())
 
         // Additional PLAY events stay in playback mode and are not new transitions.
         assertFalse(gate.onPlayEvent())
@@ -27,7 +29,9 @@ class PlaybackEventGateTest {
         gate.onPlaybackStop()
 
         assertTrue(gate.shouldRenderRisingBlocks())
+        assertFalse(gate.isPlaybackActive())
         assertTrue(gate.onPlayEvent())
     }
 }
+
 
