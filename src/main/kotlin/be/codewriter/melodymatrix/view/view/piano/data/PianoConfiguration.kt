@@ -166,6 +166,34 @@ class PianoConfiguration(
     /** X-radius around a pressed key within which new particles are spawned. */
     var cloudSpawnRadius = SimpleDoubleProperty(160.0)
 
+    // Particle Cloud settings
+    /** Enables the swirling particle cloud effect triggered on note events. */
+    var particlesEnabled = SimpleBooleanProperty(false)
+
+    /** Fixed particle cloud colour when [particlesRandomColor] is false. */
+    var particlesColor = SimpleObjectProperty(Color.CYAN)
+
+    /** Uses randomised colours instead of [particlesColor]. */
+    var particlesRandomColor = SimpleBooleanProperty(true)
+
+    /** Total number of particles spawned per key press. */
+    var particlesParticleCount = SimpleIntegerProperty(300)
+
+    /** Base diameter of each particle; actual size is 10–28 % of this value. */
+    var particlesParticleSize = SimpleDoubleProperty(5.0)
+
+    /** Horizontal radius of the spawn zone around the key centre. */
+    var particlesSpreadRadius = SimpleDoubleProperty(50.0)
+
+    /** Base upward speed in px/s; actual speed varies ±40 % per particle. */
+    var particlesUpSpeed = SimpleDoubleProperty(130.0)
+
+    /** Tangential speed in px/s that creates the rotational swirl. */
+    var particlesSwirlSpeed = SimpleDoubleProperty(45.0)
+
+    /** Additional vertical lift multiplier (0.6–1.8). */
+    var particlesLiftMultiplier = SimpleDoubleProperty(1.0)
+
     // Note-block (Synthesia-style) settings
     /** Enables note blocks; playback renders falling blocks and live input renders rising blocks. */
     var noteBlocksEnabled = SimpleBooleanProperty(false)
@@ -254,6 +282,16 @@ class PianoConfiguration(
         settings.bindDouble(explosionLiftMultiplier, registryKey("explosionLiftMultiplier"))
         settings.bindInt(explosionTailNumberOfParticles, registryKey("explosionTailNumberOfParticles"))
 
+        settings.bindBoolean(particlesEnabled, registryKey("particlesEnabled"))
+        settings.bindColor(particlesColor, registryKey("particlesColor"))
+        settings.bindBoolean(particlesRandomColor, registryKey("particlesRandomColor"))
+        settings.bindInt(particlesParticleCount, registryKey("particlesParticleCount"))
+        settings.bindDouble(particlesParticleSize, registryKey("particlesParticleSize"))
+        settings.bindDouble(particlesSpreadRadius, registryKey("particlesSpreadRadius"))
+        settings.bindDouble(particlesUpSpeed, registryKey("particlesUpSpeed"))
+        settings.bindDouble(particlesSwirlSpeed, registryKey("particlesSwirlSpeed"))
+        settings.bindDouble(particlesLiftMultiplier, registryKey("particlesLiftMultiplier"))
+
         settings.bindBoolean(cloudEnabled, registryKey("cloudEnabled"))
         settings.bindColor(cloudColorStart, registryKey("cloudColorStart"))
         settings.bindColor(cloudColorEnd, registryKey("cloudColorEnd"))
@@ -276,7 +314,7 @@ class PianoConfiguration(
         settings.bindBoolean(noteBlockOutlineEnabled, registryKey("noteBlockOutlineEnabled"))
         settings.bindColor(noteBlockOutlineColor, registryKey("noteBlockOutlineColor"))
         settings.bindDouble(noteBlockOutlineWidth, registryKey("noteBlockOutlineWidth"))
-        }
+    }
 
     private fun registryKey(name: String): String = "view.piano.$viewName.$name"
 
@@ -287,7 +325,7 @@ class PianoConfiguration(
             // Backward-compatible migration: old configs stored separate falling/rising toggles.
             val legacyBlocksEnabled =
                 settings.getBoolean(key("fallingBlocksEnabled"), false) ||
-                    settings.getBoolean(key("risingBlocksEnabled"), false)
+                        settings.getBoolean(key("risingBlocksEnabled"), false)
             return settings.getBoolean(key("noteBlocksEnabled"), legacyBlocksEnabled)
         }
     }

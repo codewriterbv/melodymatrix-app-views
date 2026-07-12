@@ -195,6 +195,9 @@ class PianoWithEffectsView(
                 },
                 createSettingsButton("effects.toolbar.clouds", config.cloudEnabled) {
                     CloudConfigurator(config)
+                },
+                createSettingsButton("effects.toolbar.particles", config.particlesEnabled) {
+                    ParticlesConfigurator(config)
                 }
             )
             if (showDebugInfo) {

@@ -135,6 +135,22 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
             )
         }
 
+        if (config.particlesEnabled.value) {
+            animationCalculator?.addParticleCloud(
+                x = keyOrigin.x,
+                y = sceneY,
+                velocity = midiDataEvent.velocity,
+                color = config.particlesColor.value,
+                particleCount = config.particlesParticleCount.value,
+                particleSize = config.particlesParticleSize.value,
+                randomColor = config.particlesRandomColor.value,
+                spreadRadius = config.particlesSpreadRadius.value,
+                upSpeed = config.particlesUpSpeed.value,
+                swirlSpeed = config.particlesSwirlSpeed.value,
+                liftMultiplier = config.particlesLiftMultiplier.value
+            )
+        }
+
         if (config.fireworksEnabled.value) {
             animationCalculator?.addFireworks(
                 x = keyOrigin.x,

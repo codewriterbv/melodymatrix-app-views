@@ -53,8 +53,8 @@ class FireworksGenerator {
     ): List<AnimationCalculator.ParticleInfo> {
         val particles = mutableListOf<AnimationCalculator.ParticleInfo>()
         val clampedVelocity = velocity.coerceAtLeast(1)
-        val launchFactor = launchHeightMultiplier.coerceIn(0.6, 2.8)
         val effectiveLiftMultiplier = liftMultiplier.coerceIn(0.6, 1.8)
+        val launchFactor = launchHeightMultiplier.coerceIn(0.6, 2.8)
         val burstY = (y - (100.0 + clampedVelocity * 1.6) * launchFactor).coerceAtLeast(40.0)
 
         repeat(tailParticleCount.coerceAtLeast(1)) {

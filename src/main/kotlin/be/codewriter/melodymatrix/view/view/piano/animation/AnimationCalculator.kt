@@ -55,6 +55,21 @@ class AnimationCalculator(
             val randomColor: Boolean
         ) : AnimationCommand
 
+        /** Requests a swirling particle cloud rising from the key position. */
+        data class ParticleCloud(
+            val x: Double,
+            val y: Double,
+            val velocity: Int,
+            val color: Color,
+            val particleCount: Int,
+            val particleSize: Double,
+            val randomColor: Boolean,
+            val spreadRadius: Double,
+            val upSpeed: Double,
+            val swirlSpeed: Double,
+            val liftMultiplier: Double
+        ) : AnimationCommand
+
         /** Requests a fireworks burst launched from the given position. */
         data class Fireworks(
             val x: Double,
@@ -114,6 +129,7 @@ class AnimationCalculator(
     private val cloudGenerator = CloudGenerator()
     private val fireworksGenerator = FireworksGenerator()
     private val explosionGenerator = ExplosionGenerator()
+    private val particlesGenerator = ParticlesGenerator()
 
     private val fallingBlocks = mutableListOf<FallingBlockInfo>()
     private val risingBlocks = mutableListOf<RisingBlockInfo>()
@@ -270,6 +286,39 @@ class AnimationCalculator(
     }
 
     /**
+     * Enqueues a particle cloud command to be processed on the next animation frame.
+     */
+    fun addParticleCloud(
+        x: Double,
+        y: Double,
+        velocity: Int,
+        color: Color,
+        particleCount: Int,
+        particleSize: Double,
+        randomColor: Boolean,
+        spreadRadius: Double,
+        upSpeed: Double,
+        swirlSpeed: Double,
+        liftMultiplier: Double
+    ) {
+        commandQueue.add(
+            AnimationCommand.ParticleCloud(
+                x = x,
+                y = y,
+                velocity = velocity,
+                color = color,
+                particleCount = particleCount,
+                particleSize = particleSize,
+                randomColor = randomColor,
+                spreadRadius = spreadRadius,
+                upSpeed = upSpeed,
+                swirlSpeed = swirlSpeed,
+                liftMultiplier = liftMultiplier
+            )
+        )
+    }
+
+    /**
      * Enqueues a fireworks launch command to be processed on the next animation frame.
      *
      * @param x                     Horizontal launch origin in scene coordinates
@@ -419,6 +468,24 @@ class AnimationCalculator(
                             tailParticleCount = command.tailParticleCount,
                             liftMultiplier = command.liftMultiplier,
                             randomColor = command.randomColor
+                        )
+                    )
+                }
+
+                is AnimationCommand.ParticleCloud -> {
+                    activeParticles.addAll(
+                        particlesGenerator.generate(
+                            x = command.x,
+                            y = command.y,
+                            velocity = command.velocity,
+                            color = command.color,
+                            particleCount = command.particleCount,
+                            particleSize = command.particleSize,
+                            randomColor = command.randomColor,
+                            spreadRadius = command.spreadRadius,
+                            upSpeed = command.upSpeed,
+                            swirlSpeed = command.swirlSpeed,
+                            liftMultiplier = command.liftMultiplier
                         )
                     )
                 }
