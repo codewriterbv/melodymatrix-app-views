@@ -11,8 +11,6 @@ import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
-import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView.Companion.END_NOTE
-import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView.Companion.START_NOTE
 import be.codewriter.melodymatrix.view.view.piano.data.PianoConfiguration
 import be.codewriter.melodymatrix.view.view.piano.keyboard.KeyboardView
 import javafx.application.Platform
@@ -25,10 +23,12 @@ import org.apache.logging.log4j.Logger
  *
  * Unlike [PianoWithEffectsView], this view contains no animation canvas or effect layers —
  * only the interactive [KeyboardView] scaled to fill the available space.
- * The keyboard spans [START_NOTE] to [END_NOTE] (C3 – C6 by default, 37 keys), mirroring
- * the range of a typical small/portable keyboard.
+ * The keyboard spans from [DEFAULT_START_NOTE] to [DEFAULT_END_NOTE] (C3 – C6# by default,
+ * 37 keys), mirroring the range of a typical small/portable keyboard. The range can be
+ * overridden via the `view.piano.simple.startNote` / `view.piano.simple.endNote`
+ * setting keys — for example, a learn-series configuration can shrink the keyboard to
+ * a single octave.
  *
- * A minimal settings toolbar exposes the background colour and key-colour configuration.
  * The view is wrapped in a [ZoomableNode] so it scales correctly inside host containers.
  *
  * @see MmxView
@@ -43,12 +43,15 @@ class PianoSimpleView(
 
     private val config = PianoConfiguration("simple", settings)
 
+    private val startNote: Note = resolveNote(settings, SETTING_KEY_START_NOTE, DEFAULT_START_NOTE)
+    private val endNote: Note = resolveEndNote(settings, startNote)
+
     private val keyboardView: KeyboardView = KeyboardView(
         config,
         KEYBOARD_WIDTH,
         KEYBOARD_HEIGHT,
-        START_NOTE,
-        END_NOTE
+        startNote,
+        endNote
     )
 
     /**
@@ -96,6 +99,8 @@ class PianoSimpleView(
         )
     }
 
+    private var firstNoteLogged = false
+
     /**
      * Handles incoming MelodyMatrix events.
      *
@@ -109,11 +114,30 @@ class PianoSimpleView(
             MmxEventType.MIDI -> {
                 val midiDataEvent = event as? MidiDataEvent ?: return
                 Platform.runLater {
-                    logger.debug(
-                        "Received note {} {}",
-                        midiDataEvent.note,
-                        if (midiDataEvent.event == MidiEvent.NOTE_ON) "ON" else "OFF"
-                    )
+                    val note = midiDataEvent.note
+                    val inRange = note.byteValue in startNote.byteValue..endNote.byteValue
+                    // Log the first note at INFO so range-mismatch problems are visible
+                    // without changing log configuration; subsequent notes stay at DEBUG.
+                    if (!firstNoteLogged) {
+                        firstNoteLogged = true
+                        logger.info(
+                            "First MIDI event received: note={} event={} inRange={} range={}..{}",
+                            note,
+                            midiDataEvent.event,
+                            inRange,
+                            startNote,
+                            endNote
+                        )
+                    } else {
+                        logger.debug(
+                            "Received note {} {} (inRange={} range={}..{})",
+                            note,
+                            if (midiDataEvent.event == MidiEvent.NOTE_ON) "ON" else "OFF",
+                            inRange,
+                            startNote,
+                            endNote
+                        )
+                    }
                     keyboardView.playNote(midiDataEvent)
                 }
             }
@@ -130,18 +154,43 @@ class PianoSimpleView(
 
         private val logger: Logger = LogManager.getLogger(PianoSimpleView::class.java.name)
 
-        private const val TOOLBAR_CONTROL_HEIGHT = 40.0
+        /** Setting key that overrides the lowest displayed note. */
+        const val SETTING_KEY_START_NOTE: String = "view.piano.simple.startNote"
 
-        /** First note displayed on the keyboard (lowest pitch). */
-        val START_NOTE: Note = Note.C3
+        /** Setting key that overrides the highest displayed note. */
+        const val SETTING_KEY_END_NOTE: String = "view.piano.simple.endNote"
 
-        /** Last note displayed on the keyboard (highest pitch). */
-        val END_NOTE: Note = Note.C6_SHARP
+        /** Default lowest note displayed on the keyboard when no setting override exists. */
+        val DEFAULT_START_NOTE: Note = Note.C3
+
+        /** Default highest note displayed on the keyboard when no setting override exists. */
+        val DEFAULT_END_NOTE: Note = Note.C6_SHARP
 
         /** Natural pixel width of the keyboard view. */
         const val KEYBOARD_WIDTH = 900.0
 
         /** Natural pixel height of the keyboard view (= white key height). */
         const val KEYBOARD_HEIGHT = 160.0
+
+        private fun resolveNote(settings: SettingHelper?, key: String, fallback: Note): Note {
+            val raw = settings?.get(key)?.trim().orEmpty()
+            if (raw.isEmpty()) return fallback
+            return runCatching { Note.valueOf(raw) }
+                .onFailure { logger.warn("Ignoring invalid note '{}' for setting {}", raw, key) }
+                .getOrDefault(fallback)
+        }
+
+        private fun resolveEndNote(settings: SettingHelper?, startNote: Note): Note {
+            val resolved = resolveNote(settings, SETTING_KEY_END_NOTE, DEFAULT_END_NOTE)
+            if (resolved.byteValue < startNote.byteValue) {
+                logger.warn(
+                    "endNote {} is below startNote {}; falling back to default range",
+                    resolved,
+                    startNote
+                )
+                return DEFAULT_END_NOTE
+            }
+            return resolved
+        }
     }
 }
