@@ -1,4 +1,4 @@
-package stage.ledstrip
+package be.codewriter.melodymatrix.view.view.ledstrip
 
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -25,9 +25,6 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import stage.ledstrip.LedStripView.Companion.effectSpeed
-import stage.ledstrip.LedStripView.Companion.effectWidth
-import stage.ledstrip.LedStripView.Companion.updateLedStrip
 import java.util.concurrent.Executors
 import kotlin.math.abs
 

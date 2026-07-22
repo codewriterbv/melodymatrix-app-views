@@ -1,4 +1,4 @@
-package stage.scale
+package be.codewriter.melodymatrix.view.view.staff
 
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note

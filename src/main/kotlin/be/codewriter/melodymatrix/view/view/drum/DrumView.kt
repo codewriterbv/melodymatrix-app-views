@@ -1,4 +1,4 @@
-package stage.drum
+package be.codewriter.melodymatrix.view.view.drum
 
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.DrumPart

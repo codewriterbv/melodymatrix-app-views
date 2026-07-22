@@ -10,12 +10,15 @@ import be.codewriter.melodymatrix.view.view.chart.ChartsView
 import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
 import be.codewriter.melodymatrix.view.view.chord.ChordView
 import be.codewriter.melodymatrix.view.view.chord.CircleOfFifthsView
+import be.codewriter.melodymatrix.view.view.drum.DrumView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
+import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
 import be.codewriter.melodymatrix.view.view.spectrum.AudioSpectrumMidiView
+import be.codewriter.melodymatrix.view.view.staff.StaffView
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
 import javafx.scene.Node
@@ -23,9 +26,6 @@ import javafx.scene.control.ScrollPane
 import javafx.scene.layout.VBox
 import software.coley.bentofx.Bento
 import software.coley.bentofx.dockable.Dockable
-import stage.drum.DrumView
-import stage.ledstrip.LedStripView
-import stage.scale.StaffView
 
 /**
  * Root UI component for the standalone test application.
@@ -185,7 +185,7 @@ class TestView : VBox() {
         midiSimulator.stop()
         midiSimulator.scheduler.shutdownNow()
         audioSpectrumSimulator.stop()
-        }
+    }
 
     /**
      * Toggles a visualizer on or off based on the selection state from [TestViewStages].
