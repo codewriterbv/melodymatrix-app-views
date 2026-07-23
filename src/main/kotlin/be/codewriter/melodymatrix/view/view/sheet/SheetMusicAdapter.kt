@@ -303,12 +303,17 @@ object SheetMusicAdapter {
 
         val msPerQuarter = 60_000.0 / bpm
         val quantumQuarters = 0.25 // quantize to the nearest sixteenth note
+
+        // File-backed recordings store PlayEvent.startTime on the DataLine nanosecond
+        // timeline. For notation we quantize against milliseconds, so convert onsets when
+        // they look like epoch nanoseconds while preserving millisecond-based sources.
+        val onsetScale = onsetScaleToMillis(playEvents)
         val startMs = playEvents.minOf { it.startTime }
 
         val slots = playEvents
             .filter { it.note != Note.UNDEFINED }
             .groupBy { evt ->
-                val onsetMs = evt.startTime - startMs
+                val onsetMs = (evt.startTime - startMs) / onsetScale
                 val onsetQ = quantize(onsetMs / msPerQuarter, quantumQuarters)
                 onsetQ to staffFor(evt.note.byteValue)
             }
@@ -430,6 +435,15 @@ object SheetMusicAdapter {
         return kotlin.math.round(value / quantum) * quantum
     }
 
+    // Treat very large absolute timestamps as epoch nanoseconds and scale to milliseconds.
+    private fun onsetScaleToMillis(playEvents: List<PlayEvent>): Double {
+        val minStart = playEvents.minOfOrNull { it.startTime } ?: return 1.0
+        return if (minStart >= NANOSECOND_EPOCH_THRESHOLD) NANOS_PER_MILLI else 1.0
+    }
+
     /** Default bpm used when a recording has no [Recording.sourceBpm]. */
     const val DEFAULT_BPM: Int = 100
+
+    private const val NANOS_PER_MILLI: Double = 1_000_000.0
+    private const val NANOSECOND_EPOCH_THRESHOLD: Long = 1_000_000_000_000_000L
 }
