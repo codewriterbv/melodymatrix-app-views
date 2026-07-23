@@ -269,7 +269,7 @@ class SheetMusicView : MmxView() {
     )
 
     companion object : MmxViewMetadata {
-        override val bundleBaseName = BUNDLE_BASE_NAME
+        override val bundleBaseName = "i18n/view/sheetmusic"
         override fun getViewImagePath(): String = "/view/scale.png"
 
         private const val BUNDLE_BASE_NAME: String = "i18n/view/sheetmusic"
