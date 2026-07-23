@@ -13,10 +13,12 @@ import be.codewriter.melodymatrix.view.view.chord.CircleOfFifthsView
 import be.codewriter.melodymatrix.view.view.drum.DrumView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
+import be.codewriter.melodymatrix.view.view.learnstrip.LearnStripView
 import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
+import be.codewriter.melodymatrix.view.view.sheetmusic.SheetMusicView
 import be.codewriter.melodymatrix.view.view.spectrum.AudioSpectrumMidiView
 import be.codewriter.melodymatrix.view.view.staff.StaffView
 import javafx.geometry.Insets
@@ -76,6 +78,8 @@ class TestView : VBox() {
         StageOption(GuitarChordView.Companion, "tab-guitar-chord") { GuitarChordView() },
         StageOption(ChartsView.Companion, "tab-charts") { ChartsView() },
         StageOption(StaffView.Companion, "tab-scale") { StaffView() },
+        StageOption(SheetMusicView.Companion, "tab-sheetmusic") { SheetMusicView() },
+        StageOption(LearnStripView.Companion, "tab-learn-strip") { LearnStripView() },
         StageOption(DrumView.Companion, "tab-drum") { DrumView() },
         StageOption(LedStripView.Companion, "tab-led-strip") { LedStripView() },
         StageOption(AudioSpectrumMidiView.Companion, "tab-audio-spectrum-midi") { AudioSpectrumMidiView() }

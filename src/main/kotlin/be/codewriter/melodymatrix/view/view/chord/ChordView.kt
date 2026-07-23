@@ -1,5 +1,6 @@
 package be.codewriter.melodymatrix.view.view.chord
 
+import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
@@ -7,24 +8,30 @@ import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
-import be.codewriter.melodymatrix.view.helper.FileLoader
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
+import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
+import com.sheetmusic4j.engraving.glyph.MarkingCategory
+import com.sheetmusic4j.fxviewer.SheetView
 import javafx.application.Platform
 import javafx.geometry.Insets
 import javafx.scene.control.Label
-import javafx.scene.layout.HBox
+import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
-import javafx.scene.text.Font
-import java.io.InputStream
+import javafx.scene.paint.Color
 
 /**
- * Visualizer stage that displays notes on a two-octave music staff and shows the detected chord.
+ * Visualizer stage that shows the currently played notes on a small grand-staff snippet
+ * plus the detected chord name.
  *
- * Renders a simplified treble and bass staff using a music font (Musiqwik). Each note position
- * on the staff is backed by a [Label]; when a MIDI note is pressed the corresponding label is
- * highlighted. The current chord name and active notes are also shown as text labels.
+ * The staff is rendered by sheetmusic4j: on every MIDI or chord event we rebuild a
+ * one-measure snippet score containing the active notes as chords of whole notes
+ * (treble = notes >= C4, bass = notes < C4). Real accidentals are drawn by the engraver.
+ *
+ * The sheet is wrapped in a [ZoomableNode] and the view opts in to
+ * [MmxView.fitToViewport] so the notation scales with the host viewport rather than
+ * rendering at a fixed pixel size.
  *
  * @see MmxView
  * @see ChordEvent
@@ -32,19 +39,36 @@ import java.io.InputStream
  */
 class ChordView : MmxView() {
 
-    val notes: MutableMap<Note, Label> = mutableMapOf()
-    private val activeNotes: MutableSet<Note> = mutableSetOf()
+    override val fitToViewport: Boolean = true
+
+    private val activeNotes: MutableSet<Note> = linkedSetOf()
     private val bundle = I18n.registerBundle("i18n/view/chord")
     private val chordLabel = Label()
     private val chordNotesLabel = Label()
 
-    init {
-        val inputStream: InputStream? = FileLoader.getResource("/fonts/musiqwik/Musiqwik-rvL8.ttf")
-        val font = Font.loadFont(inputStream, 40.0)
+    private val sheet = SheetView().apply {
+        setSystemWidth(SNIPPET_SYSTEM_WIDTH)
+        hiddenTextCategoriesProperty().addAll(
+            listOf(
+                MarkingCategory.TITLE,
+                MarkingCategory.SUBTITLE,
+                MarkingCategory.CREATOR,
+                MarkingCategory.LYRIC,
+                MarkingCategory.DIRECTION,
+                MarkingCategory.TEMPO,
+                MarkingCategory.DYNAMIC,
+                MarkingCategory.REHEARSAL,
+                MarkingCategory.CHORD_SYMBOL,
+                MarkingCategory.PART_LABEL
+            )
+        )
+    }
 
+    private var snippetRebuildPending = false
+
+    init {
         chordLabel.text = defaultChordText()
         chordNotesLabel.text = defaultNotesText()
-        // Keep the labels' idle text in sync when the language changes.
         I18n.currentLocale.addListener { _, _, _ ->
             if (activeNotes.isEmpty()) chordNotesLabel.text = defaultNotesText()
             if (chordLabel.text.endsWith("-") || chordLabel.text.isBlank()) chordLabel.text = defaultChordText()
@@ -52,146 +76,90 @@ class ChordView : MmxView() {
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
         chordNotesLabel.style = "-fx-font-size: 16;"
 
-        val row1 = HBox().apply {
-            spacing = 0.0
-            padding = Insets(0.0)
-            children.addAll(
-                getLabel(font, "=&==========================", null),
-                getLabel(font, "r", Note.C4),
-                getLabel(font, "s", Note.D4),
-                getLabel(font, "t", Note.E4),
-                getLabel(font, "u", Note.F4),
-                getLabel(font, "v", Note.G4),
-                getLabel(font, "w", Note.A4),
-                getLabel(font, "x", Note.B4),
-                getLabel(font, "y", Note.C5),
-                getLabel(font, "z", Note.D5),
-                getLabel(font, "{", Note.E5),
-                getLabel(font, "|", Note.F5),
-                getLabel(font, "}", Note.G5),
-                getLabel(font, "~", Note.A5),
-                getLabel(font, "==", null)
-            )
-        }
+        // Prime the sheet with an empty snippet so clef + staves show even when idle.
+        refreshSnippet()
 
-        val row2 = HBox().apply {
-            spacing = 0.0
-            padding = Insets(0.0)
-            children.addAll(
-                getLabel(font, "=¯==", null),
-                getLabel(font, "r", Note.E2),
-                getLabel(font, "s", Note.F2),
-                getLabel(font, "t", Note.G2),
-                getLabel(font, "u", Note.A2),
-                getLabel(font, "v", Note.B2),
-                getLabel(font, "w", Note.C3),
-                getLabel(font, "x", Note.D3),
-                getLabel(font, "y", Note.E3),
-                getLabel(font, "z", Note.F3),
-                getLabel(font, "{", Note.G3),
-                getLabel(font, "|", Note.A3),
-                getLabel(font, "}", Note.B3),
-                getLabel(font, "============================", null)
-            )
+        val header = VBox(chordLabel, chordNotesLabel).apply {
+            spacing = 4.0
+            padding = Insets(12.0, 12.0, 4.0, 20.0)
         }
-
-        val root = VBox(chordLabel, chordNotesLabel, row1, row2).apply {
-            spacing = 8.0
-            padding = Insets(12.0, 0.0, 0.0, 20.0)
+        val zoomable = ZoomableNode(
+            content = sheet,
+            naturalWidth = SNIPPET_SYSTEM_WIDTH,
+            naturalHeight = SNIPPET_NATURAL_HEIGHT,
+            minWidthValue = 240.0,
+            minHeightValue = 120.0,
+            fitMode = ZoomableNode.FitMode.CONTAIN
+        )
+        val root = BorderPane().apply {
+            top = header
+            center = zoomable
         }
-
-        setupSurface(root, 610.0, 220.0)
+        setupSurface(root, SNIPPET_SYSTEM_WIDTH, SNIPPET_NATURAL_HEIGHT + HEADER_HEIGHT, sheet)
     }
 
-    /**
-     * Creates a styled music-font label and optionally registers it for a specific note.
-     *
-     * @param musicFont The music font to apply, or null to use the default font
-     * @param content The text content (music font character) to display
-     * @param note The note this label represents, or null for decorative staff elements
-     * @return A [Label] configured with the given font and text
-     */
-    private fun getLabel(
-        musicFont: Font?,
-        content: String,
-        note: Note?
-    ): Label {
-        val label = Label().apply {
-            text = content
-            font = musicFont
-        }
-        if (note != null) {
-            notes[note] = label
-        }
-        return label
-    }
-
-    /**
-     * Handles incoming MelodyMatrix events.
-     *
-     * Routes MIDI events to [handleMidiEvent] and CHORD events to update the chord label.
-     * PLAY events are ignored.
-     *
-     * @param event The MelodyMatrix event to process
-     */
     override fun onEvent(event: MmxEvent) {
         when (event.type) {
             MmxEventType.MIDI -> {
-                val midiDataEvent = event as? MidiDataEvent ?: return
-                handleMidiEvent(midiDataEvent)
-            }
-
-            MmxEventType.PLAY -> {
-                // Not needed here
+                val midi = event as? MidiDataEvent ?: return
+                handleMidiEvent(midi)
             }
 
             MmxEventType.CHORD -> {
                 val chordEvent = event as? ChordEvent ?: return
                 Platform.runLater {
                     val isChordOn = (chordEvent.chord != Chord.UNDEFINED) && chordEvent.on
-                    chordLabel.text = if (isChordOn) "${chordPrefix()} ${chordEvent.chord.label}" else defaultChordText()
+                    chordLabel.text =
+                        if (isChordOn) "${chordPrefix()} ${chordEvent.chord.label}" else defaultChordText()
                     chordNotesLabel.text = if (isChordOn) notesText() else defaultNotesText()
                 }
             }
 
-            MmxEventType.AUDIO_SPECTRUM -> {
-                // Not needed here
-            }
-
+            MmxEventType.PLAY,
+            MmxEventType.AUDIO_SPECTRUM,
             MmxEventType.PLAYBACK_STOP -> {
                 // Not needed here
             }
         }
     }
 
-    /**
-     * Processes a MIDI event by updating the set of active notes and refreshing the staff display.
-     *
-     * Drum notes and undefined notes are ignored.
-     *
-     * @param midiDataEvent The MIDI data event to handle
-     */
-    private fun handleMidiEvent(midiDataEvent: MidiDataEvent) {
-        if (midiDataEvent.isDrum || midiDataEvent.note == Note.UNDEFINED) {
-            return
-        }
+    private fun handleMidiEvent(midi: MidiDataEvent) {
+        if (midi.isDrum || midi.note == Note.UNDEFINED) return
 
         Platform.runLater {
-            when (midiDataEvent.event) {
-                MidiEvent.NOTE_ON -> activeNotes.add(midiDataEvent.note)
-                MidiEvent.NOTE_OFF -> activeNotes.remove(midiDataEvent.note)
+            val changed = when (midi.event) {
+                MidiEvent.NOTE_ON -> activeNotes.add(midi.note)
+                MidiEvent.NOTE_OFF -> activeNotes.remove(midi.note)
                 else -> return@runLater
             }
-            updateHighlightedNotes()
-            chordNotesLabel.text = notesText()
+            if (changed) {
+                chordNotesLabel.text = notesText()
+                scheduleSnippetRebuild()
+            }
         }
     }
 
     /**
-     * Builds a formatted string listing all currently active notes sorted by pitch.
-     *
-     * @return A string in the form "Notes: C4, E4, G4", or "Notes: -" when no notes are active
+     * Coalesce snippet rebuilds inside a single JavaFX pulse so a burst of near-simultaneous
+     * NOTE_ON events (chord press) doesn't trigger N re-engraves.
      */
+    private fun scheduleSnippetRebuild() {
+        if (snippetRebuildPending) return
+        snippetRebuildPending = true
+        Platform.runLater {
+            snippetRebuildPending = false
+            refreshSnippet()
+        }
+    }
+
+    private fun refreshSnippet() {
+        val result = SheetMusicAdapter.buildSnippet(activeNotes.toSet())
+        sheet.setScore(result.score)
+        val highlights = sheet.noteHighlights()
+        highlights.clear()
+        result.notesByApp.forEach { (_, smNote) -> highlights[smNote] = ACTIVE_HIGHLIGHT }
+    }
+
     private fun notesText(): String {
         val labels = activeNotes
             .asSequence()
@@ -208,44 +176,15 @@ class ChordView : MmxView() {
     private fun defaultChordText(): String = "${chordPrefix()} -"
     private fun defaultNotesText(): String = "${notesPrefix()} -"
 
-    /**
-     * Refreshes the visual highlighting of note labels based on the current active notes.
-     *
-     * Natural notes are highlighted yellow/red; sharp notes are highlighted green/blue.
-     */
-    private fun updateHighlightedNotes() {
-        notes.values.forEach { it.style = "" }
-
-        activeNotes.forEach { note ->
-            val label = noteToVisibleLabel(note) ?: return@forEach
-            label.style = if (note.mainNote.isSharp) {
-                "-fx-text-fill: blue; -fx-background-color: green;"
-            } else {
-                "-fx-text-fill: red; -fx-background-color: yellow;"
-            }
-        }
-    }
-
-    /**
-     * Resolves the visible staff label for the given note.
-     *
-     * Sharp notes share a visual position with their parent (natural) note,
-     * so this method returns the parent's label for sharps.
-     *
-     * @param note The note whose label should be returned
-     * @return The label for the note, or null if the note has no label in the staff
-     */
-    private fun noteToVisibleLabel(note: Note): Label? {
-        return if (note.mainNote.isSharp) {
-            notes[note.parentNote]
-        } else {
-            notes[note]
-        }
-    }
-
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/chord"
         override val bundleKeyPrefix = "chord."
         override fun getViewImagePath(): String = "/view/chord.png"
+
+        private const val SNIPPET_SYSTEM_WIDTH: Double = 640.0
+        private const val SNIPPET_NATURAL_HEIGHT: Double = 260.0
+        private const val HEADER_HEIGHT: Double = 80.0
+
+        private val ACTIVE_HIGHLIGHT: Color = Color.CRIMSON
     }
 }
