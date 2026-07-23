@@ -7,10 +7,12 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.PlayEvent
+import be.codewriter.melodymatrix.view.event.ScoreLoadedEvent
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
+import com.sheetmusic4j.core.model.Score
 import com.sheetmusic4j.engraving.glyph.MarkingCategory
 import com.sheetmusic4j.fxviewer.SheetView
 import javafx.application.Platform
@@ -54,6 +56,13 @@ class SheetMusicView : MmxView() {
 
     private val pendingByMidi = HashMap<Int, PendingNote>()
     private val captured = mutableListOf<PlayEvent>()
+
+    /**
+     * When non-null, [refreshScore] renders this pre-built score verbatim instead of
+     * engraving one from the live [captured] events. Set when a recording file is
+     * opened (MIDI/mmxr/MusicXML) via [ScoreLoadedEvent], cleared by [clear].
+     */
+    private var loadedScore: Score? = null
 
     private val sheet = SheetView().apply {
         setSystemWidth(SYSTEM_WIDTH)
@@ -161,6 +170,17 @@ class SheetMusicView : MmxView() {
 
             MmxEventType.PLAYBACK_STOP -> Platform.runLater { pendingByMidi.clear() }
 
+            MmxEventType.SCORE_LOADED -> {
+                val scoreEvent = event as? ScoreLoadedEvent ?: return
+                Platform.runLater {
+                    loadedScore = scoreEvent.score
+                    captured.clear()
+                    pendingByMidi.clear()
+                    scoreEvent.bpm?.let { bpm.set(it) }
+                    sheet.setScore(scoreEvent.score)
+                }
+            }
+
             MmxEventType.PLAY,
             MmxEventType.CHORD,
             MmxEventType.AUDIO_SPECTRUM -> {
@@ -170,6 +190,10 @@ class SheetMusicView : MmxView() {
     }
 
     private fun handleMidi(midi: MidiDataEvent) {
+        // When a full score has been loaded from a file, live MIDI events during
+        // playback must not mutate the displayed sheet — the score is the source of
+        // truth until the user clears it.
+        if (loadedScore != null) return
         val midiNumber = midi.note.byteValue
         // `midi.timestamp` is emitted in nanoseconds when the event comes from recorded
         // playback (see DataLine) but in milliseconds for live/test input; using the JVM
@@ -216,6 +240,11 @@ class SheetMusicView : MmxView() {
     }
 
     private fun refreshScore() {
+        val preloaded = loadedScore
+        if (preloaded != null) {
+            sheet.setScore(preloaded)
+            return
+        }
         val score = SheetMusicBuilder.buildLiveScore(
             playEvents = captured.toList(),
             bpm = bpm.get(),
@@ -229,6 +258,7 @@ class SheetMusicView : MmxView() {
     private fun clear() {
         captured.clear()
         pendingByMidi.clear()
+        loadedScore = null
         refreshScore()
     }
 
