@@ -9,7 +9,7 @@ import com.sheetmusic4j.core.model.NoteType
 import com.sheetmusic4j.core.model.Rest
 import com.sheetmusic4j.core.model.Step
 import javafx.util.Duration as FxDuration
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
