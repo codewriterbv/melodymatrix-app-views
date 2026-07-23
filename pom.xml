@@ -17,12 +17,14 @@
 
         <!-- Dependency versions -->
         <atlantafx.version>2.1.0</atlantafx.version>
+        <bentofx.version>0.15.1</bentofx.version>
         <charts.version>21.0.27</charts.version>
         <javafx.version>26</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
         <kotlin.serialization.version>1.11.0</kotlin.serialization.version>
         <log4j.version>2.25.3</log4j.version>
+        <sheetmusic4j.version>0.0.1</sheetmusic4j.version>
 
         <!-- Test dependency versions -->
         <junit.version>5.10.2</junit.version>
@@ -51,24 +53,14 @@
         <dependency>
             <groupId>software.coley</groupId>
             <artifactId>bento-fx</artifactId>
-            <version>0.15.1</version>
+            <version>${bentofx.version}</version>
         </dependency>
 
-        <!-- sheetmusic4j -->
-        <dependency>
-            <groupId>com.sheetmusic4j</groupId>
-            <artifactId>core</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sheetmusic4j</groupId>
-            <artifactId>engraving</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
+        <!-- Sheetmusic4J -->
         <dependency>
             <groupId>com.sheetmusic4j</groupId>
             <artifactId>fxviewer</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${sheetmusic4j.version}</version>
         </dependency>
 
         <!-- JavaFX -->
