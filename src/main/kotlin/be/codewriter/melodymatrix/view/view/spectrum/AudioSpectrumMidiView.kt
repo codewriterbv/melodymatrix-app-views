@@ -129,10 +129,14 @@ class AudioSpectrumMidiView : MmxView() {
             MmxEventType.PLAYBACK_STOP -> {
                 // Not needed here
             }
-        }
-    }
 
-    private fun handleMidiEvent(midiDataEvent: MidiDataEvent) {
+            MmxEventType.SCORE_LOADED -> {
+                // Not needed here
+            }
+            }
+            }
+
+            private fun handleMidiEvent(midiDataEvent: MidiDataEvent) {
         if (midiDataEvent.note == Note.UNDEFINED) return
         val now = System.nanoTime()
         when (midiDataEvent.event) {

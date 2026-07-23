@@ -139,10 +139,14 @@ class DrumView : MmxView(), MmxNoteDispatcher {
             MmxEventType.PLAYBACK_STOP -> {
                 // Not needed here
             }
-        }
-    }
 
-    private fun registerNode(
+            MmxEventType.SCORE_LOADED -> {
+                // Not needed here
+            }
+            }
+            }
+
+            private fun registerNode(
         stage: Pane,
         part: DrumPart,
         x: Double,

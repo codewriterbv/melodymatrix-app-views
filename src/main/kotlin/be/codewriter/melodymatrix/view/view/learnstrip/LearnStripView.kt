@@ -151,11 +151,12 @@ class LearnStripView : MmxView() {
             MmxEventType.PLAYBACK_STOP -> Platform.runLater { reset() }
 
             MmxEventType.CHORD,
-            MmxEventType.AUDIO_SPECTRUM -> {
+            MmxEventType.AUDIO_SPECTRUM,
+            MmxEventType.SCORE_LOADED -> {
                 // Not used here
             }
-        }
-    }
+            }
+            }
 
     /**
      * Handle a PLAY event: switch into playback mode (so MIDI events stop double-adding

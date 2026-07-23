@@ -117,7 +117,8 @@ class ChordView : MmxView() {
 
             MmxEventType.PLAY,
             MmxEventType.AUDIO_SPECTRUM,
-            MmxEventType.PLAYBACK_STOP -> {
+            MmxEventType.PLAYBACK_STOP,
+            MmxEventType.SCORE_LOADED -> {
                 // Not needed here
             }
         }

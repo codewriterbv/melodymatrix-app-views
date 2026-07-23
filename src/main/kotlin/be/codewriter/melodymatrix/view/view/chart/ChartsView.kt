@@ -147,8 +147,12 @@ class ChartsView : MmxView() {
             MmxEventType.PLAYBACK_STOP -> {
                 // Not needed here
             }
-        }
-    }
+
+            MmxEventType.SCORE_LOADED -> {
+                // Not needed here
+            }
+            }
+            }
 
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/chart"

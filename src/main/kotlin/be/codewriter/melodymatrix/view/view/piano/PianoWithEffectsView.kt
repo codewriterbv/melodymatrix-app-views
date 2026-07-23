@@ -363,8 +363,12 @@ class PianoWithEffectsView(
                     pianoCanvas.clearScheduledNotes()
                 }
             }
-        }
-    }
+
+            MmxEventType.SCORE_LOADED -> {
+                // Not needed here
+            }
+            }
+            }
 
     private fun replayBufferedPlayEvents() {
         val nowMs = System.currentTimeMillis()
