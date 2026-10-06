@@ -47,8 +47,8 @@ class LearnStripView : MmxView() {
     private val bundle = I18n.registerBundle("i18n/view/learnstrip")
 
     private val strip = StripSheetView().apply {
-        setCursorScreenPosition(0.3)
-        setCursorColor(Color.CRIMSON)
+        cursorScreenPosition = 0.3
+        cursorColor = Color.CRIMSON
     }
 
     private val hintLabel = Label().apply {
@@ -155,14 +155,14 @@ class LearnStripView : MmxView() {
             MmxEventType.SCORE_LOADED -> {
                 // Not used here
             }
-            }
-            }
+        }
+    }
 
     /**
      * Handle a PLAY event: switch into playback mode (so MIDI events stop double-adding
      * the same notes) and append the event to the captured timeline.
      *
-     * PLAY events carry `startTime` in wall-clock nanoseconds; we normalise to
+     * PLAY events carry `startTime` in wall-clock nanoseconds; we normalize to
      * milliseconds and anchor the cursor at the earliest event we have seen.
      */
     private fun handlePlayEvent(play: PlayEvent) {
@@ -184,9 +184,9 @@ class LearnStripView : MmxView() {
     /**
      * Handle a live MIDI event.
      *
-     *  - NOTE_ON (velocity > 0): remember start time so we can finalise the length on
+     *  - NOTE_ON (velocity > 0): remember start time so we can finalize the length on
      *    NOTE_OFF; also drive the "currently sounding" highlight.
-     *  - NOTE_OFF (or NOTE_ON with velocity 0): finalise a captured [PlayEvent] in live
+     *  - NOTE_OFF (or NOTE_ON with velocity 0): finalize a captured [PlayEvent] in live
      *    mode; drop the highlight in both live and playback mode.
      */
     private fun handleMidiEvent(midi: MidiDataEvent) {
@@ -195,7 +195,7 @@ class LearnStripView : MmxView() {
         val isNoteOff = midi.event == MidiEvent.NOTE_OFF ||
                 (midi.event == MidiEvent.NOTE_ON && midi.velocity == 0)
 
-        val midiNumber = midi.note.byteValue.toInt() and 0x7F
+        val midiNumber = midi.note.byteValue and 0x7F
         when {
             isNoteOn -> {
                 pendingByMidi[midiNumber] = PendingNote(midi.note, nowMs, midi.velocity)
@@ -225,7 +225,7 @@ class LearnStripView : MmxView() {
     }
 
     private fun highlightNoteOn(note: Note) {
-        val midiNumber = note.byteValue.toInt() and 0x7F
+        val midiNumber = note.byteValue and 0x7F
         // If the score has not been engraved yet (very first live NOTE_ON) there is
         // nothing to highlight — the note will be picked up on the next rebuild.
         val element = findElementForNote(note) ?: return
@@ -234,7 +234,7 @@ class LearnStripView : MmxView() {
     }
 
     private fun highlightNoteOff(note: Note) {
-        val midiNumber = note.byteValue.toInt() and 0x7F
+        val midiNumber = note.byteValue and 0x7F
         val element = activeHighlights.remove(midiNumber) ?: return
         strip.noteHighlights().remove(element)
     }
@@ -248,8 +248,8 @@ class LearnStripView : MmxView() {
      */
     private fun findElementForNote(note: Note): MusicElement? {
         if (elementByPlayEvent.isEmpty()) return null
-        val midiNumber = note.byteValue.toInt()
-        val candidates = capturedEvents.filter { it.note.byteValue.toInt() == midiNumber }
+        val midiNumber = note.byteValue
+        val candidates = capturedEvents.filter { it.note.byteValue == midiNumber }
         if (candidates.isEmpty()) return null
         val target = if (playbackMode) {
             val nowMs = System.currentTimeMillis()
