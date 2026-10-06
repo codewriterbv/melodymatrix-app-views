@@ -1,0 +1,205 @@
+package be.codewriter.melodymatrix.view.demo
+
+import java.time.Duration
+import be.codewriter.melodymatrix.view.data.MmxEventHandler
+import be.codewriter.melodymatrix.view.definition.Note
+import be.codewriter.melodymatrix.view.event.MidiDataEvent
+import be.codewriter.melodymatrix.view.event.MmxEvent
+import be.codewriter.melodymatrix.view.event.PlayEvent
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
+
+/**
+ * Simulates a MIDI input device for testing purposes.
+ *
+ * Plays back a configurable sequence of notes at a fixed interval, generating
+ * NOTE_ON and NOTE_OFF [MidiDataEvent]s that are forwarded to all registered
+ * [MmxEventHandler] listeners. Used by [TestView] to drive visualizers without
+ * a real MIDI device.
+ *
+ * @see MmxEventHandler
+ * @see TestView
+ */
+class MidiSimulator {
+
+    private val registeredListeners: MutableList<MmxEventHandler> = ArrayList()
+    private val notes: MutableList<Note> = mutableListOf()
+    private var idx: Int = 0
+    private var delay: Long = 500
+    private var repeat: Boolean = true
+
+    /** Scheduler used to fire the next note event after the current [delay]. */
+    val scheduler = Executors.newScheduledThreadPool(1)
+
+    /**
+     * Registers a listener to receive simulated MIDI events.
+     *
+     * @param listener The event handler to add
+     */
+    fun registerListener(listener: MmxEventHandler) {
+        logger.info("Adding listener {}", listener)
+        registeredListeners.add(listener)
+    }
+
+    /**
+     * Removes a previously registered listener.
+     *
+     * @param listener The event handler to remove
+     */
+    fun removeListener(listener: MmxEventHandler) {
+        logger.info("Removing listener {}", listener)
+        registeredListeners.remove(listener)
+    }
+
+    /**
+     * Changes the playback delay between notes and restarts playback with the new interval.
+     *
+     * @param delay Delay in milliseconds between consecutive notes
+     */
+    fun setDelay(delay: Long) {
+        stopCurrent()
+        this.delay = delay
+        logger.info("Delay changed to {}", delay)
+        play()
+    }
+
+    /**
+     * Advances to the next note in the sequence and schedules the following one.
+     *
+     * After firing the current NOTE_ON, this also announces the **next** note in the sequence
+     * via a [PlayEvent] so downstream views (e.g., Synthesia-style falling blocks) can
+     * visualise the upcoming note descending toward the keyboard and land in sync with its
+     * NOTE_ON.
+     *
+     * If the sequence has been exhausted and [repeat] is false, playback stops.
+     */
+    private fun play() {
+        if (notes.isEmpty()) {
+            return
+        }
+        stopCurrent()
+        idx++
+        if (idx >= notes.size) {
+            idx = 0
+            if (!repeat) {
+                return
+            }
+        }
+        notifyListeners(
+            MidiDataEvent(
+                byteArrayOf(
+                    "10010000".toInt(2).toByte(),
+                    notes[idx].byteValue.toByte(),
+                    Random.nextInt(40, 127).toByte()
+                )
+            )
+        )
+
+        // Announce the next note `delay` ms ahead so falling-block views have time to render
+        // a descending block that lands on beat. Velocity is a preview only; the actual
+        // NOTE_ON will pick its own random velocity when the next iteration runs.
+        val nextIdx = when {
+            idx + 1 < notes.size -> idx + 1
+            repeat -> 0
+            else -> -1
+        }
+        if (nextIdx >= 0) {
+            val nextNote = notes[nextIdx]
+            val nextLandNanos = (System.currentTimeMillis() + delay) * 1_000_000L
+            notifyListeners(
+                PlayEvent(
+                    note = nextNote,
+                    startTime = nextLandNanos,
+                    duration = Duration.ofMillis((delay * 0.9).toLong()),
+                    velocity = 80
+                )
+            )
+        }
+
+        scheduler.schedule({ play() }, delay, TimeUnit.MILLISECONDS)
+    }
+
+    /**
+     * Stops playback and clears the note sequence.
+     */
+    fun stop() {
+        if (notes.isEmpty()) {
+            return
+        }
+        logger.info("Stopping playback of notes")
+        stopCurrent()
+        notes.clear()
+    }
+
+    /**
+     * Sends a NOTE_OFF event for the current note to silence it before advancing.
+     */
+    private fun stopCurrent() {
+        if (notes.isEmpty()) {
+            return
+        }
+        notifyListeners(
+            MidiDataEvent(
+                byteArrayOf(
+                    "10000000".toInt(2).toByte(),
+                    notes[idx].byteValue.toByte(),
+                    0
+                )
+            )
+        )
+    }
+
+    /**
+     * Dispatches the given event to all registered listeners.
+     *
+     * @param mmxEvent The event to broadcast
+     */
+    fun notifyListeners(mmxEvent: MmxEvent) {
+        for (listener in registeredListeners) {
+            listener.onEvent(mmxEvent)
+        }
+    }
+
+    /**
+     * Sets the note sequence to play and starts playback.
+     *
+     * @param notes  The list of notes to play in order
+     * @param repeat Whether to loop the sequence indefinitely
+     */
+    /**
+     * Sends a NOTE_ON or NOTE_OFF MIDI event for the given note on channel 0.
+     *
+     * Convenience method for interactive keyboard input from UI controls; creates and plays
+     * a single MIDI message with a fixed velocity of 64.
+     *
+     * @param note The note to send (e.g., [Note.C3])
+     * @param isOn `true` to send NOTE_ON (velocity 64), `false` to send NOTE_OFF (velocity 0)
+     */
+    fun sendNote(note: Note, isOn: Boolean, channel: Int = 0) {
+        if (note == Note.UNDEFINED) return
+        val statusBase = if (isOn) 0x90 else 0x80
+        val status = statusBase or (channel and 0x0F)
+        val velocity = if (isOn) 64 else 0
+        notifyListeners(
+            MidiDataEvent(
+                byteArrayOf(status.toByte(), note.byteValue.toByte(), velocity.toByte())
+            )
+        )
+    }
+
+    fun setNotes(notes: List<Note>, repeat: Boolean) {
+        stopCurrent()
+        this.notes.clear()
+        this.notes.addAll(notes)
+        this.idx = 0
+        this.repeat = repeat
+        play()
+    }
+
+    companion object {
+        private val logger: Logger = LogManager.getLogger(MidiSimulator::class.java.name)
+    }
+}

@@ -22,6 +22,18 @@ What this project doesn't contain:
 * JDK 27 or newer
 * Maven
 
+## Project structure
+
+This repository is a small multi-module Maven build that needs nothing else from MelodyMatrix:
+
+| Module | Artifact | Contents |
+|---|---|---|
+| `model/` | `viewers-model` | Notes, chords, chord detection rules and the events the views receive (`MmxEvent`, `MidiDataEvent`, `PlayEvent`, `ChordEvent`, ...). Plain Kotlin, no JavaFX. |
+| `views/` | `viewers` | The JavaFX views (piano, guitar, drum, staff, sheet music, chord views, charts, LED strip, ...) and the i18n runtime. |
+| `demo/` | `viewers-demo` | A test application that feeds the views with simulated MIDI and audio. |
+
+The MelodyMatrix application uses `viewers-model` in its engine and `viewers` in its user interface.
+
 ## Guidelines
 
 ### How to run the viewers test application
@@ -29,7 +41,8 @@ What this project doesn't contain:
 * Clone the repository
 * Open the cloned directory in IntelliJIDEA
 * Import as Maven project
-* In your IDE create a run configuration for `javafx:run`
+* In your IDE create a Maven run configuration for `javafx:run` in the root directory; it builds
+  `model` and `views` and starts the demo application (`demo/.../TestLauncher.kt`)
 
 ![](docs/run-configuration.png)
 
@@ -43,7 +56,7 @@ What this project doesn't contain:
 
 ### Add an extra view
 
-* Create a new directory in `view`
+* Create a new directory in `views/src/main/kotlin/be/codewriter/melodymatrix/view/view`
 * Add a class in that new directory `YourView.kt`
 * Make sure it implements `MmxView()`
 * Look at one of the existing views how to add components
@@ -70,7 +83,7 @@ onEvent(event:MmxEvent) {
 }
 ```
 
-* Add a button to open the new view in `test.TestView.stageOptions`
+* Add a button to open the new view in `stageOptions` of `demo/.../view/demo/TestView.kt`
 * Run the application and test your new view
 
 ## Run with Maven
@@ -100,8 +113,11 @@ $ java -version
 $ git clone https://github.com/codewriterbv/melodymatrix-app-views.git
 $ cd melodymatrix-app-views
 
-# Start as JavaFX application
+# Start the demo application (builds model and views first)
 $ mvn javafx:run
+
+# Run all tests
+$ mvn test
 
 # Build without compiling and running the tests
 $ mvn package -Dmaven.test.skip=true

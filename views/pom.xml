@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>be.codewriter</groupId>
+        <artifactId>viewers-parent</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>viewers</artifactId>
+    <packaging>jar</packaging>
+    <description>MelodyMatrix JavaFX visualisations (piano, guitar, staff, chord wheel, charts, LED strip, ...).</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>be.codewriter</groupId>
+            <artifactId>viewers-model</artifactId>
+        </dependency>
+
+        <!-- Log4j (API only: the application decides on the logging backend) -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+
+        <!-- AtlantaFX -->
+        <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>${atlantafx.version}</version>
+        </dependency>
+
+        <!-- Sheetmusic4J -->
+        <dependency>
+            <groupId>com.sheetmusic4j</groupId>
+            <artifactId>fxviewer</artifactId>
+        </dependency>
+
+        <!-- JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+
+        <!-- Charts -->
+        <dependency>
+            <groupId>eu.hansolo.fx</groupId>
+            <artifactId>charts</artifactId>
+            <version>${charts.version}</version>
+            <!-- charts pins the platform-specific JavaFX native jars (classifier
+                 mac-aarch64/win/linux) to its own older JavaFX release. Those
+                 coordinates carry a classifier, so dependencyManagement does
+                 not reach them, and they would put old JavaFX native libraries next
+                 to the current Java classes. This module declares the JavaFX modules it
+                 needs itself, so drop the ones charts brings along. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Serial link to LED strip controller -->
+        <dependency>
+            <groupId>com.fazecast</groupId>
+            <artifactId>jSerialComm</artifactId>
+            <version>${jserial.version}</version>
+        </dependency>
+    </dependencies>
+</project>

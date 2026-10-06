@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicingTest" time="0.601" tests="4" errors="0" skipped="1" failures="0">
+  <properties>
+    <property name="java.specification.version" value="26"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/test-classes:/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/classes:/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/model/target/viewers-model-1.3.0-SNAPSHOT.jar:/Users/frank/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/2.3.20/kotlin-stdlib-2.3.20.jar:/Users/frank/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar:/Users/frank/.m2/repository/com/sheetmusic4j/core/0.0.1/core-0.0.1.jar:/Users/frank/.m2/repository/org/apache/logging/log4j/log4j-api/2.25.3/log4j-api-2.25.3.jar:/Users/frank/.m2/repository/io/github/mkpaz/atlantafx-base/2.1.0/atlantafx-base-2.1.0.jar:/Users/frank/.m2/repository/com/sheetmusic4j/fxviewer/0.0.1/fxviewer-0.0.1.jar:/Users/frank/.m2/repository/com/sheetmusic4j/engraving/0.0.1/engraving-0.0.1.jar:/Users/frank/.m2/repository/org/openjfx/javafx-graphics/27/javafx-graphics-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-graphics/27/javafx-graphics-27-mac-aarch64.jar:/Users/frank/.m2/repository/org/openjfx/javafx-base/27/javafx-base-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-base/27/javafx-base-27-mac-aarch64.jar:/Users/frank/.m2/repository/org/openjfx/javafx-controls/27/javafx-controls-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-controls/27/javafx-controls-27-mac-aarch64.jar:/Users/frank/.m2/repository/eu/hansolo/fx/charts/21.0.27/charts-21.0.27.jar:/Users/frank/.m2/repository/eu/hansolo/fx/countries/21.0.19/countries-21.0.19.jar:/Users/frank/.m2/repository/eu/hansolo/fx/heatmap/21.0.11/heatmap-21.0.11.jar:/Users/frank/.m2/repository/eu/hansolo/toolboxfx/21.0.5/toolboxfx-21.0.5.jar:/Users/frank/.m2/repository/eu/hansolo/toolbox/21.0.9/toolbox-21.0.9.jar:/Users/frank/.m2/repository/ch/qos/logback/logback-classic/1.5.17/logback-classic-1.5.17.jar:/Users/frank/.m2/repository/ch/qos/logback/logback-core/1.5.17/logback-core-1.5.17.jar:/Users/frank/.m2/repository/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/Users/frank/.m2/repository/com/fazecast/jSerialComm/2.11.0/jSerialComm-2.11.0.jar:/Users/frank/.m2/repository/org/jetbrains/kotlin/kotlin-test/2.3.20/kotlin-test-2.3.20.jar:/Users/frank/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/Users/frank/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/frank/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/Users/frank/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/frank/.m2/repository/org/apache/logging/log4j/log4j-core/2.25.3/log4j-core-2.25.3.jar:"/>
+    <property name="git.branch" value="main"/>
+    <property name="java.vm.vendor" value="Azul Systems, Inc."/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="git.commit.id" value="15b063ba4fafd3155ebad37c3c15a19ab8733407"/>
+    <property name="java.vendor.url" value="http://www.azul.com/"/>
+    <property name="os.name" value="Mac OS X"/>
+    <property name="java.vm.specification.version" value="26"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.boot.library.path" value="/Users/frank/.sdkman/candidates/java/26.fx-zulu/zulu-26.jdk/Contents/Home/lib"/>
+    <property name="sun.java.command" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/surefire/surefirebooter-20261006111219847_12.jar /Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/surefire 2026-10-06T11-11-50_571-jvmRun1 surefire-20261006111219847_10tmp surefire_2-20261006111219847_11tmp"/>
+    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/test-classes:/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/classes:/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/model/target/viewers-model-1.3.0-SNAPSHOT.jar:/Users/frank/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/2.3.20/kotlin-stdlib-2.3.20.jar:/Users/frank/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar:/Users/frank/.m2/repository/com/sheetmusic4j/core/0.0.1/core-0.0.1.jar:/Users/frank/.m2/repository/org/apache/logging/log4j/log4j-api/2.25.3/log4j-api-2.25.3.jar:/Users/frank/.m2/repository/io/github/mkpaz/atlantafx-base/2.1.0/atlantafx-base-2.1.0.jar:/Users/frank/.m2/repository/com/sheetmusic4j/fxviewer/0.0.1/fxviewer-0.0.1.jar:/Users/frank/.m2/repository/com/sheetmusic4j/engraving/0.0.1/engraving-0.0.1.jar:/Users/frank/.m2/repository/org/openjfx/javafx-graphics/27/javafx-graphics-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-graphics/27/javafx-graphics-27-mac-aarch64.jar:/Users/frank/.m2/repository/org/openjfx/javafx-base/27/javafx-base-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-base/27/javafx-base-27-mac-aarch64.jar:/Users/frank/.m2/repository/org/openjfx/javafx-controls/27/javafx-controls-27.jar:/Users/frank/.m2/repository/org/openjfx/javafx-controls/27/javafx-controls-27-mac-aarch64.jar:/Users/frank/.m2/repository/eu/hansolo/fx/charts/21.0.27/charts-21.0.27.jar:/Users/frank/.m2/repository/eu/hansolo/fx/countries/21.0.19/countries-21.0.19.jar:/Users/frank/.m2/repository/eu/hansolo/fx/heatmap/21.0.11/heatmap-21.0.11.jar:/Users/frank/.m2/repository/eu/hansolo/toolboxfx/21.0.5/toolboxfx-21.0.5.jar:/Users/frank/.m2/repository/eu/hansolo/toolbox/21.0.9/toolbox-21.0.9.jar:/Users/frank/.m2/repository/ch/qos/logback/logback-classic/1.5.17/logback-classic-1.5.17.jar:/Users/frank/.m2/repository/ch/qos/logback/logback-core/1.5.17/logback-core-1.5.17.jar:/Users/frank/.m2/repository/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar:/Users/frank/.m2/repository/com/fazecast/jSerialComm/2.11.0/jSerialComm-2.11.0.jar:/Users/frank/.m2/repository/org/jetbrains/kotlin/kotlin-test/2.3.20/kotlin-test-2.3.20.jar:/Users/frank/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/Users/frank/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/frank/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/Users/frank/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/frank/.m2/repository/org/apache/logging/log4j/log4j-core/2.25.3/log4j-core-2.25.3.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="maven.compiler.source" value="26"/>
+    <property name="user.home" value="/Users/frank"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-03-17"/>
+    <property name="java.home" value="/Users/frank/.sdkman/candidates/java/26.fx-zulu/zulu-26.jdk/Contents/Home"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views"/>
+    <property name="java.vm.compressedOopsMode" value="Non-zero disjoint base"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="apple.awt.application.name" value="ForkedBooter"/>
+    <property name="surefire.real.class.path" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views/target/surefire/surefirebooter-20261006111219847_12.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="java.runtime.version" value="26+35"/>
+    <property name="user.name" value="frank"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="26.6.2"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="Zulu26.28+63-CA"/>
+    <property name="localRepository" value="/Users/frank/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="http://www.azul.com/support/"/>
+    <property name="java.io.tmpdir" value="/var/folders/dk/_t80gfmn49v6z329dn81hndr0000gn/T/"/>
+    <property name="java.version" value="26"/>
+    <property name="user.dir" value="/Users/frank/Documents/GitHub/melodymatrix-app/Viewers/views"/>
+    <property name="os.arch" value="aarch64"/>
+    <property name="git.commit.id.abbrev" value="15b063b"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="maven.compiler.target" value="26"/>
+    <property name="java.library.path" value="/Users/frank/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Azul Systems, Inc."/>
+    <property name="java.vm.version" value="26+35"/>
+    <property name="stdin.encoding" value="UTF-8"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
+    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="java.class.version" value="70.0"/>
+  </properties>
+  <testcase name="uses CSV voicing for half diminished chords" classname="be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicingTest" time="0.597"/>
+  <testcase name="every defined chord resolves from the CSV loader" classname="be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicingTest" time="0.0">
+    <skipped message="To be reviewed, fails..."/>
+  </testcase>
+  <testcase name="uses CSV voicing for dominant sharp fifth chords" classname="be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicingTest" time="0.001"/>
+  <testcase name="uses CSV voicing for C major" classname="be.codewriter.melodymatrix.view.view.guitar.GuitarChordVoicingTest" time="0.001"/>
+</testsuite>

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: be.codewriter.melodymatrix.view.i18n.I18nBundleCoverageTest
+-------------------------------------------------------------------------------
+Tests run: 108, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.066 s -- in be.codewriter.melodymatrix.view.i18n.I18nBundleCoverageTest
