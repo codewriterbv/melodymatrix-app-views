@@ -34,6 +34,41 @@
         <maven.shade.version>3.4.1</maven.shade.version>
     </properties>
 
+    <!-- This module has no parent pom, so JavaFX alignment is managed locally.
+         All JavaFX modules must resolve to the same version; javafx-graphics and
+         javafx-base arrive transitively via com.sheetmusic4j:fxviewer at an older
+         version, which Maven's nearest-wins rule would otherwise prefer over the
+         version this module compiles against. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-media</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-swing</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Log4j -->
         <dependency>
@@ -92,6 +127,18 @@
             <groupId>eu.hansolo.fx</groupId>
             <artifactId>charts</artifactId>
             <version>${charts.version}</version>
+            <!-- charts pins the platform-specific JavaFX native jars (classifier
+                 mac-aarch64/win/linux) to its own older JavaFX release. Those
+                 coordinates carry a classifier, so dependencyManagement above does
+                 not reach them, and they would put JavaFX 23 native libraries next
+                 to the 26.x Java classes. This module declares the JavaFX modules it
+                 needs itself, so drop the ones charts brings along. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Serial link to LED strip controller -->
