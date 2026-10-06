@@ -7,3 +7,5 @@ system/
 /target/
 /out/
 /viewers.iml
+
+.DS_Store
