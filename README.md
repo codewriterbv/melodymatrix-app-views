@@ -19,7 +19,7 @@ What this project doesn't contain:
 
 ## Requirements
 
-* JDK 26 or newer
+* JDK 27 or newer
 * Maven
 
 ## Guidelines
@@ -85,9 +85,9 @@ $ curl -s "https://get.sdkman.io" | bash
 $ source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # Instal JDK with JFX 
-$ sdk install java 26.0.0.fx-zulu
+$ sdk install java 27.0.0.fx-zulu
 # When needed, set as default
-$ sdk default java 26.0.0.fx-zulu
+$ sdk default java 27.0.0.fx-zulu
 
 # Install Maven
 $ sdk install maven

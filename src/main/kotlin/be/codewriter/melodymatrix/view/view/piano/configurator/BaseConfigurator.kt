@@ -179,7 +179,7 @@ open class BaseConfigurator : BorderPane() {
      * Applies `StageStyle.EXTENDED` when the JavaFX preview feature is
      * enabled, otherwise falls back to `StageStyle.DECORATED`.
      *
-     * On JavaFX 26 `EXTENDED` exists as an enum value but calling
+     * On JavaFX 27 `EXTENDED` exists as an enum value but calling
      * `initStyle(EXTENDED)` throws at runtime unless the JVM was launched
      * with `-Djavafx.enablePreview=true`. Because the TestApp launcher
      * does not set that flag, we must catch the failure and fall back

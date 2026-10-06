@@ -11,15 +11,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>26</maven.compiler.source>
-        <maven.compiler.target>26</maven.compiler.target>
+        <maven.compiler.source>27</maven.compiler.source>
+        <maven.compiler.target>27</maven.compiler.target>
         <kotlin.version>2.3.20</kotlin.version>
 
         <!-- Dependency versions -->
         <atlantafx.version>2.1.0</atlantafx.version>
         <bentofx.version>0.15.1</bentofx.version>
         <charts.version>21.0.27</charts.version>
-        <javafx.version>26</javafx.version>
+        <javafx.version>27</javafx.version>
         <jserial.version>2.11.0</jserial.version>
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
         <kotlin.serialization.version>1.11.0</kotlin.serialization.version>
