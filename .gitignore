@@ -4,7 +4,9 @@
 build/
 logs/
 system/
-/target/
+# Maven build output in every module
+target/
+dependency-reduced-pom.xml
 /out/
 /viewers.iml
 

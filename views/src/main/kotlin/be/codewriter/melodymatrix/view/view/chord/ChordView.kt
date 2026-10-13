@@ -9,12 +9,15 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.i18n.I18n
+import be.codewriter.melodymatrix.view.i18n.SupportedLocale
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
 import com.sheetmusic4j.engraving.glyph.MarkingCategory
 import com.sheetmusic4j.fxviewer.SheetView
 import javafx.application.Platform
+import javafx.beans.value.ChangeListener
+import javafx.beans.value.WeakChangeListener
 import javafx.geometry.Insets
 import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
@@ -66,13 +69,16 @@ class ChordView : MmxView() {
 
     private var snippetRebuildPending = false
 
+    // Held by the view and registered weakly: I18n.currentLocale lives forever, the view does not.
+    private val localeListener = ChangeListener<SupportedLocale> { _, _, _ ->
+        if (activeNotes.isEmpty()) chordNotesLabel.text = defaultNotesText()
+        if (chordLabel.text.endsWith("-") || chordLabel.text.isBlank()) chordLabel.text = defaultChordText()
+    }
+
     init {
         chordLabel.text = defaultChordText()
         chordNotesLabel.text = defaultNotesText()
-        I18n.currentLocale.addListener { _, _, _ ->
-            if (activeNotes.isEmpty()) chordNotesLabel.text = defaultNotesText()
-            if (chordLabel.text.endsWith("-") || chordLabel.text.isBlank()) chordLabel.text = defaultChordText()
-        }
+        I18n.currentLocale.addListener(WeakChangeListener(localeListener))
         chordLabel.style = "-fx-font-size: 22; -fx-font-weight: bold;"
         chordNotesLabel.style = "-fx-font-size: 16;"
 

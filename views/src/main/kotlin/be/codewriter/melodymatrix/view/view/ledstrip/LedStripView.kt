@@ -27,7 +27,6 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.util.concurrent.Executors
 import kotlin.math.abs
 
 
@@ -82,15 +81,15 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
             )
         }
 
-        val factory = Thread.ofVirtual().name("led-strip-", 0).factory()
-        val executor = Executors.newThreadPerTaskExecutor(factory)
-        val threadUiUpdate = Thread.startVirtualThread(BoxUpdater())
-        executor.submit(threadUiUpdate)
-        val threadLedUpdate = Thread.startVirtualThread(LedStripSender())
-        executor.submit(threadLedUpdate)
+        // Both loops run until interrupted, so they must be stopped when the view is closed.
+        updateLedStrip = true
+        val threadUiUpdate = Thread.ofVirtual().name("led-strip-ui").start(BoxUpdater())
+        val threadLedUpdate = Thread.ofVirtual().name("led-strip-sender").start(LedStripSender())
 
         setupSurface(root, windowWidth, BOX_HEIGHT + 320) {
             updateLedStrip = false
+            threadUiUpdate.interrupt()
+            threadLedUpdate.interrupt()
             for (i in 0 until 8) {
                 try {
                     pixelblazeOutputExpanderHelper!!.sendAllOff(i, boxes.size)
@@ -240,11 +239,15 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
      */
     class BoxUpdater : Runnable {
         override fun run() {
-            while (!Thread.interrupted()) {
-                for (box in boxes) {
-                    box.value.update()
+            try {
+                while (!Thread.interrupted()) {
+                    for (box in boxes) {
+                        box.value.update()
+                    }
+                    Thread.sleep(20)
                 }
-                Thread.sleep(20)
+            } catch (_: InterruptedException) {
+                // View closed
             }
         }
     }
@@ -263,6 +266,8 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
                         updateLeds()
                     }
                     Thread.sleep(20)
+                } catch (_: InterruptedException) {
+                    return // View closed
                 } catch (e: Exception) {
                     logger.warn("LED strip sender thread exception: {}", e.message)
                 }

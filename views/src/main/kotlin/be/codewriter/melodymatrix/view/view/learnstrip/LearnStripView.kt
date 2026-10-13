@@ -99,6 +99,9 @@ class LearnStripView : MmxView() {
     /** True once at least one event has been captured and a score engraved. */
     private var scoreEngraved: Boolean = false
 
+    /** Set on dispose; events queued with runLater may still arrive and must not restart the timer. */
+    private var disposed: Boolean = false
+
     private val cursorAnimation = object : AnimationTimer() {
         override fun handle(now: Long) {
             if (!scoreEngraved) return
@@ -130,6 +133,7 @@ class LearnStripView : MmxView() {
             style = "-fx-background-color: white;"
         }
         setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + HINT_HEIGHT, strip, onDispose = {
+            disposed = true
             cursorAnimation.stop()
         })
     }
@@ -294,7 +298,7 @@ class LearnStripView : MmxView() {
 
         if (!scoreEngraved) {
             scoreEngraved = true
-            cursorAnimation.start()
+            if (!disposed) cursorAnimation.start()
         }
 
         // Re-apply currently sounding highlights to the freshly engraved elements — the

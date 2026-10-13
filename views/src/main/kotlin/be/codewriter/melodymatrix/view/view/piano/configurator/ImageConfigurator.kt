@@ -36,11 +36,7 @@ class ImageConfigurator(config: PianoConfiguration, licenseStatus: LicenseStatus
             vgap = 5.0
             disableProperty().bind(config.backgroundImageEnabled.not())
             for (backgroundImage: PianoBackgroundImage in PianoBackgroundImage.entries) {
-                val imageView = ImageView().apply {
-                    image = Image(backgroundImage.file)
-                    fitWidth = 40.0
-                    isPreserveRatio = true
-                }
+                val imageView = ImageView(thumbnail(backgroundImage))
                 val border = Rectangle().apply {
                     widthProperty().bind(imageView.boundsInParentProperty().map { it.width + 4 })
                     heightProperty().bind(imageView.boundsInParentProperty().map { it.height + 4 })
@@ -130,5 +126,18 @@ class ImageConfigurator(config: PianoConfiguration, licenseStatus: LicenseStatus
             labeledControl("imageConfig.left", logoLeft),
             labeledControl("imageConfig.top", logoTop),
         )
+    }
+
+    companion object {
+        private const val THUMBNAIL_WIDTH = 40.0
+
+        // Decoded once at thumbnail size and shared: a full-size background is ~2 MB of pixels
+        // and every piano view creates its own configurator.
+        private val thumbnails = mutableMapOf<PianoBackgroundImage, Image>()
+
+        private fun thumbnail(backgroundImage: PianoBackgroundImage): Image =
+            thumbnails.getOrPut(backgroundImage) {
+                Image(backgroundImage.file, THUMBNAIL_WIDTH, 0.0, true, true)
+            }
     }
 }
