@@ -8,7 +8,11 @@ import javafx.beans.property.ObjectProperty
 import javafx.beans.property.Property
 import javafx.application.Platform
 import javafx.scene.paint.Color
+import java.lang.ref.Cleaner
 import java.lang.ref.WeakReference
+
+/** Removes storage listeners of bound properties once those properties are garbage collected. */
+private val propertyCleaner: Cleaner = Cleaner.create()
 
 /**
  * JavaFX-enriched settings interface.
@@ -24,12 +28,12 @@ interface SettingHelper : SettingStorage {
 
     /**
      * Pushes external changes of [key] into [property]. The storage outlives the views, so the
-     * listener only holds the property weakly and unregisters itself once the property (and
-     * with it the view that owns it) has been garbage collected.
+     * listener only holds the property weakly and is unregistered once the property (and with it
+     * the view that owns it) has been garbage collected, also when the setting never changes.
      */
     private fun <T> listenWeakly(property: Property<T>, key: String, parse: (String) -> T?) {
         val propertyRef = WeakReference(property)
-        addChangeListener(object : SettingStorage.ChangeListener {
+        val listener = object : SettingStorage.ChangeListener {
             override fun onChanged(changedKey: String, value: String) {
                 val target = propertyRef.get() ?: return removeChangeListener(this)
                 if (changedKey != key) return
@@ -38,7 +42,10 @@ interface SettingHelper : SettingStorage {
                     if (target.value != parsed) target.value = parsed
                 }
             }
-        })
+        }
+        addChangeListener(listener)
+        // The clean action must not reference the property, or it would never become unreachable
+        propertyCleaner.register(property) { removeChangeListener(listener) }
     }
 
     fun getColor(key: String, defaultValue: Color): Color =
