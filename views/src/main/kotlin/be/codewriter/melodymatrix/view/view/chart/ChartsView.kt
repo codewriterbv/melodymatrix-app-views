@@ -6,7 +6,6 @@ import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
-import be.codewriter.melodymatrix.view.view.chart.ChartsView.Companion.chartHolders
 import be.codewriter.melodymatrix.view.view.chart.component.*
 import javafx.geometry.Insets
 import javafx.scene.Node
@@ -31,8 +30,11 @@ import javafx.scene.layout.HBox
  */
 class ChartsView : MmxView() {
 
+    private val chartHolders: MutableList<ChartHolder> = mutableListOf()
+    private val borderPane = BorderPane()
+
     init {
-        var buttons = HBox().apply {
+        val buttons = HBox().apply {
             spacing = 10.0
             children.addAll(
                 createChartSelection("Bar chart", BarChartPlayedNotes()),
@@ -43,7 +45,7 @@ class ChartsView : MmxView() {
             )
         }
 
-        borderPane = BorderPane().apply {
+        borderPane.apply {
             padding = Insets(10.0)
             top = buttons
         }
@@ -65,7 +67,7 @@ class ChartsView : MmxView() {
         label: String,
         chart: ChartVisualizer
     ): BorderPane {
-        var chartHolder = ChartHolder(label, chart)
+        val chartHolder = ChartHolder(label, chart)
         chartHolders.add(chartHolder)
         return chartHolder
     }
@@ -79,7 +81,7 @@ class ChartsView : MmxView() {
      * @property label The display label used for the selection button
      * @property chart The chart visualizer displayed in this holder
      */
-    class ChartHolder(
+    inner class ChartHolder(
         val label: String,
         val chart: ChartVisualizer
     ) : BorderPane() {
@@ -157,7 +159,5 @@ class ChartsView : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/chart"
         override fun getViewImagePath(): String = "/view/charts.png"
-        var chartHolders: MutableList<ChartHolder> = mutableListOf()
-        lateinit var borderPane: BorderPane
     }
 }

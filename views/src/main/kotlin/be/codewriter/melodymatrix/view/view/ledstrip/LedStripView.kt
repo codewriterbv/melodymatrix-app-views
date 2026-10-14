@@ -27,6 +27,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
 
@@ -38,33 +39,40 @@ import kotlin.math.abs
  * within [effectWidth]) fade from the highlight colour back to the normal colour.
  *
  * The LED strip is driven via a Pixelblaze Output Expander connected over a serial port.
- * A background [BoxUpdater] thread refreshes the fade animation at ~50 fps, and a
- * [LedStripSender] thread pushes colour data to the hardware at the same rate.
+ * A background [BoxUpdater] thread triggers the fade animation at ~50 fps on the JavaFX thread,
+ * which also produces an immutable [LedSnapshot]. A [LedStripSender] thread pushes that snapshot
+ * to the hardware at the same rate, so it never reads JavaFX controls itself.
  *
  * @see MmxView
  * @see ColorBox
- * @param ports access to the serial ports; jSerialComm by default
+ * @param serialPorts access to the serial ports; jSerialComm by default
  * @see PixelblazeOutputExpanderHelper
  */
-class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
+class LedStripView(private val serialPorts: SerialPorts = JSerialCommPorts) : MmxView() {
+
+    private val boxes: MutableMap<Note, ColorBox> = linkedMapOf()
+    private val colorWhiteKeyNormal = ColorPicker()
+    private val colorWhiteKeyHighlighted = ColorPicker()
+    private val colorBlackKeyNormal = ColorPicker()
+    private val colorBlackKeyHighlighted = ColorPicker()
+    private val sameColor = ToggleSwitch("Same as white keys")
+    private val effectWidth = Slider()
+    private val effectSpeed = Slider()
+    private val serialPort = ComboBox<SerialPortInfo>()
+    private val channelSelections = List(8) { ToggleSwitch() }
+
+    /** Latest state for the [LedStripSender], replaced on the JavaFX thread. */
+    @Volatile
+    private var ledSnapshot = LedSnapshot(null, ByteArray(0), emptyList())
 
     init {
-        serialPorts = ports
         val boxHolder = HBox().apply {
             spacing = 2.0
             alignment = Pos.TOP_CENTER
         }
 
-        var windowWidth = 960.0
-        var counter = 0
-        var boxWidth = ((windowWidth - 80) / Note.pianoKeys().size) - boxHolder.spacing
-        Note.pianoKeys().forEach { note ->
-            val colorBox = ColorBox(note, boxWidth)
-            boxes[note] = colorBox
-            boxHolder.children.add(colorBox.box)
-            counter++
-        }
-
+        val windowWidth = 960.0
+        val boxWidth = ((windowWidth - 80) / Note.pianoKeys().size) - boxHolder.spacing
         val root = VBox().apply {
             spacing = 25.0
             padding = Insets(10.0)
@@ -80,23 +88,21 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
                 getSerialControls()
             )
         }
+        // The boxes use the colours of the pickers, so create them after the colour controls
+        Note.pianoKeys().forEach { note ->
+            val colorBox = ColorBox(note, boxWidth)
+            boxes[note] = colorBox
+            boxHolder.children.add(colorBox.box)
+        }
 
         // Both loops run until interrupted, so they must be stopped when the view is closed.
-        updateLedStrip = true
         val threadUiUpdate = Thread.ofVirtual().name("led-strip-ui").start(BoxUpdater())
         val threadLedUpdate = Thread.ofVirtual().name("led-strip-sender").start(LedStripSender())
 
         setupSurface(root, windowWidth, BOX_HEIGHT + 320) {
-            updateLedStrip = false
             threadUiUpdate.interrupt()
+            // The sender switches the LEDs off and closes the port when it stops
             threadLedUpdate.interrupt()
-            for (i in 0 until 8) {
-                try {
-                    pixelblazeOutputExpanderHelper!!.sendAllOff(i, boxes.size)
-                } catch (e: Exception) {
-                    // Serial can be tricky, so let's catch any exception here...
-                }
-            }
         }
     }
 
@@ -202,9 +208,7 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
         serialPort.apply {
             items = getSerialPorts()
         }
-        channel0.apply {
-            isSelected = true
-        }
+        channelSelections[0].isSelected = true
         return HBox().apply {
             spacing = 10.0
             alignment = Pos.CENTER_LEFT
@@ -218,7 +222,7 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
             for (i in 0 until 8) {
                 children.addAll(
                     Label((i + 1).toString()),
-                    channelSelections.get(i),
+                    channelSelections[i],
                 )
             }
         }
@@ -233,16 +237,25 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
         FXCollections.observableArrayList(serialPorts.available())
 
     /**
-     * Background runnable that continuously refreshes the fade animation for all colour boxes.
+     * Background runnable that refreshes the fade animation for all colour boxes every 20 ms.
      *
-     * Runs in a dedicated thread and calls [ColorBox.update] every 20 ms until interrupted.
+     * The colours are calculated and applied on the JavaFX thread, in one `runLater` per frame
+     * (skipped while the previous frame is still pending), which also publishes a new [LedSnapshot].
      */
-    class BoxUpdater : Runnable {
+    private inner class BoxUpdater : Runnable {
+        private val framePending = AtomicBoolean(false)
+
         override fun run() {
             try {
                 while (!Thread.interrupted()) {
-                    for (box in boxes) {
-                        box.value.update()
+                    if (framePending.compareAndSet(false, true)) {
+                        Platform.runLater {
+                            try {
+                                updateFrame()
+                            } finally {
+                                framePending.set(false)
+                            }
+                        }
                     }
                     Thread.sleep(20)
                 }
@@ -250,59 +263,91 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
                 // View closed
             }
         }
-    }
 
-    /**
-     * Background runnable that continuously sends the current colour state to the LED strip hardware.
-     *
-     * Runs in a dedicated thread, serialises all [ColorBox] colours into a byte array, and sends
-     * them via [PixelblazeOutputExpanderHelper] every 20 ms while [updateLedStrip] is true.
-     */
-    class LedStripSender : Runnable {
-        override fun run() {
-            while (!Thread.interrupted() && updateLedStrip) {
-                try {
-                    if (pixelblazeOutputExpanderHelper != null || serialPort.value != null) {
-                        updateLeds()
-                    }
-                    Thread.sleep(20)
-                } catch (_: InterruptedException) {
-                    return // View closed
-                } catch (e: Exception) {
-                    logger.warn("LED strip sender thread exception: {}", e.message)
-                }
-            }
-        }
-
-        /**
-         * Sends the current colour state of all boxes to the Pixelblaze Output Expander.
-         *
-         * Re-opens the serial connection if the port has changed, then writes RGB byte triplets
-         * for every enabled channel.
-         */
-        fun updateLeds() {
-            val serialPort = serialPort.value
-            if (pixelblazeOutputExpanderHelper == null || pixelblazeOutputExpanderHelper!!.address != serialPort.systemName) {
-                if (pixelblazeOutputExpanderHelper != null) {
-                    pixelblazeOutputExpanderHelper!!.closePort()
-                }
-                pixelblazeOutputExpanderHelper =
-                    PixelblazeOutputExpanderHelper(serialPort.systemName, serialPorts.open(serialPort.systemName))
-                pixelblazeOutputExpanderHelper!!.sendAllOff(0, boxes.size)
-                Thread.sleep(500)
-            }
+        private fun updateFrame() {
             val data = ByteArray(boxes.size * 3)
-            for (i in 0 until boxes.size) {
-                val color = boxes.values.elementAt(i).getColor()
+            boxes.values.forEachIndexed { i, colorBox ->
+                val color = colorBox.update()
                 data[(i * 3) + 0] = (color.red * 255).toInt().toByte()
                 data[(i * 3) + 1] = (color.green * 255).toInt().toByte()
                 data[(i * 3) + 2] = (color.blue * 255).toInt().toByte()
             }
+            ledSnapshot = LedSnapshot(
+                serialPort.value,
+                data,
+                channelSelections.indices.filter { channelSelections[it].isSelected }
+            )
+        }
+    }
+
+    /**
+     * What the [LedStripSender] sends: the selected port, RGB byte triplets for every box, and the
+     * enabled Pixelblaze channels. Created on the JavaFX thread and never changed afterwards.
+     */
+    private class LedSnapshot(val port: SerialPortInfo?, val data: ByteArray, val channels: List<Int>)
+
+    /**
+     * Background runnable that sends the latest [LedSnapshot] to the LED strip hardware every 20 ms.
+     *
+     * Only this thread uses the serial connection: when the view is closed (interrupt) it switches
+     * all LEDs off and closes the port.
+     */
+    private inner class LedStripSender : Runnable {
+        private var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
+
+        override fun run() {
+            try {
+                while (!Thread.currentThread().isInterrupted) {
+                    try {
+                        updateLeds(ledSnapshot)
+                        Thread.sleep(20)
+                    } catch (_: InterruptedException) {
+                        return // View closed
+                    } catch (e: Exception) {
+                        logger.warn("LED strip sender thread exception: {}", e.message)
+                    }
+                }
+            } finally {
+                switchOff()
+            }
+        }
+
+        /**
+         * Sends the colours of the snapshot to the Pixelblaze Output Expander.
+         *
+         * Re-opens the serial connection if the port has changed, then writes the RGB data
+         * for every enabled channel.
+         */
+        private fun updateLeds(snapshot: LedSnapshot) {
+            val port = snapshot.port ?: return
+            var helper = pixelblazeOutputExpanderHelper
+            if (helper == null || helper.address != port.systemName) {
+                helper?.closePort()
+                helper = PixelblazeOutputExpanderHelper(port.systemName, serialPorts.open(port.systemName))
+                pixelblazeOutputExpanderHelper = helper
+                helper.sendAllOff(0, boxes.size)
+                Thread.sleep(500)
+            }
+            for (channel in snapshot.channels) {
+                helper.sendColors(channel, snapshot.data, false)
+            }
+        }
+
+        private fun switchOff() {
+            val helper = pixelblazeOutputExpanderHelper ?: return
             for (i in 0 until 8) {
-                if (channelSelections.get(i).isSelected) {
-                    pixelblazeOutputExpanderHelper!!.sendColors(i, data, false)
+                try {
+                    helper.sendAllOff(i, boxes.size)
+                } catch (_: Exception) {
+                    // Serial can be tricky, so let's catch any exception here...
                 }
             }
+            try {
+                helper.closePort()
+            } catch (_: Exception) {
+                // Port already gone
+            }
+            pixelblazeOutputExpanderHelper = null
         }
     }
 
@@ -311,6 +356,9 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
      *
      * The number of neighbouring boxes affected is controlled by [effectWidth].
      * Each neighbour receives a delay proportional to its distance from the played note.
+     *
+     * Must be called on the JavaFX thread, as it reads the [effectWidth] slider and changes the
+     * fade state that [ColorBox.update] uses.
      *
      * @param note The note whose corresponding LED box should be highlighted
      */
@@ -341,15 +389,15 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
      * @property boxWidth The width of the on-screen rectangle in pixels
      * @property box The JavaFX [Rectangle] used for the on-screen preview
      */
-    class ColorBox(
+    inner class ColorBox(
         val note: Note,
-        val boxWidth: Double,
+        val boxWidth: Double
+    ) {
         val box: Rectangle = Rectangle(
             boxWidth,
             BOX_HEIGHT,
             if (note.mainNote.isSharp) colorBlackKeyNormal.value else colorWhiteKeyNormal.value
         )
-    ) : Rectangle() {
         var distance: Int = 0
         var startTimestamp: Long = 0L
         var step: Int = -1
@@ -365,13 +413,11 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
         }
 
         /**
-         * Applies [getCurrentColor] to the rectangle on the JavaFX application thread.
+         * Applies [getCurrentColor] to the rectangle. Must be called on the JavaFX thread.
+         *
+         * @return The colour that was applied
          */
-        fun update() {
-            Platform.runLater {
-                box.fill = getCurrentColor()
-            }
-        }
+        fun update(): Color = getCurrentColor().also { box.fill = it }
 
         /**
          * Calculates the current interpolated colour based on the fade animation state.
@@ -404,15 +450,6 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
 
             return startColor.interpolate(normalColor, step.toDouble() / effectSpeed.value)
         }
-
-        /**
-         * Returns the current fill colour of the rectangle as a [Color].
-         *
-         * @return The current fill colour
-         */
-        fun getColor(): Color {
-            return (box.fill as Color)
-        }
     }
 
     /**
@@ -427,7 +464,8 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
             MmxEventType.MIDI -> {
                 val midiDataEvent = event as? MidiDataEvent ?: return
                 if (midiDataEvent.event == MidiEvent.NOTE_ON) {
-                    highlightBox(midiDataEvent.note)
+                    // Events arrive on the MIDI/playback thread
+                    Platform.runLater { highlightBox(midiDataEvent.note) }
                 }
             }
 
@@ -457,28 +495,6 @@ class LedStripView(ports: SerialPorts = JSerialCommPorts) : MmxView() {
         override val bundleBaseName = "i18n/view/led"
         override fun getViewImagePath(): String = "/view/led.png"
         private val logger: Logger = LogManager.getLogger(LedStripView::class.java.name)
-        val boxes: MutableMap<Note, ColorBox> = mutableMapOf()
         const val BOX_HEIGHT = 50.0
-
-        var updateLedStrip = true
-        val colorWhiteKeyNormal = ColorPicker()
-        val colorWhiteKeyHighlighted = ColorPicker()
-        val colorBlackKeyNormal = ColorPicker()
-        val colorBlackKeyHighlighted = ColorPicker()
-        val sameColor = ToggleSwitch("Same as white keys")
-        val effectWidth = Slider()
-        val effectSpeed = Slider()
-        var serialPorts: SerialPorts = JSerialCommPorts
-        val serialPort = ComboBox<SerialPortInfo>()
-        val channel0 = ToggleSwitch()
-        val channel1 = ToggleSwitch()
-        val channel2 = ToggleSwitch()
-        val channel3 = ToggleSwitch()
-        val channel4 = ToggleSwitch()
-        val channel5 = ToggleSwitch()
-        val channel6 = ToggleSwitch()
-        val channel7 = ToggleSwitch()
-        val channelSelections = listOf(channel0, channel1, channel2, channel3, channel4, channel5, channel6, channel7)
-        var pixelblazeOutputExpanderHelper: PixelblazeOutputExpanderHelper? = null
     }
 }
