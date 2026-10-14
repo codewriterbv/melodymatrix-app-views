@@ -16,6 +16,7 @@ import com.sheetmusic4j.core.model.Rest
 import com.sheetmusic4j.core.model.Score
 import com.sheetmusic4j.core.model.TimeSignature
 import com.sheetmusic4j.core.model.Note as SmNote
+import java.util.concurrent.TimeUnit
 
 /**
  * Adapter that translates MelodyMatrix domain types (app [Note], [PlayEvent], recordings)
@@ -272,8 +273,19 @@ object SheetMusicAdapter {
      * are collapsed into a chord; other overlaps become simultaneous entries in the
      * measure without a formal voice split. Good enough for the "clean" studio recordings
      * shipped as learn lessons; free-play rendering is future work.
+     *
+     * [startTimeUnit] is the unit of [PlayEvent.startTime]. Pass it when known (engine
+     * recordings use nanoseconds, also for MIDI files that start at 0); when `null` the
+     * unit is guessed: epoch-nanosecond values are scaled, anything else is taken as ms.
+     *
+     * @throws IllegalArgumentException when the events span more than [MAX_MEASURES] measures,
+     * which almost always means the time unit is wrong.
      */
-    fun playEventsToScore(playEvents: List<PlayEvent>, bpm: Int = DEFAULT_BPM): RecordingScore {
+    fun playEventsToScore(
+        playEvents: List<PlayEvent>,
+        bpm: Int = DEFAULT_BPM,
+        startTimeUnit: TimeUnit? = null
+    ): RecordingScore {
         if (playEvents.isEmpty()) {
             val score = Score.builder()
                 .addPart(
@@ -307,7 +319,7 @@ object SheetMusicAdapter {
         // File-backed recordings store PlayEvent.startTime on the DataLine nanosecond
         // timeline. For notation we quantize against milliseconds, so convert onsets when
         // they look like epoch nanoseconds while preserving millisecond-based sources.
-        val onsetScale = onsetScaleToMillis(playEvents)
+        val onsetScale = startTimeUnit?.let { NANOS_PER_MILLI / it.toNanos(1) } ?: onsetScaleToMillis(playEvents)
         val startMs = playEvents.minOf { it.startTime }
 
         val slots = playEvents
@@ -328,6 +340,9 @@ object SheetMusicAdapter {
 
         val totalQuarters = slots.maxOfOrNull { it.onsetQuarters + it.durationQuarters } ?: 4.0
         val measureCount = maxOf(1, kotlin.math.ceil(totalQuarters / 4.0).toInt())
+        require(measureCount <= MAX_MEASURES) {
+            "Play events span $measureCount measures (max $MAX_MEASURES); is the startTime unit correct?"
+        }
 
         val buckets = Array(measureCount) { MeasureBucket() }
         for (slot in slots) {
@@ -443,6 +458,9 @@ object SheetMusicAdapter {
 
     /** Default bpm used when a recording has no [Recording.sourceBpm]. */
     const val DEFAULT_BPM: Int = 100
+
+    /** Upper bound on generated measures, so a wrong time unit fails fast instead of exhausting the heap. */
+    const val MAX_MEASURES: Int = 10_000
 
     private const val NANOS_PER_MILLI: Double = 1_000_000.0
     private const val NANOSECOND_EPOCH_THRESHOLD: Long = 1_000_000_000_000_000L
