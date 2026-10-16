@@ -60,7 +60,7 @@ class FlyOverView(settings: SettingHelper? = null) : MmxView() {
     init {
         val settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
             .displayMode(follower.displayModeProperty)
-            .section("sheet.section.colors")
+            .dialog("sheet.action.colors")
             .color("sheet.label.backgroundColor", flyOver.backgroundColorProperty(), "backgroundColor")
             .color("sheet.label.paperColor", flyOver.paperColorProperty(), "paperColor")
             .color("sheet.label.inkColor", flyOver.inkColorProperty(), "inkColor")
@@ -68,6 +68,7 @@ class FlyOverView(settings: SettingHelper? = null) : MmxView() {
             .color("sheet.label.upperStaffColor", upperStaffColor, "upperStaffColor")
             .color("sheet.label.lowerStaffColor", lowerStaffColor, "lowerStaffColor")
             .color("sheet.label.cursorColor", flyOver.cursorColorProperty(), "cursorColor")
+            .dialog("sheet.action.camera")
             .section("sheet.section.camera")
             .toggle("sheet.label.showCursor", flyOver.cursorVisibleProperty(), "showCursor")
             .slider("sheet.label.cameraPitch", flyOver.cameraPitchProperty(), 0.0, 85.0, "cameraPitch")
