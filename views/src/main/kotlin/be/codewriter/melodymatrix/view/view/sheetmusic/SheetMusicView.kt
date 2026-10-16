@@ -7,16 +7,27 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.PlayEvent
+import be.codewriter.melodymatrix.view.event.PlaybackPositionEvent
 import be.codewriter.melodymatrix.view.event.ScoreLoadedEvent
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
-import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
+import be.codewriter.melodymatrix.view.view.sheet.ScoreFollower
+import be.codewriter.melodymatrix.view.view.sheet.ScorePlaybackClock
+import be.codewriter.melodymatrix.view.view.sheet.SheetDisplayMode
+import be.codewriter.melodymatrix.view.view.sheet.SheetSettingsPane
+import com.sheetmusic4j.core.model.MusicElement
 import com.sheetmusic4j.core.model.Score
 import com.sheetmusic4j.engraving.glyph.MarkingCategory
 import com.sheetmusic4j.fxviewer.SheetView
+import javafx.animation.AnimationTimer
 import javafx.application.Platform
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -25,12 +36,12 @@ import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
-import javafx.scene.control.ToolBar
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
+import javafx.scene.paint.Color
 import java.time.Duration
+import java.util.Collections
+import java.util.IdentityHashMap
 
 /**
  * Live "score-as-you-play" viewer. Starts with an empty grand staff (4/4, C major by
@@ -42,8 +53,14 @@ import java.time.Duration
  * signature applied to the first measure.
  *
  * A "Clear" button removes all captured notes and returns the sheet to its empty state.
+ *
+ * When a recording with a score is opened ([ScoreLoadedEvent]), that score is shown instead and
+ * followed during playback: a cursor marks the playing position and the sounding notes are
+ * highlighted. In the "note by note" display mode the staves start empty and every note appears
+ * when it is played. Colours and the cursor can be changed in the settings panel and are stored
+ * in [settings].
  */
-class SheetMusicView : MmxView() {
+class SheetMusicView(settings: SettingHelper? = null) : MmxView() {
 
     override val fitToViewport: Boolean = true
 
@@ -53,6 +70,24 @@ class SheetMusicView : MmxView() {
     private val timeBeats = SimpleIntegerProperty(4)
     private val timeBeatType = SimpleIntegerProperty(4)
     private val keyFifths = SimpleIntegerProperty(0)
+
+    private val displayMode: ObjectProperty<SheetDisplayMode> = SimpleObjectProperty(SheetDisplayMode.FULL_SCORE)
+    private val showCursor: BooleanProperty = SimpleBooleanProperty(true)
+    private val highlightColor: ObjectProperty<Color> = SimpleObjectProperty(Color.LIMEGREEN)
+
+    /** Follows the playback of a loaded score. */
+    private val clock = ScorePlaybackClock()
+
+    /** Elements highlighted because they sound at the cursor, by identity. */
+    private val soundingElements: MutableSet<MusicElement> = Collections.newSetFromMap(IdentityHashMap())
+
+    private var disposed = false
+
+    private val cursorAnimation = object : AnimationTimer() {
+        override fun handle(now: Long) {
+            updatePlayback()
+        }
+    }
 
     private val pendingByMidi = HashMap<Int, PendingNote>()
     private val captured = mutableListOf<PlayEvent>()
@@ -87,7 +122,19 @@ class SheetMusicView : MmxView() {
     init {
         refreshScore()
 
-        val toolbar = buildToolbar()
+        val toolbar = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
+            .displayMode(displayMode)
+            .toolbar(*buildToolbarItems())
+            .section("sheet.section.colors")
+            .color("sheet.label.pageColor", sheet.pageColorProperty(), "pageColor")
+            .color("sheet.label.inkColor", sheet.inkColorProperty(), "inkColor")
+            .color("sheet.label.cursorColor", sheet.cursorColorProperty(), "cursorColor")
+            .color("sheet.label.highlightColor", highlightColor, "highlightColor")
+            .section("sheet.section.layout")
+            .toggle("sheet.label.showCursor", showCursor, "showCursor")
+        displayMode.addListener { _, _, _ -> updatePlayback() }
+        showCursor.addListener { _, _, _ -> updatePlayback() }
+        highlightColor.addListener { _, _, color -> sheet.noteHighlights().replaceAll { _, _ -> color } }
 
         val zoomable = ZoomableNode(
             content = sheet,
@@ -106,7 +153,10 @@ class SheetMusicView : MmxView() {
         }
         BorderPane.setMargin(zoomable, Insets(0.0))
 
-        setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + TOOLBAR_HEIGHT, sheet)
+        setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + TOOLBAR_HEIGHT, sheet, onDispose = {
+            disposed = true
+            cursorAnimation.stop()
+        })
 
         // Re-engrave whenever a signature changes.
         val rebuildListener = javafx.beans.value.ChangeListener<Any> { _, _, _ -> scheduleRebuild() }
@@ -115,7 +165,7 @@ class SheetMusicView : MmxView() {
         keyFifths.addListener(rebuildListener)
     }
 
-    private fun buildToolbar(): ToolBar {
+    private fun buildToolbarItems(): Array<HBox> {
         val timeLabel = Label().apply {
             textProperty().bind(I18n.binding(bundle, "sheetmusic.label.timesig"))
         }
@@ -154,10 +204,9 @@ class SheetMusicView : MmxView() {
 
         val leftGroup = HBox(6.0, timeLabel, beatsSpinner, Label("/"), beatTypeCombo, keyLabel, keyCombo)
             .apply { alignment = Pos.CENTER_LEFT }
-        val spacer = Region().apply { HBox.setHgrow(this, Priority.ALWAYS) }
         val rightGroup = HBox(6.0, bpmLabel, bpmSpinner, clearButton).apply { alignment = Pos.CENTER_LEFT }
 
-        return ToolBar(leftGroup, spacer, rightGroup)
+        return arrayOf(leftGroup, rightGroup)
     }
 
     override fun onEvent(event: MmxEvent) {
@@ -168,26 +217,107 @@ class SheetMusicView : MmxView() {
                 handleMidi(midi)
             }
 
-            MmxEventType.PLAYBACK_STOP -> Platform.runLater { pendingByMidi.clear() }
+            MmxEventType.PLAYBACK_STOP -> Platform.runLater {
+                pendingByMidi.clear()
+                stopFollowing()
+            }
 
             MmxEventType.SCORE_LOADED -> {
                 val scoreEvent = event as? ScoreLoadedEvent ?: return
+                Platform.runLater { showLoadedScore(scoreEvent) }
+            }
+
+            MmxEventType.PLAY -> {
+                val play = event as? PlayEvent ?: return
+                if (play.note == Note.UNDEFINED) return
                 Platform.runLater {
-                    loadedScore = scoreEvent.score
-                    captured.clear()
-                    pendingByMidi.clear()
-                    scoreEvent.bpm?.let { bpm.set(it) }
-                    sheet.setScore(scoreEvent.score)
+                    clock.onPlay(play.startTime / 1_000_000L, play.duration.toMillis())
+                    followIfLoaded()
                 }
             }
 
-            MmxEventType.PLAY,
-            MmxEventType.CHORD,
-            MmxEventType.AUDIO_SPECTRUM,
             MmxEventType.PLAYBACK_POSITION -> {
+                val position = event as? PlaybackPositionEvent ?: return
+                Platform.runLater {
+                    clock.onPosition(position)
+                    followIfLoaded()
+                }
+            }
+
+            MmxEventType.CHORD,
+            MmxEventType.AUDIO_SPECTRUM -> {
                 // Not used here
             }
         }
+    }
+
+    private fun showLoadedScore(event: ScoreLoadedEvent) {
+        loadedScore = event.score
+        captured.clear()
+        pendingByMidi.clear()
+        event.bpm?.let { bpm.set(it) }
+        clearSounding()
+        sheet.setScore(event.score)
+        val anchors = sheet.timeline?.soundingAnchors().orEmpty()
+        clock.loadScore(
+            firstOnset = anchors.firstOrNull()?.onsetQuarters() ?: 0.0,
+            lastEnd = anchors.maxOfOrNull { it.endQuarters() } ?: 0.0,
+            bpm = event.bpm,
+            songOffsetMs = event.songOffsetMs
+        )
+        followIfLoaded()
+        updatePlayback()
+    }
+
+    /** Starts the cursor when a loaded score is being played. */
+    private fun followIfLoaded() {
+        if (!disposed && loadedScore != null && clock.following) {
+            cursorAnimation.start()
+        }
+    }
+
+    private fun stopFollowing() {
+        cursorAnimation.stop()
+        clock.reset()
+        updatePlayback()
+    }
+
+    /**
+     * Moves the cursor, the reveal position and the sounding highlights of a loaded score to
+     * the playback position. A live capture shows everything without a cursor.
+     */
+    private fun updatePlayback() {
+        if (loadedScore == null) {
+            sheet.cursorVisibleProperty().set(false)
+            sheet.revealTimeProperty().set(Double.POSITIVE_INFINITY)
+            clearSounding()
+            return
+        }
+        val following = clock.following
+        val quarters = if (following) clock.quartersAt(System.currentTimeMillis()) else 0.0
+        sheet.cursorTimeProperty().set(quarters)
+        sheet.cursorVisibleProperty().set(following && showCursor.get())
+        sheet.revealTimeProperty().set(
+            when {
+                displayMode.get() == SheetDisplayMode.FULL_SCORE -> Double.POSITIVE_INFINITY
+                following -> quarters + ScoreFollower.REVEAL_LEAD_QUARTERS
+                else -> ScoreFollower.NOTHING_REVEALED
+            }
+        )
+        val sounding = if (following) sheet.timeline?.soundingAt(quarters).orEmpty().map { it.elementRef() } else emptyList()
+        val now: MutableSet<MusicElement> = Collections.newSetFromMap(IdentityHashMap())
+        now.addAll(sounding)
+        if (now != soundingElements) {
+            soundingElements.filter { it !in now }.forEach { sheet.noteHighlights().remove(it) }
+            now.filter { it !in soundingElements }.forEach { sheet.noteHighlights()[it] = highlightColor.get() }
+            soundingElements.clear()
+            soundingElements.addAll(now)
+        }
+    }
+
+    private fun clearSounding() {
+        soundingElements.forEach { sheet.noteHighlights().remove(it) }
+        soundingElements.clear()
     }
 
     private fun handleMidi(midi: MidiDataEvent) {
@@ -260,7 +390,10 @@ class SheetMusicView : MmxView() {
         captured.clear()
         pendingByMidi.clear()
         loadedScore = null
+        clock.clearScore()
+        cursorAnimation.stop()
         refreshScore()
+        updatePlayback()
     }
 
     private data class PendingNote(
@@ -274,6 +407,7 @@ class SheetMusicView : MmxView() {
         override fun getViewImagePath(): String = "/view/scale.png"
 
         private const val BUNDLE_BASE_NAME: String = "i18n/view/sheetmusic"
+        private const val REGISTRY_KEY: String = "sheetMusic"
 
         private const val SYSTEM_WIDTH: Double = 1400.0
         private const val NATURAL_WIDTH: Double = 1400.0

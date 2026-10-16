@@ -30,9 +30,12 @@ import javafx.stage.Window
  *
  * All label helpers ([sectionTitle], [labeledControl], [twoLabeledControls])
  * take **i18n keys** rather than raw strings. Keys are resolved against
- * the shared piano bundle so labels update live on language change.
+ * [labelBundle] (the shared piano bundle by default; other views pass their own)
+ * so labels update live on language change.
  */
-open class BaseConfigurator : BorderPane() {
+open class BaseConfigurator(
+    protected val labelBundle: BundleRef = pianoBundle
+) : BorderPane() {
 
     companion object {
         private const val HEADER_TOP_INSET = 30.0
@@ -78,19 +81,19 @@ open class BaseConfigurator : BorderPane() {
         center = scrollContent
     }
 
-    /** Section-title label bound to the piano bundle key [titleKey]. */
+    /** Section-title label bound to the [labelBundle] key [titleKey]. */
     protected fun sectionTitle(titleKey: String): Label {
         return Label().apply {
-            textProperty().bind(I18n.binding(pianoBundle, titleKey))
+            textProperty().bind(I18n.binding(labelBundle, titleKey))
             style = "-fx-font-size: 16px; -fx-font-weight: bold;"
         }
     }
 
-    /** VBox with a bound label (piano-bundle key [titleKey]) above the given control. */
+    /** VBox with a bound label ([labelBundle] key [titleKey]) above the given control. */
     protected fun labeledControl(titleKey: String, control: Node): VBox {
         return VBox(4.0).apply {
             children.addAll(
-                Label().apply { textProperty().bind(I18n.binding(pianoBundle, titleKey)) },
+                Label().apply { textProperty().bind(I18n.binding(labelBundle, titleKey)) },
                 control
             )
         }

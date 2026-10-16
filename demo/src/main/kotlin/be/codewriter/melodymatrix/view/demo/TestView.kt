@@ -13,6 +13,7 @@ import be.codewriter.melodymatrix.view.view.chord.CircleOfFifthsView
 import be.codewriter.melodymatrix.view.view.drum.DrumView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
 import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
+import be.codewriter.melodymatrix.view.view.flyover.FlyOverView
 import be.codewriter.melodymatrix.view.view.learnstrip.LearnStripView
 import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
@@ -80,6 +81,7 @@ class TestView : VBox() {
         StageOption(StaffView.Companion, "tab-scale") { StaffView() },
         StageOption(SheetMusicView.Companion, "tab-sheetmusic") { SheetMusicView() },
         StageOption(LearnStripView.Companion, "tab-learn-strip") { LearnStripView() },
+        StageOption(FlyOverView.Companion, "tab-flyover") { FlyOverView() },
         StageOption(DrumView.Companion, "tab-drum") { DrumView() },
         StageOption(LedStripView.Companion, "tab-led-strip") { LedStripView() },
         StageOption(AudioSpectrumMidiView.Companion, "tab-audio-spectrum-midi") { AudioSpectrumMidiView() }

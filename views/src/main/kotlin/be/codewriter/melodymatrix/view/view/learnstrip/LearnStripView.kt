@@ -1,69 +1,76 @@
 package be.codewriter.melodymatrix.view.view.learnstrip
 
 import be.codewriter.melodymatrix.view.component.ZoomableNode
-import be.codewriter.melodymatrix.view.definition.MidiEvent
-import be.codewriter.melodymatrix.view.definition.Note
-import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
-import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.PlayEvent
 import be.codewriter.melodymatrix.view.event.PlaybackPositionEvent
 import be.codewriter.melodymatrix.view.event.ScoreLoadedEvent
+import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
-import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
-import com.sheetmusic4j.core.model.Chord
+import be.codewriter.melodymatrix.view.view.sheet.ScoreFollower
+import be.codewriter.melodymatrix.view.view.sheet.SheetSettingsPane
 import com.sheetmusic4j.core.model.MusicElement
 import com.sheetmusic4j.core.model.Score
-import com.sheetmusic4j.core.model.Note as ScoreNote
 import com.sheetmusic4j.engraving.layout.NoteAnchor
 import com.sheetmusic4j.fxviewer.StripSheetView
-import javafx.animation.AnimationTimer
-import javafx.application.Platform
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.geometry.Insets
 import javafx.scene.control.Label
+import javafx.scene.layout.Background
 import javafx.scene.layout.BorderPane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
-import java.time.Duration
-import kotlin.math.abs
 
 /**
  * Scrolling one-line "learn" view: renders the currently-playing (or currently-input)
  * notes as a horizontal strip of notation with a fixed cursor and live per-note
  * highlighting.
  *
- * Two input paths are supported:
- *  - **Recording playback**: [PlayEvent]s dispatched all-at-once by
- *    the host application's playback scheduler populate the
- *    strip with the full timeline before the first note actually sounds, so the user
- *    can see what is coming.
- *  - **Live MIDI input** (connected piano, MIDI simulator, …): NOTE_ON/NOTE_OFF pairs
- *    from [MidiDataEvent] are captured as they happen and appended to the score, so the
- *    strip grows in step with what is being played.
+ * What is shown and where the cursor is comes from a [ScoreFollower]: a loaded score
+ * ([ScoreLoadedEvent]) is shown as written and followed by the song position of the
+ * [PlaybackPositionEvent]s; without one, the [PlayEvent]s of a playback or the notes played
+ * live are engraved. With the "note by note" display mode the strip starts empty and every
+ * note appears when it is played.
  *
- * In both paths, [MidiDataEvent]s are also used to highlight the notehead of the note
- * that is currently sounding (green while held, cleared on NOTE_OFF).
- *
- * When a [ScoreLoadedEvent] arrives (a lesson or recording with an authored score), that
- * score is shown as written — clefs, key signature and note spelling included — instead of
- * one engraved from the MIDI timeline. The cursor then follows the song position of the
- * [PlaybackPositionEvent]s, so it stays in sync when the user jumps to another part of the
- * recording or changes the tempo. Hosts that send no position events get the cursor from
- * the timing of the PLAY events instead.
- *
- * `PLAYBACK_STOP` resets the strip to its initial waiting state (a loaded score stays visible).
+ * The colours, the cursor position and the note spacing can be changed in the settings panel
+ * and are stored in [settings].
  */
-class LearnStripView : MmxView() {
+class LearnStripView(settings: SettingHelper? = null) : MmxView() {
 
     override val fitToViewport: Boolean = true
 
     private val bundle = I18n.registerBundle("i18n/view/learnstrip")
 
+    private val highlightColor: ObjectProperty<Color> = SimpleObjectProperty(Color.LIMEGREEN)
+
     private val strip = StripSheetView().apply {
         cursorScreenPosition = 0.3
         cursorColor = Color.CRIMSON
     }
+
+    private val follower = ScoreFollower(object : ScoreFollower.Target {
+        override fun showScore(score: Score) = strip.setScore(score)
+
+        override fun noteAnchors(): List<NoteAnchor> = strip.layout?.noteAnchors().orEmpty()
+
+        override fun moveCursor(quarters: Double, revealQuarters: Double) {
+            strip.cursorTimeProperty().set(quarters)
+            strip.revealTimeProperty().set(revealQuarters)
+        }
+
+        override fun highlight(element: MusicElement) {
+            strip.noteHighlights()[element] = highlightColor.get()
+        }
+
+        override fun unhighlight(element: MusicElement) {
+            strip.noteHighlights().remove(element)
+        }
+
+        override fun clearHighlights() = strip.noteHighlights().clear()
+    })
 
     private val hintLabel = Label().apply {
         textProperty().bind(I18n.binding(bundle, "learnstrip.label.waiting"))
@@ -71,78 +78,24 @@ class LearnStripView : MmxView() {
         padding = Insets(4.0, 0.0, 4.0, 8.0)
     }
 
-    /**
-     * Live capture state.
-     *
-     * `capturedEvents` is the authoritative timeline the score is (re-)built from. It
-     * is fed by two producers:
-     *  - PLAY events (recording playback timeline, arrives as a burst up front); and
-     *  - completed NOTE_ON/NOTE_OFF pairs from live MIDI input.
-     *
-     * The two producers are mutually exclusive per playback session: once a PLAY event
-     * has been seen we switch to `playbackMode` and stop capturing MIDI-derived events
-     * to avoid duplicating the same notes twice.
-     */
-    private val capturedEvents = mutableListOf<PlayEvent>()
-
-    /** NOTE_ON events awaiting their matching NOTE_OFF to become a captured [PlayEvent]. */
-    private val pendingByMidi = HashMap<Int, PendingNote>()
-
-    /**
-     * Notes currently sounding, mapped to the [MusicElement] whose highlight has been
-     * set. Kept so a NOTE_OFF can clear exactly the highlight the corresponding NOTE_ON
-     * created — including the case where the score is re-engraved between ON and OFF.
-     */
-    private val activeHighlights = HashMap<Int, MusicElement>()
-
-    /** True when we have received PLAY events → the timeline is authored by playback. */
-    private var playbackMode: Boolean = false
-
-    /** Wall-clock ms of the very first note in the current session — anchors the cursor. */
-    private var timelineStartMs: Long = 0L
-
-    /** Milliseconds per quarter note used by the cursor animation. */
-    private var msPerQuarter: Double = 60_000.0 / SheetMusicAdapter.DEFAULT_BPM
-
-    /** Score → PlayEvent map produced by the last score rebuild. */
-    private var elementByPlayEvent: Map<PlayEvent, MusicElement> = emptyMap()
-
-    /** True while a score rebuild has already been queued for the next FX pulse. */
-    private var rebuildPending: Boolean = false
-
-    /** True once at least one event has been captured and a score engraved. */
-    private var scoreEngraved: Boolean = false
-
-    /** Authored score from the last [ScoreLoadedEvent]; when set, PLAY events no longer rebuild the strip. */
-    private var loadedScore: Score? = null
-
-    /** Onset (quarters) of the first and end of the last sounding note of [loadedScore]. */
-    private var loadedFirstOnset: Double = 0.0
-    private var loadedLastEnd: Double = 0.0
-
-    /** Latest end (wall-clock ms) of the PLAY events of the current session. */
-    private var timelineEndMs: Long = 0L
-
-    /** Where the running playback is, `null` when the host sends no position events or after a stop. */
-    private var playbackPosition: PlaybackPositionEvent? = null
-
-    /** Song position (ms) of the first beat of [loadedScore], see [ScoreLoadedEvent.songOffsetMs]. */
-    private var loadedSongOffsetMs: Long = 0L
-
-    /** Milliseconds per quarter of [loadedScore] at the recording's own tempo. */
-    private var loadedSongMsPerQuarter: Double = 60_000.0 / SheetMusicAdapter.DEFAULT_BPM
-
-    /** Set on dispose; events queued with runLater may still arrive and must not restart the timer. */
-    private var disposed: Boolean = false
-
-    private val cursorAnimation = object : AnimationTimer() {
-        override fun handle(now: Long) {
-            if (!scoreEngraved) return
-            strip.cursorTimeProperty().set(cursorQuarters(System.currentTimeMillis()).coerceAtLeast(0.0))
-        }
-    }
-
     init {
+        val settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
+            .displayMode(follower.displayModeProperty)
+            .section("sheet.section.colors")
+            .color("sheet.label.pageColor", strip.pageColorProperty(), "pageColor")
+            .color("sheet.label.inkColor", strip.inkColorProperty(), "inkColor")
+            .color("sheet.label.cursorColor", strip.cursorColorProperty(), "cursorColor")
+            .color("sheet.label.highlightColor", highlightColor, "highlightColor")
+            .section("sheet.section.layout")
+            .slider("sheet.label.cursorPosition", strip.cursorScreenPositionProperty(), 0.1, 0.9, "cursorPosition")
+            .slider(
+                "sheet.label.noteSpacing", strip.stripSpacingFactorProperty(),
+                0.5, 3.0, "noteSpacing"
+            )
+        highlightColor.addListener { _, _, color ->
+            strip.noteHighlights().replaceAll { _, _ -> color }
+        }
+
         val zoomable = ZoomableNode(
             content = strip,
             naturalWidth = NATURAL_WIDTH,
@@ -152,341 +105,27 @@ class LearnStripView : MmxView() {
             fitMode = ZoomableNode.FitMode.CONTAIN
         )
         val root = BorderPane().apply {
-            top = hintLabel
+            top = VBox(settingsPane, hintLabel)
             center = zoomable
             padding = Insets(0.0)
-            // Opaque white background so areas the strip does not draw over (e.g. the
-            // empty space past the end of a short score) are painted cleanly instead of
-            // leaving the previous canvas contents smeared as the strip scrolls left.
-            style = "-fx-background-color: white;"
         }
-        setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + HINT_HEIGHT, strip, onDispose = {
-            disposed = true
-            cursorAnimation.stop()
-        })
+        // The strip paints its own page colour, also past the end of a short score.
+        zoomable.backgroundProperty().bind(strip.pageColorProperty().map { Background.fill(it) })
+        setupSurface(
+            root, NATURAL_WIDTH, NATURAL_HEIGHT + HINT_HEIGHT + SheetSettingsPane.TOOLBAR_HEIGHT, strip,
+            onDispose = { follower.dispose() }
+        )
     }
 
-    override fun onEvent(event: MmxEvent) {
-        when (event.type) {
-            MmxEventType.PLAY -> {
-                val play = event as? PlayEvent ?: return
-                if (play.note == Note.UNDEFINED) return
-                Platform.runLater { handlePlayEvent(play) }
-            }
-
-            MmxEventType.MIDI -> {
-                val midi = event as? MidiDataEvent ?: return
-                if (midi.isDrum || midi.note == Note.UNDEFINED) return
-                Platform.runLater { handleMidiEvent(midi) }
-            }
-
-            MmxEventType.PLAYBACK_STOP -> Platform.runLater { reset() }
-
-            MmxEventType.PLAYBACK_POSITION -> {
-                val position = event as? PlaybackPositionEvent ?: return
-                Platform.runLater { handlePosition(position) }
-            }
-
-            MmxEventType.SCORE_LOADED -> {
-                val loaded = event as? ScoreLoadedEvent ?: return
-                Platform.runLater { showLoadedScore(loaded) }
-            }
-
-            MmxEventType.CHORD,
-            MmxEventType.AUDIO_SPECTRUM -> {
-                // Not used here
-            }
-        }
-    }
-
-    /**
-     * Handle a PLAY event: switch into playback mode (so MIDI events stop double-adding
-     * the same notes) and append the event to the captured timeline.
-     *
-     * PLAY events carry `startTime` in wall-clock nanoseconds; we normalize to
-     * milliseconds and anchor the cursor at the earliest event we have seen.
-     */
-    private fun handlePlayEvent(play: PlayEvent) {
-        val startMs = play.startTime / 1_000_000L
-        if (!playbackMode) {
-            playbackMode = true
-            // Any live-captured notes accumulated before the first PLAY event were from a
-            // previous session (or a stale keyboard); the recording is now authoritative.
-            capturedEvents.clear()
-            pendingByMidi.clear()
-            timelineStartMs = startMs
-        } else if (startMs < timelineStartMs) {
-            timelineStartMs = startMs
-        }
-        capturedEvents.add(play.copy(startTime = startMs))
-        timelineEndMs = maxOf(timelineEndMs, startMs + play.duration.toMillis())
-        if (loadedScore != null) {
-            updateLoadedScoreTempo()
-            startCursor()
-        } else {
-            scheduleRebuild()
-        }
-    }
-
-    /** Playback (re)started at a song position: the cursor of an authored score follows it. */
-    private fun handlePosition(position: PlaybackPositionEvent) {
-        if (disposed) return
-        playbackPosition = position
-        if (loadedScore != null) {
-            startCursor()
-        }
-    }
-
-    /**
-     * Shows an authored score as written. The cursor and highlights follow the PLAY events
-     * of the playback that comes with it.
-     */
-    private fun showLoadedScore(event: ScoreLoadedEvent) {
-        if (disposed) return
-        loadedScore = event.score
-        strip.setScore(event.score)
-        strip.noteHighlights().clear()
-        activeHighlights.clear()
-        val anchors = soundingAnchors()
-        loadedFirstOnset = anchors.firstOrNull()?.onsetQuarters() ?: 0.0
-        loadedLastEnd = anchors.maxOfOrNull { it.endQuarters() } ?: 0.0
-        event.bpm?.let { msPerQuarter = 60_000.0 / it.coerceAtLeast(1) }
-        loadedSongMsPerQuarter = 60_000.0 / (event.bpm ?: SheetMusicAdapter.DEFAULT_BPM).coerceAtLeast(1)
-        loadedSongOffsetMs = event.songOffsetMs
-        if (playbackMode || playbackPosition != null) {
-            updateLoadedScoreTempo()
-            startCursor()
-        }
-    }
-
-    /** Derives ms per quarter from the PLAY timeline, so a changed playback tempo is respected. */
-    private fun updateLoadedScoreTempo() {
-        val quarters = loadedLastEnd - loadedFirstOnset
-        val spanMs = timelineEndMs - timelineStartMs
-        if (quarters > 0 && spanMs > 0) {
-            msPerQuarter = spanMs / quarters
-        }
-    }
-
-    private fun startCursor() {
-        if (!scoreEngraved) {
-            scoreEngraved = true
-            if (!disposed) cursorAnimation.start()
-        }
-    }
-
-    /**
-     * Cursor position (quarters) at wall-clock time [nowMs]: from the song position for an
-     * authored score when the host sends positions, otherwise from the first PLAY event.
-     */
-    private fun cursorQuarters(nowMs: Long): Double {
-        val position = playbackPosition
-        if (loadedScore != null && position != null) {
-            return scoreQuarters(position, nowMs, loadedSongOffsetMs, loadedSongMsPerQuarter)
-        }
-        val elapsedMs = nowMs - timelineStartMs
-        if (elapsedMs <= 0) return 0.0
-        return (if (loadedScore != null) loadedFirstOnset else 0.0) + elapsedMs / msPerQuarter
-    }
-
-    /**
-     * Handle a live MIDI event.
-     *
-     *  - NOTE_ON (velocity > 0): remember start time so we can finalize the length on
-     *    NOTE_OFF; also drive the "currently sounding" highlight.
-     *  - NOTE_OFF (or NOTE_ON with velocity 0): finalize a captured [PlayEvent] in live
-     *    mode; drop the highlight in both live and playback mode.
-     */
-    private fun handleMidiEvent(midi: MidiDataEvent) {
-        val nowMs = System.currentTimeMillis()
-        val isNoteOn = midi.event == MidiEvent.NOTE_ON && midi.velocity > 0
-        val isNoteOff = midi.event == MidiEvent.NOTE_OFF ||
-                (midi.event == MidiEvent.NOTE_ON && midi.velocity == 0)
-
-        val midiNumber = midi.note.byteValue and 0x7F
-        when {
-            isNoteOn -> {
-                pendingByMidi[midiNumber] = PendingNote(midi.note, nowMs, midi.velocity)
-                highlightNoteOn(midi.note)
-            }
-
-            isNoteOff -> {
-                val pending = pendingByMidi.remove(midiNumber)
-                if (pending != null && !playbackMode && loadedScore == null) {
-                    // Live-capture: turn the completed pair into a captured PlayEvent.
-                    val durationMs = (nowMs - pending.startTimeMs).coerceAtLeast(1L)
-                    val play = PlayEvent(
-                        note = pending.note,
-                        startTime = pending.startTimeMs,
-                        duration = Duration.ofMillis(durationMs),
-                        velocity = pending.velocity
-                    )
-                    if (capturedEvents.isEmpty()) {
-                        timelineStartMs = pending.startTimeMs
-                    }
-                    capturedEvents.add(play)
-                    scheduleRebuild()
-                }
-                highlightNoteOff(midi.note)
-            }
-        }
-    }
-
-    private fun highlightNoteOn(note: Note) {
-        val midiNumber = note.byteValue and 0x7F
-        // If the score has not been engraved yet (very first live NOTE_ON) there is
-        // nothing to highlight — the note will be picked up on the next rebuild.
-        val element = findElementForNote(note) ?: return
-        strip.noteHighlights()[element] = ACTIVE_COLOR
-        activeHighlights[midiNumber] = element
-    }
-
-    private fun highlightNoteOff(note: Note) {
-        val midiNumber = note.byteValue and 0x7F
-        val element = activeHighlights.remove(midiNumber) ?: return
-        strip.noteHighlights().remove(element)
-    }
-
-    /**
-     * Best-effort lookup of the [MusicElement] representing [note] in the current score.
-     *
-     * For recording playback we look up by "the earliest captured event for this MIDI
-     * number that is close to the wall clock right now". For live mode we take the
-     * most recently captured event with this MIDI number.
-     */
-    private fun findElementForNote(note: Note): MusicElement? {
-        if (loadedScore != null) return findLoadedElementForNote(note)
-        if (elementByPlayEvent.isEmpty()) return null
-        val midiNumber = note.byteValue
-        val candidates = capturedEvents.filter { it.note.byteValue == midiNumber }
-        if (candidates.isEmpty()) return null
-        val target = if (playbackMode) {
-            val nowMs = System.currentTimeMillis()
-            candidates.minByOrNull { kotlin.math.abs(it.startTime - nowMs) } ?: return null
-        } else {
-            candidates.last()
-        }
-        return elementByPlayEvent[target]
-    }
-
-    /**
-     * In an authored score: the note or chord with this pitch whose onset is closest to the
-     * cursor, i.e. the one being played now.
-     */
-    private fun findLoadedElementForNote(note: Note): MusicElement? {
-        if (!playbackMode && playbackPosition == null) return null
-        val midiNumber = note.byteValue and 0x7F
-        val now = cursorQuarters(System.currentTimeMillis())
-        return soundingAnchors()
-            .filter { anchor -> pitchesOf(anchor.elementRef()).contains(midiNumber) }
-            .minByOrNull { anchor -> abs(anchor.onsetQuarters() - now) }
-            ?.elementRef()
-    }
-
-    /** Notes and chords of the engraved score, sorted by onset. */
-    private fun soundingAnchors(): List<NoteAnchor> =
-        strip.layout?.noteAnchors().orEmpty()
-            .filter { it.durationQuarters() > 0 && (it.elementRef() is ScoreNote || it.elementRef() is Chord) }
-            .sortedBy { it.onsetQuarters() }
-
-    private fun pitchesOf(element: MusicElement): List<Int> = when (element) {
-        is ScoreNote -> listOf(element.pitch().toMidiNumber())
-        is Chord -> element.notes().map { it.pitch().toMidiNumber() }
-        else -> emptyList()
-    }
-
-    private fun scheduleRebuild() {
-        if (rebuildPending) return
-        rebuildPending = true
-        Platform.runLater {
-            rebuildPending = false
-            rebuildScore()
-        }
-    }
-
-    private fun rebuildScore() {
-        if (capturedEvents.isEmpty()) return
-
-        // Feed the adapter zero-based ms timestamps so quantization is stable across
-        // sessions (adapter uses `startTime - minStartTime` internally as well, but
-        // being explicit keeps the mapping straight for tests).
-        val originMs = capturedEvents.minOf { it.startTime }
-        val normalized = capturedEvents.map { evt -> evt.copy(startTime = evt.startTime - originMs) }
-        val originalToNormalized = capturedEvents.zip(normalized).toMap()
-
-        val result = SheetMusicAdapter.playEventsToScore(normalized, bpm = SheetMusicAdapter.DEFAULT_BPM)
-
-        val newMapping = HashMap<PlayEvent, MusicElement>(capturedEvents.size)
-        for (original in capturedEvents) {
-            val norm = originalToNormalized[original] ?: continue
-            val element = result.elementByPlayEvent[norm] ?: continue
-            newMapping[original] = element
-        }
-        elementByPlayEvent = newMapping
-
-        strip.setScore(result.score)
-        msPerQuarter = 60_000.0 / result.bpm.coerceAtLeast(1)
-
-        if (!scoreEngraved) {
-            scoreEngraved = true
-            if (!disposed) cursorAnimation.start()
-        }
-
-        // Re-apply currently sounding highlights to the freshly engraved elements — the
-        // previous `MusicElement` instances have been replaced by the rebuild.
-        if (activeHighlights.isNotEmpty()) {
-            val stillActive = pendingByMidi.keys.toList()
-            activeHighlights.clear()
-            strip.noteHighlights().clear()
-            stillActive.forEach { midiNumber ->
-                val pending = pendingByMidi[midiNumber] ?: return@forEach
-                highlightNoteOn(pending.note)
-            }
-        }
-    }
-
-    private fun reset() {
-        cursorAnimation.stop()
-        capturedEvents.clear()
-        pendingByMidi.clear()
-        activeHighlights.clear()
-        elementByPlayEvent = emptyMap()
-        playbackMode = false
-        scoreEngraved = false
-        rebuildPending = false
-        timelineStartMs = 0L
-        timelineEndMs = 0L
-        playbackPosition = null
-        strip.cursorTimeProperty().set(0.0)
-        strip.noteHighlights().clear()
-    }
-
-    private data class PendingNote(
-        val note: Note,
-        val startTimeMs: Long,
-        val velocity: Int
-    )
+    override fun onEvent(event: MmxEvent) = follower.onEvent(event)
 
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/learnstrip"
         override fun getViewImagePath(): String = "/view/scale.png"
 
+        private const val REGISTRY_KEY: String = "learnStrip"
         private const val NATURAL_WIDTH: Double = 1000.0
         private const val NATURAL_HEIGHT: Double = 200.0
         private const val HINT_HEIGHT: Double = 24.0
-
-        private val ACTIVE_COLOR: Color = Color.LIMEGREEN
-
-        /**
-         * Position (quarters into the score) at wall-clock time [nowMs] of a playback at
-         * [position], for a score whose first beat is at [songOffsetMs] in the recording and
-         * whose quarter lasts [songMsPerQuarter] at the recording's own tempo.
-         */
-        internal fun scoreQuarters(
-            position: PlaybackPositionEvent,
-            nowMs: Long,
-            songOffsetMs: Long,
-            songMsPerQuarter: Double
-        ): Double = (position.songPositionAt(nowMs) - songOffsetMs) / songMsPerQuarter
     }
 }
