@@ -488,6 +488,10 @@ class LedStripView(private val serialPorts: SerialPorts = JSerialCommPorts) : Mm
             MmxEventType.SCORE_LOADED -> {
                 // Not needed here
             }
+
+            MmxEventType.PLAYBACK_POSITION -> {
+                // Not needed here
+            }
             }
             }
 

@@ -183,7 +183,8 @@ class SheetMusicView : MmxView() {
 
             MmxEventType.PLAY,
             MmxEventType.CHORD,
-            MmxEventType.AUDIO_SPECTRUM -> {
+            MmxEventType.AUDIO_SPECTRUM,
+            MmxEventType.PLAYBACK_POSITION -> {
                 // Not used here
             }
         }

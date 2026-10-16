@@ -301,6 +301,10 @@ class MidiView : MmxView() {
             MmxEventType.SCORE_LOADED -> {
                 // Not needed here
             }
+
+            MmxEventType.PLAYBACK_POSITION -> {
+                // Not needed here
+            }
             }
             }
 

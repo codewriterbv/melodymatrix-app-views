@@ -30,5 +30,11 @@ enum class MmxEventType {
      * Emitted right after a recording file (MIDI, `.mmxr`, or MusicXML) is opened so
      * the full sheet is visible before playback starts.
      */
-    SCORE_LOADED
-    }
+    SCORE_LOADED,
+
+    /**
+     * Signals where a recording playback is and how fast it advances, sent each time playback
+     * (re)starts (start, seek, loop). See [PlaybackPositionEvent].
+     */
+    PLAYBACK_POSITION
+}
