@@ -7,11 +7,16 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.PlayEvent
+import be.codewriter.melodymatrix.view.event.ScoreLoadedEvent
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.SheetMusicAdapter
+import com.sheetmusic4j.core.model.Chord
 import com.sheetmusic4j.core.model.MusicElement
+import com.sheetmusic4j.core.model.Score
+import com.sheetmusic4j.core.model.Note as ScoreNote
+import com.sheetmusic4j.engraving.layout.NoteAnchor
 import com.sheetmusic4j.fxviewer.StripSheetView
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
@@ -20,6 +25,7 @@ import javafx.scene.control.Label
 import javafx.scene.layout.BorderPane
 import javafx.scene.paint.Color
 import java.time.Duration
+import kotlin.math.abs
 
 /**
  * Scrolling one-line "learn" view: renders the currently-playing (or currently-input)
@@ -38,7 +44,12 @@ import java.time.Duration
  * In both paths, [MidiDataEvent]s are also used to highlight the notehead of the note
  * that is currently sounding (green while held, cleared on NOTE_OFF).
  *
- * `PLAYBACK_STOP` resets the strip to its initial waiting state.
+ * When a [ScoreLoadedEvent] arrives (a lesson or recording with an authored score), that
+ * score is shown as written — clefs, key signature and note spelling included — instead of
+ * one engraved from the MIDI timeline. The PLAY events then only drive the cursor: the
+ * tempo is derived from their timing, so a changed playback BPM stays in sync.
+ *
+ * `PLAYBACK_STOP` resets the strip to its initial waiting state (a loaded score stays visible).
  */
 class LearnStripView : MmxView() {
 
@@ -99,6 +110,16 @@ class LearnStripView : MmxView() {
     /** True once at least one event has been captured and a score engraved. */
     private var scoreEngraved: Boolean = false
 
+    /** Authored score from the last [ScoreLoadedEvent]; when set, PLAY events no longer rebuild the strip. */
+    private var loadedScore: Score? = null
+
+    /** Onset (quarters) of the first and end of the last sounding note of [loadedScore]. */
+    private var loadedFirstOnset: Double = 0.0
+    private var loadedLastEnd: Double = 0.0
+
+    /** Latest end (wall-clock ms) of the PLAY events of the current session. */
+    private var timelineEndMs: Long = 0L
+
     /** Set on dispose; events queued with runLater may still arrive and must not restart the timer. */
     private var disposed: Boolean = false
 
@@ -110,7 +131,7 @@ class LearnStripView : MmxView() {
                 strip.cursorTimeProperty().set(0.0)
                 return
             }
-            strip.cursorTimeProperty().set(elapsedMs / msPerQuarter)
+            strip.cursorTimeProperty().set(currentQuarters(elapsedMs))
         }
     }
 
@@ -154,9 +175,13 @@ class LearnStripView : MmxView() {
 
             MmxEventType.PLAYBACK_STOP -> Platform.runLater { reset() }
 
-            MmxEventType.CHORD,
-            MmxEventType.AUDIO_SPECTRUM,
             MmxEventType.SCORE_LOADED -> {
+                val loaded = event as? ScoreLoadedEvent ?: return
+                Platform.runLater { showLoadedScore(loaded) }
+            }
+
+            MmxEventType.CHORD,
+            MmxEventType.AUDIO_SPECTRUM -> {
                 // Not used here
             }
         }
@@ -182,8 +207,53 @@ class LearnStripView : MmxView() {
             timelineStartMs = startMs
         }
         capturedEvents.add(play.copy(startTime = startMs))
-        scheduleRebuild()
+        timelineEndMs = maxOf(timelineEndMs, startMs + play.duration.toMillis())
+        if (loadedScore != null) {
+            updateLoadedScoreTempo()
+            startCursor()
+        } else {
+            scheduleRebuild()
+        }
     }
+
+    /**
+     * Shows an authored score as written. The cursor and highlights follow the PLAY events
+     * of the playback that comes with it.
+     */
+    private fun showLoadedScore(event: ScoreLoadedEvent) {
+        if (disposed) return
+        loadedScore = event.score
+        strip.setScore(event.score)
+        strip.noteHighlights().clear()
+        activeHighlights.clear()
+        val anchors = soundingAnchors()
+        loadedFirstOnset = anchors.firstOrNull()?.onsetQuarters() ?: 0.0
+        loadedLastEnd = anchors.maxOfOrNull { it.endQuarters() } ?: 0.0
+        event.bpm?.let { msPerQuarter = 60_000.0 / it.coerceAtLeast(1) }
+        if (playbackMode) {
+            updateLoadedScoreTempo()
+            startCursor()
+        }
+    }
+
+    /** Derives ms per quarter from the PLAY timeline, so a changed playback tempo is respected. */
+    private fun updateLoadedScoreTempo() {
+        val quarters = loadedLastEnd - loadedFirstOnset
+        val spanMs = timelineEndMs - timelineStartMs
+        if (quarters > 0 && spanMs > 0) {
+            msPerQuarter = spanMs / quarters
+        }
+    }
+
+    private fun startCursor() {
+        if (!scoreEngraved) {
+            scoreEngraved = true
+            if (!disposed) cursorAnimation.start()
+        }
+    }
+
+    private fun currentQuarters(elapsedMs: Long): Double =
+        (if (loadedScore != null) loadedFirstOnset else 0.0) + elapsedMs / msPerQuarter
 
     /**
      * Handle a live MIDI event.
@@ -208,7 +278,7 @@ class LearnStripView : MmxView() {
 
             isNoteOff -> {
                 val pending = pendingByMidi.remove(midiNumber)
-                if (pending != null && !playbackMode) {
+                if (pending != null && !playbackMode && loadedScore == null) {
                     // Live-capture: turn the completed pair into a captured PlayEvent.
                     val durationMs = (nowMs - pending.startTimeMs).coerceAtLeast(1L)
                     val play = PlayEvent(
@@ -251,6 +321,7 @@ class LearnStripView : MmxView() {
      * most recently captured event with this MIDI number.
      */
     private fun findElementForNote(note: Note): MusicElement? {
+        if (loadedScore != null) return findLoadedElementForNote(note)
         if (elementByPlayEvent.isEmpty()) return null
         val midiNumber = note.byteValue
         val candidates = capturedEvents.filter { it.note.byteValue == midiNumber }
@@ -262,6 +333,32 @@ class LearnStripView : MmxView() {
             candidates.last()
         }
         return elementByPlayEvent[target]
+    }
+
+    /**
+     * In an authored score: the note or chord with this pitch whose onset is closest to the
+     * cursor, i.e. the one being played now.
+     */
+    private fun findLoadedElementForNote(note: Note): MusicElement? {
+        if (!playbackMode) return null
+        val midiNumber = note.byteValue and 0x7F
+        val now = currentQuarters(System.currentTimeMillis() - timelineStartMs)
+        return soundingAnchors()
+            .filter { anchor -> pitchesOf(anchor.elementRef()).contains(midiNumber) }
+            .minByOrNull { anchor -> abs(anchor.onsetQuarters() - now) }
+            ?.elementRef()
+    }
+
+    /** Notes and chords of the engraved score, sorted by onset. */
+    private fun soundingAnchors(): List<NoteAnchor> =
+        strip.layout?.noteAnchors().orEmpty()
+            .filter { it.durationQuarters() > 0 && (it.elementRef() is ScoreNote || it.elementRef() is Chord) }
+            .sortedBy { it.onsetQuarters() }
+
+    private fun pitchesOf(element: MusicElement): List<Int> = when (element) {
+        is ScoreNote -> listOf(element.pitch().toMidiNumber())
+        is Chord -> element.notes().map { it.pitch().toMidiNumber() }
+        else -> emptyList()
     }
 
     private fun scheduleRebuild() {
@@ -324,6 +421,7 @@ class LearnStripView : MmxView() {
         scoreEngraved = false
         rebuildPending = false
         timelineStartMs = 0L
+        timelineEndMs = 0L
         strip.cursorTimeProperty().set(0.0)
         strip.noteHighlights().clear()
     }
