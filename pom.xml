@@ -36,7 +36,7 @@
         <kotlin.coroutines.version>1.10.2</kotlin.coroutines.version>
         <kotlin.serialization.version>1.11.0</kotlin.serialization.version>
         <log4j.version>2.25.3</log4j.version>
-        <sheetmusic4j.version>0.0.4</sheetmusic4j.version>
+        <sheetmusic4j.version>0.0.5</sheetmusic4j.version>
 
         <!-- Test dependency versions -->
         <junit.version>5.10.2</junit.version>
