@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.i18n
 
-import java.util.Locale
+import java.util.*
 
 /**
  * Enumerates the languages supported by MelodyMatrix.
@@ -23,12 +23,13 @@ enum class SupportedLocale(
     DE(Locale.GERMAN, "Deutsch"),
     ES(Locale.of("es"), "Español"),
     IT(Locale.ITALIAN, "Italiano"),
+    KK(Locale.of("kk"), "Қазақша"),
     PT(Locale.of("pt", "BR"), "Português (Brasil)"),
     JA(Locale.JAPANESE, "日本語"),
     ZH(Locale.of("zh", "CN"), "简体中文"),
     PL(Locale.of("pl"), "Polski");
 
-    /** Short language tag ("en", "nl", "fr", "de", "es", "it", "pt", "ja", "zh", "pl"). */
+    /** Short language tag ("en", "nl", "fr", "de", "es", "it", "pt", "ja", "zh", "pl", "kk"). */
     val tag: String get() = locale.language
 
     companion object {
