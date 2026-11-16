@@ -16,6 +16,7 @@ import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
 import be.codewriter.melodymatrix.view.view.flyover.FlyOverView
 import be.codewriter.melodymatrix.view.view.learnstrip.LearnStripView
 import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
+import be.codewriter.melodymatrix.view.view.midi.MidiActivityView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
@@ -68,6 +69,7 @@ class TestView : VBox() {
 
     private val stageOptions = listOf(
         StageOption(MidiView.Companion, "tab-midi") { MidiView() },
+        StageOption(MidiActivityView.Companion, "tab-midi-activity") { MidiActivityView() },
         StageOption(PianoWithEffectsView.Companion, "tab-piano-effects") {
             PianoWithEffectsView(licenseStatus, true)
         },

@@ -4,9 +4,12 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.application.Platform
+import javafx.beans.binding.Bindings
+import javafx.beans.binding.StringBinding
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
 import javafx.collections.FXCollections
@@ -14,6 +17,7 @@ import javafx.collections.ListChangeListener
 import javafx.collections.ObservableList
 import javafx.geometry.HPos
 import javafx.geometry.Insets
+import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.*
@@ -67,21 +71,24 @@ class MidiView : MmxView() {
             items = midiDataEventList
             prefWidth = 460.0
             columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS
-            placeholder = Label("Waiting for MIDI events...").apply {
+            placeholder = Label().apply {
+                textProperty().bind(binding("activity.waiting"))
                 style = "-fx-text-fill: #9fb1c8; -fx-font-size: 13px; -fx-font-style: italic;"
             }
-            style =
-                "-fx-background-color: #0f1722; -fx-background-radius: 14; -fx-border-color: #233247; -fx-border-radius: 14; -fx-padding: 6;"
+            style = "-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;"
             columns.addAll(
-                TableColumn<MidiDataEvent, String>("Event").apply {
+                TableColumn<MidiDataEvent, String>().apply {
+                    textProperty().bind(binding("inspector.event"))
                     cellValueFactory = PropertyValueFactory("event")
                     style = "-fx-alignment: CENTER-LEFT; -fx-font-weight: bold;"
                 },
-                TableColumn<MidiDataEvent, String>("Note").apply {
+                TableColumn<MidiDataEvent, String>().apply {
+                    textProperty().bind(binding("inspector.note"))
                     cellValueFactory = PropertyValueFactory("note")
                     style = "-fx-alignment: CENTER-LEFT;"
                 },
-                TableColumn<MidiDataEvent, String>("Velocity").apply {
+                TableColumn<MidiDataEvent, String>().apply {
+                    textProperty().bind(binding("inspector.velocity"))
                     cellValueFactory = PropertyValueFactory("velocity")
                     style = "-fx-alignment: CENTER-RIGHT;"
                 }
@@ -106,7 +113,8 @@ class MidiView : MmxView() {
             }
         }
 
-        val clearEventsButton = Button("Clear events").apply {
+        val clearEventsButton = Button().apply {
+            textProperty().bind(binding("activity.clear"))
             style =
                 "-fx-background-color: #2f6fb1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 9; -fx-padding: 8 14 8 14;"
             setOnAction {
@@ -116,20 +124,38 @@ class MidiView : MmxView() {
         }
 
         val eventCounterLabel = Label().apply {
-            textProperty().bind(eventCountValue.concat(" events"))
+            textProperty().bind(
+                Bindings.createStringBinding(
+                    { I18n.get(bundle, "inspector.events", eventCountValue.get()) },
+                    eventCountValue,
+                    bundle.bundle
+                )
+            )
             style =
                 "-fx-background-color: rgba(118,195,255,0.18); -fx-text-fill: #dbeeff; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 999; -fx-padding: 5 10 5 10;"
         }
 
-        val tablePanel = VBox(12.0).apply {
+        // Same header as the MIDI activity view: title on the left, actions on the right.
+        val header = HBox(
+            12.0,
+            Label().apply {
+                textProperty().bind(titleBinding())
+                style = "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f2f7ff;"
+            },
+            Region().also { HBox.setHgrow(it, Priority.ALWAYS) },
+            eventCounterLabel,
+            clearEventsButton
+        ).apply { alignment = Pos.CENTER_LEFT }
+
+        val tablePanel = VBox(10.0).apply {
+            padding = Insets(16.0)
+            style =
+                "-fx-background-color: #101a28; -fx-background-radius: 14; -fx-border-color: #223246; -fx-border-radius: 14; -fx-border-width: 1;"
             children.addAll(
-                Label("MIDI Event Monitor").apply {
-                    style = "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f2f7ff;"
+                Label().apply {
+                    textProperty().bind(binding("inspector.subtitle"))
+                    style = "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b5d4ff;"
                 },
-                Label("Live stream of MIDI traffic with event-aware row highlighting.").apply {
-                    style = "-fx-font-size: 13px; -fx-text-fill: #8ea3bc;"
-                },
-                HBox(10.0, clearEventsButton, eventCounterLabel),
                 table
             )
         }
@@ -138,7 +164,7 @@ class MidiView : MmxView() {
         val midiInfo = GridPane().apply {
             hgap = 10.0
             vgap = 10.0
-            padding = Insets(25.0)
+            padding = Insets(16.0)
             style =
                 "-fx-background-color: #101a28; -fx-background-radius: 14; -fx-border-color: #223246; -fx-border-radius: 14; -fx-border-width: 1;"
             isGridLinesVisible = false
@@ -148,81 +174,82 @@ class MidiView : MmxView() {
                 ColumnConstraints(150.0)
             )
 
-            add(sectionTitleLabel("MIDI Data"), 0, 0, 3, 1)
+            add(sectionTitleLabel(binding("inspector.section.midi_data")), 0, 0, 3, 1)
 
-            add(infoLabel("Data[0]: MIDI status"), 0, 1)
+            add(infoLabel(binding("inspector.data0")), 0, 1)
             add(valueLabel(midiData0Value), 1, 1)
             add(valueLabel(midiData0Bits), 2, 1)
 
-            add(infoLabel("Event"), 1, 2)
+            add(infoLabel(binding("inspector.event")), 1, 2)
             add(valueLabel(midiDataEventValue), 2, 2)
 
-            add(infoLabel("Channel"), 1, 3)
+            add(infoLabel(binding("inspector.channel")), 1, 3)
             add(valueLabel(midiDataChannelValue), 2, 3)
 
-            add(infoLabel("Data[1]"), 0, 4)
+            add(infoLabel(binding("inspector.data1")), 0, 4)
             add(valueLabel(midiData1Value), 1, 4)
             add(valueLabel(midiData1Bits), 2, 4)
 
-            add(infoLabel("Data[2]"), 0, 5)
+            add(infoLabel(binding("inspector.data2")), 0, 5)
             add(valueLabel(midiData2Value), 1, 5)
             add(valueLabel(midiData2Bits), 2, 5)
 
             add(sectionDivider(), 0, 6, 3, 1)
 
-            add(sectionTitleLabel("Decoded Event Details"), 0, 7, 3, 1)
+            add(sectionTitleLabel(binding("inspector.section.decoded")), 0, 7, 3, 1)
 
-            add(sectionSubtitleLabel("Note On/Off"), 0, 8, 3, 1)
+            add(sectionSubtitleLabel(binding("inspector.section.note")), 0, 8, 3, 1)
 
-            add(infoLabel("Note"), 0, 9)
+            add(infoLabel(binding("inspector.note")), 0, 9)
             add(valueLabel(noteValue), 1, 9)
             add(valueLabel(noteValueBits), 2, 9)
 
-            add(infoLabel("Note velocity"), 0, 10)
+            add(infoLabel(binding("inspector.note_velocity")), 0, 10)
             add(valueLabel(noteVelocityValue), 1, 10)
             add(valueLabel(noteVelocityValueBits), 2, 10)
 
-            add(sectionSubtitleLabel("Instrument change"), 0, 11, 3, 1)
+            add(sectionSubtitleLabel(binding("inspector.section.instrument")), 0, 11, 3, 1)
 
-            add(infoLabel("Selected instrument"), 0, 12)
+            add(infoLabel(binding("inspector.selected_instrument")), 0, 12)
             add(valueLabel(lastInstrument), 1, 12)
 
-            add(sectionSubtitleLabel("Controller message"), 0, 13, 3, 1)
+            add(sectionSubtitleLabel(binding("inspector.section.controller")), 0, 13, 3, 1)
 
-            add(infoLabel("Controller number"), 0, 14)
+            add(infoLabel(binding("inspector.controller_number")), 0, 14)
             add(valueLabel(controllerNumber), 1, 14)
             add(valueLabel(controllerNumberBits), 2, 14)
 
-            add(infoLabel("Controller value"), 0, 15)
+            add(infoLabel(binding("inspector.controller_value")), 0, 15)
             add(valueLabel(controllerValue), 1, 15)
             add(valueLabel(controllerValueBits), 2, 15)
 
-            add(sectionSubtitleLabel("Pitch bend message"), 0, 16, 3, 1)
+            add(sectionSubtitleLabel(binding("inspector.section.pitch_bend")), 0, 16, 3, 1)
 
-            add(infoLabel("Pitch bend"), 0, 17)
+            add(infoLabel(binding("activity.tile.pitch_bend")), 0, 17)
             add(valueLabel(pitchBendValue), 1, 17)
             add(valueLabel(pitchBendValueBits), 2, 17)
         }
 
-        val root = HBox().apply {
-            spacing = 18.0
-            padding = Insets(20.0)
-            style = "-fx-background-color: linear-gradient(to bottom, #091019, #0f1a27);"
-            children.addAll(tablePanel, midiInfo)
-        }
+        val body = HBox(12.0, tablePanel, midiInfo)
         HBox.setHgrow(tablePanel, Priority.ALWAYS)
         HBox.setHgrow(midiInfo, Priority.NEVER)
+        VBox.setVgrow(body, Priority.ALWAYS)
+
+        val root = VBox(16.0, header, body).apply {
+            padding = Insets(20.0)
+            style = "-fx-background-color: linear-gradient(to bottom, #091019, #0f1a27);"
+        }
 
         setupSurface(root, 1000.0, 800.0, root)
     }
 
     private fun rowStyleFor(item: MidiDataEvent): String {
         return when (item.event) {
-            MidiEvent.NOTE_ON -> "-fx-background-color: rgba(34, 197, 94, 0.35); -fx-text-fill: #ecfff3;"
-            MidiEvent.NOTE_OFF -> "-fx-background-color: rgba(239, 68, 68, 0.34); -fx-text-fill: #fff0f0;"
-            MidiEvent.SELECT_INSTRUMENT -> "-fx-background-color: rgba(168, 85, 247, 0.32); -fx-text-fill: #f8eeff;"
-            MidiEvent.CONTROLLER -> "-fx-background-color: rgba(14, 165, 233, 0.32); -fx-text-fill: #ebf9ff;"
-            MidiEvent.PITCH_BEND -> "-fx-background-color: rgba(245, 158, 11, 0.32); -fx-text-fill: #fff6e8;"
+            MidiEvent.NOTE_ON -> rowStyle(MidiEventColors.NOTE_ON, "#ecfff3")
+            MidiEvent.NOTE_OFF -> rowStyle(MidiEventColors.NOTE_OFF, "#fff0f0")
+            MidiEvent.SELECT_INSTRUMENT -> rowStyle(MidiEventColors.INSTRUMENT, "#f8eeff")
+            MidiEvent.CONTROLLER -> rowStyle(MidiEventColors.CONTROLLER, "#ebf9ff")
+            MidiEvent.PITCH_BEND -> rowStyle(MidiEventColors.PITCH_BEND, "#fff6e8")
             else -> if (table.items.indexOf(item) % 2 == 0) {
                 "-fx-background-color: rgba(255,255,255,0.03); -fx-text-fill: #e5ecf4;"
             } else {
@@ -231,14 +258,21 @@ class MidiView : MmxView() {
         }
     }
 
-    private fun sectionTitleLabel(text: String): Label {
-        return Label(text).apply {
+    private fun rowStyle(color: String, textColor: String): String =
+        "-fx-background-color: ${MidiEventColors.rgba(color, 0.34)}; -fx-text-fill: $textColor;"
+
+    private fun binding(key: String): StringBinding = I18n.binding(bundle, key)
+
+    private fun sectionTitleLabel(text: StringBinding): Label {
+        return Label().apply {
+            textProperty().bind(text)
             style = "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #e6edf7;"
         }
     }
 
-    private fun sectionSubtitleLabel(text: String): Label {
-        return Label(text).apply {
+    private fun sectionSubtitleLabel(text: StringBinding): Label {
+        return Label().apply {
+            textProperty().bind(text)
             style = "-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #b5d4ff;"
         }
     }
@@ -249,8 +283,9 @@ class MidiView : MmxView() {
         }
     }
 
-    private fun infoLabel(text: String): Label {
-        return Label(text).apply {
+    private fun infoLabel(text: StringBinding): Label {
+        return Label().apply {
+            textProperty().bind(text)
             style = "-fx-text-fill: #9fb1c8; -fx-font-size: 13px; -fx-font-weight: 600;"
         }
     }
@@ -305,11 +340,11 @@ class MidiView : MmxView() {
             MmxEventType.PLAYBACK_POSITION -> {
                 // Not needed here
             }
-            }
-            }
+        }
+    }
 
-            /**
-            * Populates the detail panel with the field values of the selected MIDI event.
+    /**
+     * Populates the detail panel with the field values of the selected MIDI event.
      *
      * Updates all bound [StringProperty] fields so the GridPane labels refresh automatically.
      * The method is annotated with [ExperimentalStdlibApi] because it relies on experimental
@@ -382,5 +417,6 @@ class MidiView : MmxView() {
         override val bundleBaseName = "i18n/view/midi"
         override fun getViewImagePath(): String = "/view/midi.png"
         private val logger: Logger = LogManager.getLogger(MidiView::class.java.name)
+        private val bundle by lazy { I18n.registerBundle(bundleBaseName, bundleClassLoader) }
     }
 }
