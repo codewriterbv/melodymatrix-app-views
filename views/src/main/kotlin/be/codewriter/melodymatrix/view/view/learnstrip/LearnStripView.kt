@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.learnstrip
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.PlayEvent
@@ -122,6 +124,7 @@ class LearnStripView(settings: SettingHelper? = null) : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/learnstrip"
         override fun getViewImagePath(): String = "/view/scale.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.LIGHTBULB
 
         private const val REGISTRY_KEY: String = "learnStrip"
         private const val NATURAL_WIDTH: Double = 1000.0

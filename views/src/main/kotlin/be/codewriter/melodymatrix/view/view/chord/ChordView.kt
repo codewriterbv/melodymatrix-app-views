@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.chord
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -188,6 +190,7 @@ class ChordView : MmxView() {
         override val bundleBaseName = "i18n/view/chord"
         override val bundleKeyPrefix = "chord."
         override fun getViewImagePath(): String = "/view/chord.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.MUSIC
 
         private const val SNIPPET_SYSTEM_WIDTH: Double = 640.0
         private const val SNIPPET_NATURAL_HEIGHT: Double = 260.0

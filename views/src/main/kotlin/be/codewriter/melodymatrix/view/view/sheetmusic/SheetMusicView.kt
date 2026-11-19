@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.sheetmusic
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
@@ -405,6 +407,7 @@ class SheetMusicView(settings: SettingHelper? = null) : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/sheetmusic"
         override fun getViewImagePath(): String = "/view/scale.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.FILE_ALT
 
         private const val BUNDLE_BASE_NAME: String = "i18n/view/sheetmusic"
         private const val REGISTRY_KEY: String = "sheetMusic"

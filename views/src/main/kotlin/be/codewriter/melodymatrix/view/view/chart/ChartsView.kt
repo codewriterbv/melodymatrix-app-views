@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.chart
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
@@ -163,5 +165,6 @@ class ChartsView : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/chart"
         override fun getViewImagePath(): String = "/view/charts.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.CHART_BAR
     }
 }

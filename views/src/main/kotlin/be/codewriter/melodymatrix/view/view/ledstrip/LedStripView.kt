@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.ledstrip
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import atlantafx.base.controls.ToggleSwitch
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
@@ -498,6 +500,7 @@ class LedStripView(private val serialPorts: SerialPorts = JSerialCommPorts) : Mm
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/led"
         override fun getViewImagePath(): String = "/view/led.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.SLIDERS_H
         private val logger: Logger = LogManager.getLogger(LedStripView::class.java.name)
         const val BOX_HEIGHT = 50.0
     }

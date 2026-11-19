@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.staff
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
@@ -185,6 +187,7 @@ class StaffView : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/staff"
         override fun getViewImagePath(): String = "/view/scale.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.BARS
 
         /**
          * Layout width fed to [SheetView.setSystemWidth]. With 7 measures (bass phase +

@@ -17,6 +17,8 @@ import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.materialdesign.MaterialDesign
 
 /**
  * Compact visualizer that displays a single piano keyboard covering the centre octaves.
@@ -151,6 +153,7 @@ class PianoSimpleView(
         override val bundleBaseName = "i18n/view/piano"
         override val bundleKeyPrefix = "simple."
         override fun getViewImagePath(): String = "/view/piano.png"
+        override fun getViewIcon(): Ikon = MaterialDesign.MDI_PIANO
 
         private val logger: Logger = LogManager.getLogger(PianoSimpleView::class.java.name)
 

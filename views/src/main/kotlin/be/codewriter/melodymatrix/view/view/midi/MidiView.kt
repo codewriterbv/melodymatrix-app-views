@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.midi
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
@@ -416,6 +418,7 @@ class MidiView : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/midi"
         override fun getViewImagePath(): String = "/view/midi.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.LIST
         private val logger: Logger = LogManager.getLogger(MidiView::class.java.name)
         private val bundle by lazy { I18n.registerBundle(bundleBaseName, bundleClassLoader) }
     }

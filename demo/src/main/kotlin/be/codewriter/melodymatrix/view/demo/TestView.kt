@@ -24,17 +24,23 @@ import be.codewriter.melodymatrix.view.view.sheetmusic.SheetMusicView
 import be.codewriter.melodymatrix.view.view.spectrum.AudioSpectrumMidiView
 import be.codewriter.melodymatrix.view.view.staff.StaffView
 import javafx.geometry.Insets
-import javafx.geometry.Orientation
 import javafx.scene.Node
+import javafx.scene.Scene
 import javafx.scene.control.ScrollPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
-import software.coley.bentofx.Bento
-import software.coley.bentofx.dockable.Dockable
+import javafx.stage.Stage
+import com.dlsc.gemsfx.docking.Dockable
+import com.dlsc.gemsfx.docking.DockingContext
+import com.dlsc.gemsfx.docking.DockingEvent
+import com.dlsc.gemsfx.docking.DockingPosition
+import com.dlsc.gemsfx.docking.DockingSize
+import java.util.Optional
 
 /**
  * Root UI component for the standalone test application.
  *
- * Assembles a dockable multi-panel layout (using BentoFX) that contains:
+ * Assembles a dockable multi-panel layout (using GemsFX docking) that contains:
  * - A **stage selector** panel for toggling individual visualizer tabs on/off
  * - A **visualizer tab area** where each active [MmxViewSurface] is embedded in a scrollable tab
  * - A **right column** with MIDI event inspection and license status panels
@@ -50,22 +56,30 @@ class TestView : VBox() {
     private val stageSelectorWidth = 260.0
     private val visualizerWidth = 1660.0
     private val rightColumnWidth = 430.0
-    private val mainSectionTotalWidth = stageSelectorWidth + visualizerWidth + rightColumnWidth
-    private val firstDividerPosition = stageSelectorWidth / mainSectionTotalWidth
-    private val secondDividerPosition = (stageSelectorWidth + visualizerWidth) / mainSectionTotalWidth
-    private val rightColumnDividerPosition = 0.66
 
     private val midiSimulator = MidiSimulator()
     private val audioSpectrumSimulator = AudioSpectrumSimulator()
     private val licenseStatus = LicenseStatus()
 
-    private val bento = Bento()
-    private val rootContainer = bento.dockBuilding().root("test-root")
-    private val stageSelectorLeaf = bento.dockBuilding().leaf("stage-selector-leaf")
-    private val visualizerTabs = bento.dockBuilding().leaf("visualizer-tabs")
-    private val rightColumnBranch = bento.dockBuilding().branch("right-column-branch")
-    private val midiEventsLeaf = bento.dockBuilding().leaf("midi-events-leaf")
-    private val licenseLeaf = bento.dockBuilding().leaf("license-leaf")
+    /** Dockables handed to the [DockingContext] factory right before they are opened. */
+    private val pendingDockables: MutableMap<String, Dockable> = linkedMapOf()
+    private val closeHandlers: MutableMap<String, () -> Unit> = linkedMapOf()
+    private val titleBindings: MutableList<javafx.beans.binding.StringBinding> = mutableListOf()
+
+    private val dockingContext = DockingContext(
+        { id -> Optional.ofNullable(pendingDockables.remove(id)) },
+        { pane ->
+            // The docking context only positions the stage: it has to be shown here.
+            Stage().apply {
+                this@TestView.scene?.window?.let { initOwner(it) }
+                scene = Scene(pane, 900.0, 600.0)
+                show()
+            }
+        }
+    ).apply {
+        isFloatingEnabled = true
+    }
+    private val dockingPane = dockingContext.createPane()
 
     private val stageOptions = listOf(
         StageOption(MidiView.Companion, "tab-midi") { MidiView() },
@@ -92,7 +106,7 @@ class TestView : VBox() {
     private val optionsById = stageOptions.associateBy { it.id }
     private val activeVisualizers: MutableMap<String, ActiveVisualizer> = linkedMapOf()
     private val stageSelector = TestViewStages(
-        stageOptions.map { TestViewStages.Option(it.id, it.metadata.titleBinding()) },
+        stageOptions.map { TestViewStages.Option(it.id, it.metadata.titleBinding(), it.metadata.getViewIcon()) },
         ::toggleVisualizer
     )
 
@@ -102,82 +116,80 @@ class TestView : VBox() {
         spacing = 10.0
         padding = Insets(10.0)
 
+        dockingContext.addEventHandler(DockingEvent.CLOSED) { event ->
+            closeHandlers.remove(event.dockable.id)?.invoke()
+        }
+        dockingPane.prefHeight = 800.0
         setupDockLayout()
-        bento.registerRoot(rootContainer)
 
-        children.add(rootContainer)
+        setVgrow(dockingPane, Priority.ALWAYS)
+        children.add(dockingPane)
     }
 
     /**
-     * Lays out the BentoFX dock containers and registers all fixed panels.
+     * Opens the fixed panels: stage selector on the left, MIDI events above the license status on the right.
+     * The visualizers are docked between them when opened.
      */
     private fun setupDockLayout() {
-        val stageSelectorDockable = createFixedDockable(
-            id = "stage-selector",
+        openFixedDockable(
+            id = STAGE_SELECTOR_ID,
             titleBinding = I18n.binding(commonBundle, "testview.dockable.available_views"),
             content = stageSelector
         )
-
-        val midiEventsDockable = createFixedDockable(
+        openFixedDockable(
             id = "midi-events",
             titleBinding = I18n.binding(commonBundle, "testview.dockable.midi_events"),
-            content = TestViewMidiEvents(midiSimulator)
+            content = TestViewMidiEvents(midiSimulator),
+            relativeTo = STAGE_SELECTOR_ID,
+            position = DockingPosition.RIGHT,
+            size = DockingSize.pixels(rightColumnWidth)
         )
-
-        val licenseDockable = createFixedDockable(
+        openFixedDockable(
             id = "license-status",
             titleBinding = I18n.binding(commonBundle, "testview.dockable.license"),
-            content = TestViewLicense(licenseStatus)
+            content = TestViewLicense(licenseStatus),
+            relativeTo = "midi-events",
+            position = DockingPosition.BOTTOM,
+            size = DockingSize.weight(1 - RIGHT_COLUMN_MIDI_SHARE)
         )
-
-        rightColumnBranch.orientation = Orientation.VERTICAL
-        rightColumnBranch.setPruneWhenEmpty(false)
-        rightColumnBranch.addContainers(midiEventsLeaf, licenseLeaf)
-        rightColumnBranch.setDividerPositions(rightColumnDividerPosition)
-
-        visualizerTabs.setPruneWhenEmpty(false)
-        rootContainer.addContainers(stageSelectorLeaf, visualizerTabs, rightColumnBranch)
-        rootContainer.setPruneWhenEmpty(false)
-        // left ~260 / (260 + 1660 + 430) ≈ 0.11, left+center ≈ 0.82
-        rootContainer.setDividerPositions(firstDividerPosition, secondDividerPosition)
-
-        stageSelectorLeaf.addDockable(stageSelectorDockable)
-        stageSelectorLeaf.selectDockable(stageSelectorDockable)
-
-        midiEventsLeaf.addDockable(midiEventsDockable)
-        midiEventsLeaf.selectDockable(midiEventsDockable)
-
-        licenseLeaf.addDockable(licenseDockable)
-        licenseLeaf.selectDockable(licenseDockable)
-
-        stageSelectorLeaf.minWidth = 260.0
-        stageSelectorLeaf.prefWidth = stageSelectorWidth
-        visualizerTabs.minWidth = 300.0
-        rightColumnBranch.minWidth = 320.0
-        rightColumnBranch.prefWidth = rightColumnWidth
-        rootContainer.prefHeight = 800.0
     }
 
     /**
-     * Creates a non-closable, non-draggable [Dockable] wrapping the given content node.
-     *
-     * @param id      Unique identifier for the dockable
-     * @param title   Display title shown in the tab header
-     * @param content The JavaFX node to embed
-     * @return A configured [Dockable] instance
+     * Opens a non-closable [Dockable] wrapping the given content node, optionally next to another dockable.
      */
-    private fun createFixedDockable(
+    private fun openFixedDockable(
+        id: String,
+        titleBinding: javafx.beans.binding.StringBinding,
+        content: Node,
+        relativeTo: String? = null,
+        position: DockingPosition = DockingPosition.CENTER,
+        size: DockingSize? = null
+    ) {
+        val dockable = createDockable(id, titleBinding, content).apply {
+            isCloseable = false
+            preferredDockingSize = size
+        }
+        open(dockable, relativeTo, position)
+    }
+
+    /** Creates a dockable whose title follows [titleBinding]; the dockable is not opened yet. */
+    private fun createDockable(
         id: String,
         titleBinding: javafx.beans.binding.StringBinding,
         content: Node
     ): Dockable {
-        return bento.dockBuilding().dockable(id).apply {
-            this.titleProperty().bind(titleBinding)
-            this.nodeProperty().set(content)
-            this.isClosable = false
-            this.isCanBeDragged = false
-            this.isCanBeDroppedToNewWindow = false
-        }
+        val dockable = Dockable(id, titleBinding.value.takeUnless { it.isNullOrBlank() } ?: id, content)
+        dockable.isTitleEditable = false
+        titleBinding.addListener { _, _, title -> if (!title.isNullOrBlank()) dockable.title = title }
+        titleBindings += titleBinding
+        return dockable
+    }
+
+    /** Opens [dockable] as [position] of the dockable with id [relativeTo] (or the active one when `null`). */
+    private fun open(dockable: Dockable, relativeTo: String?, position: DockingPosition) {
+        pendingDockables[dockable.id] = dockable
+        relativeTo?.let { dockingPane.selectDockable(it) }
+        dockingContext.openDockable(dockingPane, dockable.id, position)
     }
 
     /**
@@ -223,23 +235,10 @@ class TestView : VBox() {
             return
         }
 
-        ensureVisualizerLeafAttached()
-
         val stage = option.stageSupplier()
         val content = createVisualizerContent(stage)
 
-        val dockable: Dockable = bento.dockBuilding().dockable(option.id).apply {
-            titleProperty().bind(option.metadata.titleBinding())
-            nodeProperty().set(content)
-            isCanBeDroppedToNewWindow = false
-            addCloseListener { _, _ ->
-                val removed = activeVisualizers.remove(option.id)
-                if (removed != null) {
-                    disposeVisualizer(removed)
-                    stageSelector.setSelected(option.id, false)
-                }
-            }
-        }
+        val dockable = createDockable(option.id, option.metadata.titleBinding(), content)
 
         midiSimulator.registerListener(stage)
         audioSpectrumSimulator.registerListener(stage)
@@ -252,13 +251,26 @@ class TestView : VBox() {
             }
         }
 
-        visualizerTabs.addDockable(dockable)
-        visualizerTabs.selectDockable(dockable)
-
         activeVisualizers[option.id] = ActiveVisualizer(
             stage = stage,
             dockable = dockable
         )
+        closeHandlers[option.id] = {
+            val removed = activeVisualizers.remove(option.id)
+            if (removed != null) {
+                disposeVisualizer(removed)
+                stageSelector.setSelected(option.id, false)
+            }
+        }
+
+        // Next to the visualizers that are already open or, for the first one, between selector and right column.
+        val sibling = activeVisualizers.keys.firstOrNull { it != option.id }
+        if (sibling != null) {
+            open(dockable, sibling, DockingPosition.CENTER)
+        } else {
+            dockable.preferredDockingSize = DockingSize.pixels(visualizerWidth)
+            open(dockable, STAGE_SELECTOR_ID, DockingPosition.RIGHT)
+        }
     }
 
     private fun createVisualizerContent(surface: MmxViewSurface): Node {
@@ -275,30 +287,14 @@ class TestView : VBox() {
     }
 
     /**
-     * Re-attaches the visualizer leaf to the root container if BentoFX pruned it.
-     *
-     * This can happen when the last tab in the visualizer area is closed.
-     */
-    private fun ensureVisualizerLeafAttached() {
-        if (visualizerTabs.parentContainer != null) {
-            return
-        }
-
-        // If Bento pruned the center leaf after the last tab closed, restore it in the middle slot.
-        rootContainer.addContainer(1, visualizerTabs)
-        rootContainer.setDividerPositions(firstDividerPosition, secondDividerPosition)
-    }
-
-    /**
      * Closes the visualizer tab for the given [StageOption] and disposes its resources.
      *
      * @param option The stage option describing which visualizer to close
      */
     private fun closeVisualizer(option: StageOption) {
         val active = activeVisualizers[option.id] ?: return
-        val closed = visualizerTabs.closeDockable(active.dockable)
+        val closed = dockingContext.requestCloseDockable(active.dockable)
         if (!closed) {
-            visualizerTabs.removeDockable(active.dockable)
             activeVisualizers.remove(option.id)
             disposeVisualizer(active)
         }
@@ -332,10 +328,15 @@ class TestView : VBox() {
      * Holds the runtime state of an open visualizer tab.
      *
      * @property stage        The active [MmxViewSurface] instance
-     * @property dockable     The BentoFX [Dockable] wrapping the visualizer content
+     * @property dockable     The GemsFX [Dockable] wrapping the visualizer content
      */
     private data class ActiveVisualizer(
         val stage: MmxViewSurface,
         val dockable: Dockable
     )
+
+    private companion object {
+        const val STAGE_SELECTOR_ID = "stage-selector"
+        const val RIGHT_COLUMN_MIDI_SHARE = 0.66
+    }
 }

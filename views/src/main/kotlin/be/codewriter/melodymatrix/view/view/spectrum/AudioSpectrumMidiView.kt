@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.spectrum
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.AudioSpectrumEvent
@@ -524,6 +526,7 @@ class AudioSpectrumMidiView : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/spectrum"
         override fun getViewImagePath(): String = "/view/midi.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.WAVE_SQUARE
 
         private const val NATURAL_WIDTH: Double = 900.0
         private const val NATURAL_HEIGHT: Double = 520.0

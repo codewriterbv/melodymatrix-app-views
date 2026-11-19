@@ -12,9 +12,12 @@ import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.Tooltip
 import javafx.scene.layout.HBox
+import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 import javafx.util.StringConverter
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.javafx.FontIcon
 
 /**
  * Side-panel that lists all available visualizer stages as checkboxes.
@@ -47,6 +50,12 @@ class TestViewStages(
         val toggles = stageOptions.map { option ->
             CheckBox().apply {
                 textProperty().bind(option.labelBinding)
+                // Fixed-width slot, so the titles line up whatever the icon's own width.
+                graphic = StackPane(FontIcon.of(option.icon, 16)).apply {
+                    minWidth = ICON_SLOT_WIDTH
+                    prefWidth = ICON_SLOT_WIDTH
+                    maxWidth = ICON_SLOT_WIDTH
+                }
                 minWidth = 220.0
                 selectedProperty().addListener { _, _, isSelected ->
                     onStageToggle(option.id, isSelected)
@@ -131,8 +140,13 @@ class TestViewStages(
      * @property id            Unique identifier matching the dockable tab ID
      * @property labelBinding  Live [StringBinding] providing the name shown next to the checkbox
      */
+    private companion object {
+        const val ICON_SLOT_WIDTH = 24.0
+    }
+
     data class Option(
         val id: String,
-        val labelBinding: StringBinding
+        val labelBinding: StringBinding,
+        val icon: Ikon
     )
 }

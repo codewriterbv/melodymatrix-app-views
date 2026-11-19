@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.chord
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.definition.ChordQuality
@@ -45,6 +47,7 @@ class CircleOfFifthsView : MmxView() {
         override val bundleBaseName = "i18n/view/chord"
         override val bundleKeyPrefix = "circleOfFifths."
         override fun getViewImagePath(): String = "/view/chord-relation.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.CIRCLE_NOTCH
 
         // ── Canvas geometry ─────────────────────────────────────────────────
         const val SIZE = 680.0

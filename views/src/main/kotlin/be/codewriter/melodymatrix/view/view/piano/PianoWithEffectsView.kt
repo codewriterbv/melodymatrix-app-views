@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.piano
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.materialdesign.MaterialDesign
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.license.LicenseStatus
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -423,6 +425,7 @@ class PianoWithEffectsView(
         override val bundleBaseName = "i18n/view/piano"
         override val bundleKeyPrefix = "effects."
         override fun getViewImagePath(): String = "/view/piano.png"
+        override fun getViewIcon(): Ikon = MaterialDesign.MDI_PIANO
         private val logger: Logger = LogManager.getLogger(PianoWithEffectsView::class.java.name)
 
         private const val TOOLBAR_CONTROL_HEIGHT = 40.0

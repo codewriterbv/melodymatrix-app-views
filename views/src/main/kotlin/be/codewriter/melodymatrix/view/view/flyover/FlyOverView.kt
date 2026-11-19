@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.flyover
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.bootstrapicons.BootstrapIcons
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.helper.SettingHelper
@@ -129,6 +131,7 @@ class FlyOverView(settings: SettingHelper? = null) : MmxView() {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/flyover"
         override fun getViewImagePath(): String = "/view/scale.png"
+        override fun getViewIcon(): Ikon = BootstrapIcons.BADGE_3D
 
         private const val BUNDLE_BASE_NAME: String = "i18n/view/flyover"
         private const val REGISTRY_KEY: String = "flyOver"

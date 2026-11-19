@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.drum
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.DrumPart
 import be.codewriter.melodymatrix.view.definition.MidiEvent
@@ -253,5 +255,6 @@ class DrumView : MmxView(), MmxNoteDispatcher {
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/drum"
         override fun getViewImagePath(): String = "/view/drum.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.DRUM
     }
 }

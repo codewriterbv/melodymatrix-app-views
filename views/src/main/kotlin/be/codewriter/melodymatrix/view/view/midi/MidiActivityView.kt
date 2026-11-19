@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.midi
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.definition.Note
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
@@ -512,6 +514,7 @@ class MidiActivityView : MmxView() {
         override val bundleBaseName = "i18n/view/midi"
         override val bundleKeyPrefix = "activity."
         override fun getViewImagePath(): String = "/view/midi.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.HEARTBEAT
 
         private const val PREFIX = "activity"
         private const val EMPTY_VALUE = "–"

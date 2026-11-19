@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.guitar
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ToggleButton
 import be.codewriter.melodymatrix.view.definition.Chord
 import be.codewriter.melodymatrix.view.event.ChordEvent
@@ -38,6 +40,7 @@ class GuitarChordView(
         override val bundleBaseName = "i18n/view/guitar"
         override val bundleKeyPrefix = "chord."
         override fun getViewImagePath(): String = "/view/guitar-chord.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.GUITAR
     }
 
     private val visualizer = GuitarVisualizer(GuitarVisualizer.Mode.CHORD)

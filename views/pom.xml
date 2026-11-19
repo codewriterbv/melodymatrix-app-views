@@ -26,6 +26,20 @@
             <artifactId>log4j-api</artifactId>
         </dependency>
 
+        <!-- Ikonli: icon of each view (see MmxViewMetadata.getViewIcon) -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-materialdesign-pack</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-bootstrapicons-pack</artifactId>
+        </dependency>
+
         <!-- AtlantaFX -->
         <dependency>
             <groupId>io.github.mkpaz</groupId>

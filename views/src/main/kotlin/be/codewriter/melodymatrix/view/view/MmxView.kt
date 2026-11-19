@@ -3,11 +3,12 @@ package be.codewriter.melodymatrix.view.view
 import be.codewriter.melodymatrix.view.data.MmxEventHandler
 import be.codewriter.melodymatrix.view.i18n.BundleRef
 import be.codewriter.melodymatrix.view.i18n.I18n
+import org.kordamp.ikonli.Ikon
 import javafx.beans.binding.StringBinding
 import javafx.scene.Node
 
 /**
- * Embedded visualizer contract used by host containers (Bento tabs, test app panes).
+ * Embedded visualizer contract used by host containers (dock tabs, test app panes).
  *
  * A [MmxViewSurface] exposes a JavaFX root [Node], natural design dimensions used for
  * scaling, and an explicit [dispose] lifecycle hook for releasing resources.
@@ -136,6 +137,7 @@ abstract class MmxView : MmxViewSurface {
  *     override val bundleBaseName = "i18n/view/piano"
  *     override val bundleKeyPrefix = "effects."
  *     override fun getViewImagePath(): String = "/view/piano.png"
+ *     override fun getViewIcon(): Ikon = FontAwesomeSolid.KEYBOARD
  * }
  * ```
  *
@@ -184,6 +186,12 @@ interface MmxViewMetadata {
      * translated).
      */
     fun getViewImagePath(): String
+
+    /**
+     * Icon identifying the view next to its title: in the tab of the view and
+     * in the list of available views.
+     */
+    fun getViewIcon(): Ikon
 
     /** Live-updating binding for [getViewTitle]. */
     fun titleBinding(): StringBinding = I18n.binding(bundle, key("title"))

@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.chord
 
+import org.kordamp.ikonli.Ikon
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid
 import be.codewriter.melodymatrix.view.component.ZoomableNode
 import be.codewriter.melodymatrix.view.definition.ChordQualityPreset
 import be.codewriter.melodymatrix.view.event.ChordEvent
@@ -34,6 +36,7 @@ class ChordRelationView(
         override val bundleBaseName = "i18n/view/chord"
         override val bundleKeyPrefix = "relation."
         override fun getViewImagePath(): String = "/view/chord-relation.png"
+        override fun getViewIcon(): Ikon = FontAwesomeSolid.PROJECT_DIAGRAM
 
         private const val TOOLBAR_CONTROL_HEIGHT = 34.0
     }
