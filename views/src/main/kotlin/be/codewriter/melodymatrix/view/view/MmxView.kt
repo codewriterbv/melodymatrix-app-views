@@ -54,6 +54,18 @@ interface MmxViewSurface : MmxEventHandler {
     val captureHeight: Int
         get() = 0
 
+    /**
+     * Settings panel [name] (e.g. `fireworks`) as a node that edits the live view settings, for the
+     * video recorder, which shows it beside the view. `null` when the view has no such panel.
+     */
+    fun demoSettingsPanel(name: String): Node? = null
+
+    /**
+     * Sets a control of the view that is not a stored setting (video recorder script key `ui.<name>`), on the
+     * JavaFX thread. Returns false when the view does not know [name].
+     */
+    fun demoSetting(name: String, value: String): Boolean = false
+
     fun dispose() {
         // Default no-op; override where cleanup is required.
     }

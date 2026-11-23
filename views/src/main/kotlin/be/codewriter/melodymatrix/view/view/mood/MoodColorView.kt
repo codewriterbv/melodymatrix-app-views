@@ -27,6 +27,7 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
+import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.ScrollPane
@@ -404,6 +405,9 @@ class MoodColorView(
         }
         gc.globalBlendMode = BlendMode.SRC_OVER
     }
+
+    /** The same panel as in the view, for the video recorder (`panel|mood`). */
+    override fun demoSettingsPanel(name: String): Node? = if (name == "mood") settingsPanel() else null
 
     private fun settingsPanel(): ScrollPane {
         val grid = GridPane().apply {

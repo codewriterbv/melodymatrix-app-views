@@ -21,6 +21,7 @@ import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.ColorPicker
 import javafx.scene.control.Label
@@ -164,6 +165,17 @@ class PianoWithEffectsView(
             fpsTimer?.stop()
             pianoCanvas.stop()
         }
+    }
+
+    override fun demoSettingsPanel(name: String): Node? = when (name) {
+        "keys" -> KeyConfigurator(config)
+        "image" -> ImageConfigurator(config, licenseStatus)
+        "blocks" -> BlocksConfigurator(config)
+        "explosion" -> ExplosionConfigurator(config)
+        "fireworks" -> FireworksConfigurator(config)
+        "clouds" -> CloudConfigurator(config)
+        "particles" -> ParticlesConfigurator(config)
+        else -> null
     }
 
     private fun createSettingsToolbar(): HBox {
