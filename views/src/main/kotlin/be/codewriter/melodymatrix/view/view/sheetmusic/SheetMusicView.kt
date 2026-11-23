@@ -121,10 +121,15 @@ class SheetMusicView(settings: SettingHelper? = null) : MmxView() {
 
     private var rebuildPending = false
 
+    private lateinit var toolbar: SheetSettingsPane
+
+    /** Settings dialog `colors`, `camera`... as a panel (video recorder: `panel|<name>`). */
+    override fun demoSettingsPanel(name: String): javafx.scene.Node? = toolbar.demoPanel(name)
+
     init {
         refreshScore()
 
-        val toolbar = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
+        toolbar = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
             .displayMode(displayMode)
             .toolbar(*buildToolbarItems())
             .section("sheet.section.colors")

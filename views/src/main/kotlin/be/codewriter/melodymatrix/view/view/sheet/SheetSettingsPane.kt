@@ -140,8 +140,18 @@ class SheetSettingsPane(
         return dialog.entries
     }
 
+    /** The dialogs by button key, so the video recorder can show their content beside the view. */
+    private val dialogsByKey = mutableMapOf<String, DialogEntries>()
+
+    /** The content of the settings dialog `sheet.action.<name>` (`colors`, `camera`, `settings`...) as a node, or null. */
+    fun demoPanel(name: String): Node? {
+        val dialog = dialogsByKey["sheet.action.$name"] ?: return null
+        return SheetConfigurator(bundle).also { configurator -> dialog.entries.forEach { it(configurator) } }
+    }
+
     private fun newDialog(buttonKey: String, title: () -> String): DialogEntries {
         val dialog = DialogEntries()
+        dialogsByKey[buttonKey] = dialog
         dialogButtons.children.add(Button().apply {
             textProperty().bind(I18n.binding(bundle, buttonKey))
             setOnAction {

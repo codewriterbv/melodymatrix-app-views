@@ -80,8 +80,13 @@ class LearnStripView(settings: SettingHelper? = null) : MmxView() {
         padding = Insets(4.0, 0.0, 4.0, 8.0)
     }
 
+    private lateinit var settingsPane: SheetSettingsPane
+
+    /** Settings dialog `colors`, `camera`... as a panel (video recorder: `panel|<name>`). */
+    override fun demoSettingsPanel(name: String): javafx.scene.Node? = settingsPane.demoPanel(name)
+
     init {
-        val settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
+        settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
             .displayMode(follower.displayModeProperty)
             .section("sheet.section.colors")
             .color("sheet.label.pageColor", strip.pageColorProperty(), "pageColor")

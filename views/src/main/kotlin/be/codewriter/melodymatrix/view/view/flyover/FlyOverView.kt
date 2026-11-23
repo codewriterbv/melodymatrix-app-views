@@ -59,8 +59,13 @@ class FlyOverView(settings: SettingHelper? = null) : MmxView() {
         }
     })
 
+    private lateinit var settingsPane: SheetSettingsPane
+
+    /** Settings dialog `colors`, `camera`... as a panel (video recorder: `panel|<name>`). */
+    override fun demoSettingsPanel(name: String): javafx.scene.Node? = settingsPane.demoPanel(name)
+
     init {
-        val settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
+        settingsPane = SheetSettingsPane(settings, REGISTRY_KEY) { getViewTitle() }
             .displayMode(follower.displayModeProperty)
             .dialog("sheet.action.colors")
             .color("sheet.label.backgroundColor", flyOver.backgroundColorProperty(), "backgroundColor")

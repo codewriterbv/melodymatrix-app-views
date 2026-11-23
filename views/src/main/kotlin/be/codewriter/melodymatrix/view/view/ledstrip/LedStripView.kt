@@ -108,6 +108,21 @@ class LedStripView(private val serialPorts: SerialPorts = JSerialCommPorts) : Mm
         }
     }
 
+    /** Video recorder: `whiteNormal|whiteHighlight|blackNormal|blackHighlight` (colours), `sameColor`, `effectWidth`, `effectSpeed`. */
+    override fun demoSetting(name: String, value: String): Boolean {
+        when (name) {
+            "whiteNormal" -> colorWhiteKeyNormal.value = Color.web(value)
+            "whiteHighlight" -> colorWhiteKeyHighlighted.value = Color.web(value)
+            "blackNormal" -> colorBlackKeyNormal.value = Color.web(value)
+            "blackHighlight" -> colorBlackKeyHighlighted.value = Color.web(value)
+            "sameColor" -> sameColor.isSelected = value.toBoolean()
+            "effectWidth" -> effectWidth.value = value.toDouble()
+            "effectSpeed" -> effectSpeed.value = value.toDouble()
+            else -> return false
+        }
+        return true
+    }
+
     /**
      * Builds the colour configuration panel.
      *
