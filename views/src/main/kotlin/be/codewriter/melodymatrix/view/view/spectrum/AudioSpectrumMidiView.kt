@@ -108,8 +108,10 @@ class AudioSpectrumMidiView : MmxView() {
             naturalWidth = NATURAL_WIDTH,
             naturalHeight = NATURAL_HEIGHT,
             captureNode = rootGrid,
-            captureWidth = NATURAL_WIDTH.toInt(),
-            captureHeight = NATURAL_HEIGHT.toInt()
+            // 0 = capture the grid as laid out: it stretches with the window, a fixed natural size cropped the bottom
+            // (the spectrum) off screenshots and videos taken in a larger window
+            captureWidth = 0,
+            captureHeight = 0
         ) {
             timer.stop()
         }
