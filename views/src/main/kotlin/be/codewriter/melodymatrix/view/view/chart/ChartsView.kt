@@ -92,16 +92,19 @@ class ChartsView : MmxView() {
             prefHeight = 230.0
             top = Button(label).apply {
                 prefWidth = 200.0
-                setOnAction {
-                    borderPane.center = (chart as Node)
-                    for (chartHolder in chartHolders) {
-                        if (chartHolder.label != label) {
-                            chartHolder.resetView()
-                        }
-                    }
-                }
+                setOnAction { expand() }
             }
             resetView()
+        }
+
+        /** Shows this chart in the central area and returns the other ones to their preview size. */
+        fun expand() {
+            borderPane.center = (chart as Node)
+            for (chartHolder in chartHolders) {
+                if (chartHolder.label != label) {
+                    chartHolder.resetView()
+                }
+            }
         }
 
         /**
@@ -115,6 +118,16 @@ class ChartsView : MmxView() {
                 prefHeight = 200.0
             }
         }
+    }
+
+    /** Video recorder script `ui.chart|<number 0-4 or the chart label>`: selects a chart like its button does. */
+    override fun demoSetting(name: String, value: String): Boolean {
+        if (name != "chart") return false
+        val holder = value.toIntOrNull()?.let { chartHolders.getOrNull(it) }
+            ?: chartHolders.firstOrNull { it.label.equals(value, ignoreCase = true) }
+            ?: return false
+        holder.expand()
+        return true
     }
 
     /**
