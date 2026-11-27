@@ -76,11 +76,13 @@ class GuitarView(
         settings?.bindBoolean(showAllPositionsProperty, REGISTRY_SHOW_ALL_POSITIONS)
         settings?.bindBoolean(keepLastChordProperty, REGISTRY_KEEP_LAST_CHORD)
 
+        val frame = MmxToolbar.frame(buildToolbar(), visualizer.rootNode)
         setupSurface(
-            rootNode = MmxToolbar.frame(buildToolbar(), visualizer.rootNode),
+            rootNode = frame,
             naturalWidth = 880.0,
             naturalHeight = 400.0,
-            captureNode = visualizer.rootNode
+            // Screenshots and videos include the toolbar: the mode switch decides what the fretboard shows
+            captureNode = frame
         )
 
         modeProperty.addListener { _, _, _ -> refresh() }
