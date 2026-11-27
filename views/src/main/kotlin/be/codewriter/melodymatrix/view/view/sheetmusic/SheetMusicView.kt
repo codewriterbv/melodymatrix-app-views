@@ -160,7 +160,9 @@ class SheetMusicView(settings: SettingHelper? = null) : MmxView() {
         }
         BorderPane.setMargin(zoomable, Insets(0.0))
 
-        setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + TOOLBAR_HEIGHT, sheet, onDispose = {
+        // The capture is the visible viewport (what the user sees), not the 1400x320 natural size of the sheet:
+        // the page is taller than that, so a fixed size cut the lower systems off screenshots and videos.
+        setupSurface(root, NATURAL_WIDTH, NATURAL_HEIGHT + TOOLBAR_HEIGHT, zoomable, onDispose = {
             disposed = true
             cursorAnimation.stop()
         })
