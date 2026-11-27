@@ -16,11 +16,13 @@ import javafx.scene.layout.*
  * The component keeps the rendering logic in one place and exposes lightweight
  * API methods to display either a chord fingering or playable note positions.
  */
-class GuitarVisualizer(private val mode: Mode) {
+class GuitarVisualizer(var mode: Mode) {
 
+    /** What the board is for: decides the text shown when nothing is played. */
     enum class Mode {
         CHORD,
-        NOTE
+        NOTE,
+        AUTO
     }
 
     val rootNode: VBox
@@ -59,6 +61,11 @@ class GuitarVisualizer(private val mode: Mode) {
             Mode.NOTE -> {
                 titleLabel.text = "Note: -"
                 detailsLabel.text = "Positions: -"
+            }
+
+            Mode.AUTO -> {
+                titleLabel.text = "Note or chord: -"
+                detailsLabel.text = "Play a note or a chord"
             }
         }
         clearFretboard()

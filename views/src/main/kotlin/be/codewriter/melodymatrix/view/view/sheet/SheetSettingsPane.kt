@@ -1,6 +1,6 @@
 package be.codewriter.melodymatrix.view.view.sheet
 
-import atlantafx.base.theme.Styles
+import be.codewriter.melodymatrix.view.component.PillSwitch
 import be.codewriter.melodymatrix.view.component.TickerSlider
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.I18n
@@ -13,8 +13,6 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.ColorPicker
-import javafx.scene.control.ToggleButton
-import javafx.scene.control.ToggleGroup
 import javafx.scene.control.ToolBar
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
@@ -64,28 +62,14 @@ class SheetSettingsPane(
     /** Adds the display mode switch for [property] to the toolbar and stores the choice. */
     fun displayMode(property: ObjectProperty<SheetDisplayMode>): SheetSettingsPane {
         settings?.bindEnum(property, key("displayMode"), SheetDisplayMode::class.java)
-        val group = ToggleGroup()
-        val buttons = SheetDisplayMode.entries.mapIndexed { index, mode ->
-            ToggleButton().apply {
-                textProperty().bind(I18n.binding(bundle, "sheet.mode.${mode.name.lowercase()}"))
-                toggleGroup = group
-                userData = mode
-                isSelected = property.get() == mode
-                styleClass.add(
-                    when (index) {
-                        0 -> Styles.LEFT_PILL
-                        SheetDisplayMode.entries.lastIndex -> Styles.RIGHT_PILL
-                        else -> Styles.CENTER_PILL
-                    }
-                )
-            }
-        }
-        group.selectedToggleProperty().addListener { _, old, selected ->
-            // A pill group always keeps one choice: clicking the selected button again re-selects it.
-            if (selected == null) old?.isSelected = true else property.set(selected.userData as SheetDisplayMode)
-        }
-        property.addListener { _, _, mode -> buttons.firstOrNull { it.userData == mode }?.isSelected = true }
-        toolbarItems.children.add(HBox(*buttons.toTypedArray()))
+        toolbarItems.children.add(
+            PillSwitch(
+                options = SheetDisplayMode.entries,
+                property = property,
+                labelOf = { I18n.binding(bundle, "sheet.mode.${it.name.lowercase()}") },
+                controlHeight = Region.USE_COMPUTED_SIZE // this bar is a fixed 44 px ToolBar: keep the natural button height
+            )
+        )
         return this
     }
 

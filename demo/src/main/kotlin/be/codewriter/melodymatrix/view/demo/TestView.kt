@@ -11,8 +11,7 @@ import be.codewriter.melodymatrix.view.view.chord.ChordRelationView
 import be.codewriter.melodymatrix.view.view.chord.ChordView
 import be.codewriter.melodymatrix.view.view.chord.CircleOfFifthsView
 import be.codewriter.melodymatrix.view.view.drum.DrumView
-import be.codewriter.melodymatrix.view.view.guitar.GuitarChordView
-import be.codewriter.melodymatrix.view.view.guitar.GuitarNoteView
+import be.codewriter.melodymatrix.view.view.guitar.GuitarView
 import be.codewriter.melodymatrix.view.view.flyover.FlyOverView
 import be.codewriter.melodymatrix.view.view.learnstrip.LearnStripView
 import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
@@ -93,8 +92,7 @@ class TestView : VBox() {
         StageOption(ChordView.Companion, "tab-chord") { ChordView() },
         StageOption(ChordRelationView.Companion, "tab-chord-relations") { ChordRelationView() },
         StageOption(CircleOfFifthsView.Companion, "tab-circle-of-fifths") { CircleOfFifthsView() },
-        StageOption(GuitarNoteView.Companion, "tab-guitar-note") { GuitarNoteView() },
-        StageOption(GuitarChordView.Companion, "tab-guitar-chord") { GuitarChordView() },
+        StageOption(GuitarView.Companion, "tab-guitar") { GuitarView() },
         StageOption(ChartsView.Companion, "tab-charts") { ChartsView() },
         StageOption(StaffView.Companion, "tab-scale") { StaffView() },
         StageOption(SheetMusicView.Companion, "tab-sheetmusic") { SheetMusicView() },
