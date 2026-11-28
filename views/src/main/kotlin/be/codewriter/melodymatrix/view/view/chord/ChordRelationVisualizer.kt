@@ -174,6 +174,11 @@ class ChordRelationVisualizer {
         pulseTimeline.stop()
     }
 
+    /** Runs or pauses the pulsing of the arrows: nothing needs to be redrawn while the view cannot be seen. */
+    fun setActive(active: Boolean) {
+        if (active) pulseTimeline.play() else pulseTimeline.pause()
+    }
+
     private fun enqueueSnapshot(snapshot: GraphSnapshot) {
         if (animating) {
             queuedSnapshot = snapshot

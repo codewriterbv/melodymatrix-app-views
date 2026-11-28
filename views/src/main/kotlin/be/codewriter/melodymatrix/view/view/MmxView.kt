@@ -5,6 +5,8 @@ import be.codewriter.melodymatrix.view.i18n.BundleRef
 import be.codewriter.melodymatrix.view.i18n.I18n
 import org.kordamp.ikonli.Ikon
 import javafx.beans.binding.StringBinding
+import javafx.beans.property.ReadOnlyBooleanProperty
+import javafx.beans.property.ReadOnlyBooleanWrapper
 import javafx.scene.Node
 
 /**
@@ -109,6 +111,22 @@ abstract class MmxView : MmxViewSurface {
         protected set
 
     private var disposeAction: () -> Unit = {}
+    private var onScreenTracker: OnScreenTracker? = null
+    private val onScreenWrapper = ReadOnlyBooleanWrapper(false)
+
+    /** `true` while the view is really visible: its tab is selected, the window is showing and not minimised. */
+    protected val onScreen: ReadOnlyBooleanProperty
+        get() = onScreenWrapper.readOnlyProperty
+
+    /**
+     * Runs [show] when the view becomes visible and [hide] when it no longer is, and once right away for the current
+     * state. Use it to start and stop animation timers: a view that cannot be seen must not draw. Call it after
+     * [setupSurface].
+     */
+    protected fun whileOnScreen(show: () -> Unit, hide: () -> Unit) {
+        onScreenWrapper.addListener { _, _, visible -> if (visible) show() else hide() }
+        if (onScreenWrapper.get()) show() else hide()
+    }
 
     protected fun setupSurface(
         rootNode: Node,
@@ -126,10 +144,15 @@ abstract class MmxView : MmxViewSurface {
         this.captureWidth = captureWidth
         this.captureHeight = captureHeight
         this.disposeAction = onDispose
+        onScreenTracker?.dispose()
+        onScreenTracker = OnScreenTracker(rootNode).also { onScreenWrapper.bind(it.showing) }
     }
 
     override fun dispose() {
         disposeAction()
+        onScreenWrapper.unbind()
+        onScreenTracker?.dispose()
+        onScreenTracker = null
     }
 }
 

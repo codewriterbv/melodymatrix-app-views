@@ -115,7 +115,8 @@ class AudioSpectrumMidiView : MmxView() {
         ) {
             timer.stop()
         }
-        timer.start()
+        // Only draw while the view can be seen (selected tab, window showing and not minimised)
+        whileOnScreen(show = { timer.start() }, hide = { timer.stop() })
     }
 
     override fun onEvent(event: MmxEvent) {

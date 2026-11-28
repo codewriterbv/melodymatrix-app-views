@@ -65,6 +65,8 @@ class ChordRelationView(
         ) {
             visualizer.stop()
         }
+        // Only animate while the view can be seen (selected tab, window showing and not minimised)
+        whileOnScreen(show = { visualizer.setActive(true) }, hide = { visualizer.setActive(false) })
     }
 
     private fun restoreSettings() {

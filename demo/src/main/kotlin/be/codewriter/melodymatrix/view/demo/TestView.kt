@@ -18,6 +18,7 @@ import be.codewriter.melodymatrix.view.view.ledstrip.LedStripView
 import be.codewriter.melodymatrix.view.view.midi.MidiActivityView
 import be.codewriter.melodymatrix.view.view.midi.MidiView
 import be.codewriter.melodymatrix.view.view.mood.MoodColorView
+import be.codewriter.melodymatrix.view.view.pattern.ColorPatternsView
 import be.codewriter.melodymatrix.view.view.piano.PianoSimpleView
 import be.codewriter.melodymatrix.view.view.piano.PianoWithEffectsView
 import be.codewriter.melodymatrix.view.view.sheetmusic.SheetMusicView
@@ -85,6 +86,7 @@ class TestView : VBox() {
         StageOption(MidiView.Companion, "tab-midi") { MidiView() },
         StageOption(MidiActivityView.Companion, "tab-midi-activity") { MidiActivityView() },
         StageOption(MoodColorView.Companion, "tab-mood-color") { MoodColorView() },
+        StageOption(ColorPatternsView.Companion, "tab-color-patterns") { ColorPatternsView() },
         StageOption(PianoWithEffectsView.Companion, "tab-piano-effects") {
             PianoWithEffectsView(licenseStatus, true)
         },

@@ -196,12 +196,14 @@ class MoodColorView(
         rootNode = root
         setupSurface(root, 1000.0, 700.0, canvasPane, 1000, 700) { timer.stop() }
 
-        root.sceneProperty().addListener { _, _, scene ->
-            if (scene != null) {
+        // Only draw while the view can be seen (selected tab, window showing and not minimised)
+        whileOnScreen(
+            show = {
                 lastNanos = 0L
                 timer.start()
-            } else timer.stop()
-        }
+            },
+            hide = { timer.stop() }
+        )
     }
 
     override fun onEvent(event: MmxEvent) {

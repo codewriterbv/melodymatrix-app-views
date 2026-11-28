@@ -91,6 +91,16 @@ class PianoCanvas(val config: PianoConfiguration) : Canvas() {
         animationTimer.start()
     }
 
+    /** Stops drawing while the canvas cannot be seen. The animation state keeps being calculated, so [resume] shows the current picture. */
+    fun pause() {
+        animationTimer.stop()
+    }
+
+    /** Continues drawing after [pause]. */
+    fun resume() {
+        animationTimer.start()
+    }
+
     /**
      * Stops the animation timer and shuts down the background [AnimationCalculator].
      *

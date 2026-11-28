@@ -165,6 +165,17 @@ class PianoWithEffectsView(
             fpsTimer?.stop()
             pianoCanvas.stop()
         }
+        // Only draw while the view can be seen (selected tab, window showing and not minimised)
+        whileOnScreen(
+            show = {
+                pianoCanvas.resume()
+                fpsTimer?.start()
+            },
+            hide = {
+                pianoCanvas.pause()
+                fpsTimer?.stop()
+            }
+        )
     }
 
     override fun demoSettingsPanel(name: String): Node? = when (name) {
