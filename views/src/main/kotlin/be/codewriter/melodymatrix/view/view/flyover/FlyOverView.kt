@@ -9,6 +9,7 @@ import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.ScoreFollower
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.view.sheet.SheetSettingsPane
 import com.sheetmusic4j.core.model.Score
 import com.sheetmusic4j.engraving.layout.NoteAnchor
@@ -113,10 +114,7 @@ class FlyOverView(settings: SettingHelper? = null) : MmxView() {
             minHeightValue = 180.0,
             fitMode = ZoomableNode.FitMode.CONTAIN
         )
-        val root = BorderPane().apply {
-            top = VBox(settingsPane, hintLabel)
-            center = zoomable
-        }
+        val root = MmxToolbar.frame(VBox(settingsPane, hintLabel), zoomable)
         setupSurface(
             root, NATURAL_WIDTH, NATURAL_HEIGHT + HINT_HEIGHT + SheetSettingsPane.TOOLBAR_HEIGHT,
             captureNode = flyOver,

@@ -18,6 +18,7 @@ import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.ScoreFollower
 import be.codewriter.melodymatrix.view.view.sheet.ScorePlaybackClock
 import be.codewriter.melodymatrix.view.view.sheet.SheetDisplayMode
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.view.sheet.SheetSettingsPane
 import com.sheetmusic4j.core.model.MusicElement
 import com.sheetmusic4j.core.model.Score
@@ -152,13 +153,9 @@ class SheetMusicView(settings: SettingHelper? = null) : MmxView() {
             fitMode = ZoomableNode.FitMode.CONTAIN
         )
 
-        val root = BorderPane().apply {
-            top = toolbar
-            center = zoomable
-            padding = Insets(0.0)
+        val root = MmxToolbar.frame(toolbar, zoomable).apply {
             style = "-fx-background-color: transparent;"
         }
-        BorderPane.setMargin(zoomable, Insets(0.0))
 
         // The capture is the visible viewport (what the user sees), not the 1400x320 natural size of the sheet:
         // the page is taller than that, so a fixed size cut the lower systems off screenshots and videos.

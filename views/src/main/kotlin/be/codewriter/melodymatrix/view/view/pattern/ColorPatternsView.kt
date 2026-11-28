@@ -5,13 +5,14 @@ import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
 import be.codewriter.melodymatrix.view.event.PlaybackPositionEvent
+import be.codewriter.melodymatrix.view.component.MmxSettingsForm
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.mood.MoodAnalyzer
 import javafx.animation.AnimationTimer
-import javafx.beans.binding.StringBinding
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.DoubleProperty
 import javafx.beans.property.IntegerProperty
@@ -20,27 +21,12 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.geometry.Insets
-import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.canvas.Canvas
 import javafx.scene.SnapshotParameters
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ComboBox
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ScrollPane
-import javafx.scene.control.Slider
-import javafx.scene.control.ToggleButton
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
@@ -152,24 +138,14 @@ class ColorPatternsView(
             }
         }
 
-        val panelToggle = ToggleButton().apply {
-            textProperty().bind(binding("settings"))
-            isSelected = true
-            style = "-fx-background-color: rgba(10,16,26,0.7); -fx-text-fill: white; -fx-background-radius: 9;"
-        }
-        val panel = settingsPanel()
-        panel.visibleProperty().bind(panelToggle.selectedProperty())
-        panel.managedProperty().bind(panel.visibleProperty())
-
-        val overlay = VBox(8.0, panelToggle, panel).apply {
-            alignment = Pos.TOP_RIGHT
-            padding = Insets(12.0)
-            isPickOnBounds = false
-            maxWidth = PANEL_WIDTH + 24.0
-        }
-        val root = StackPane(canvasPane, overlay).apply {
+        val toolbar = MmxToolbar.create(
+            MmxToolbar.settingsButton(key("pattern"), bundle, ::owner) { MmxSettingsForm(bundle).also(::fillPattern) },
+            MmxToolbar.settingsButton(key("toolbar.colors"), bundle, ::owner) { MmxSettingsForm(bundle).also(::fillColors) },
+            MmxToolbar.settingsButton(key("toolbar.motion"), bundle, ::owner) { MmxSettingsForm(bundle).also(::fillMotion) },
+            MmxToolbar.actionButton(key("reset"), bundle) { resetDefaults() }
+        )
+        val root = MmxToolbar.frame(toolbar, canvasPane).apply {
             style = "-fx-background-color: $BACKGROUND_CSS;"
-            StackPane.setAlignment(overlay, Pos.TOP_RIGHT)
         }
 
         rootNode = root
@@ -576,97 +552,32 @@ class ColorPatternsView(
         gc.fill()
     }
 
-    // --- settings panel -------------------------------------------------------------------------
+    // --- settings ---------------------------------------------------------------------------------
 
-    /** The same panel as in the view, for the video recorder (`panel|patterns`). */
-    override fun demoSettingsPanel(name: String): Node? = if (name == "patterns") settingsPanel() else null
+    private fun owner() = rootNode.scene?.window
 
-    private fun settingsPanel(): ScrollPane {
-        val grid = GridPane().apply {
-            hgap = 8.0
-            vgap = 6.0
-        }
-        var row = 0
-        fun setting(labelKey: String, control: Node) {
-            grid.add(Label().apply {
-                textProperty().bind(binding(labelKey))
-                style = "-fx-text-fill: #f2f7ff;"
-            }, 0, row)
-            grid.add(control, 1, row++)
-        }
+    private fun key(name: String) = "$PREFIX.$name"
 
-        setting("pattern", enumCombo(pattern, Pattern.entries) { "pattern.${it.key}" })
-        setting("palette", enumCombo(palette, Palette.entries) { "palette.${it.key}" })
-        setting("bars", slider(bars, MIN_BARS.toDouble(), PitchEnergy.KEYS.toDouble()))
-        setting("spread", slider(spread, 0.0, 1.0))
-        setting("release", slider(release, 0.1, 3.0))
-        setting("glow", slider(glow, 0.0, 1.0))
-        setting("rotation", slider(rotation, 0.0, 3.0))
-        setting("idle", CheckBox().apply { selectedProperty().bindBidirectional(shimmer) })
-
-        grid.add(Button().apply {
-            textProperty().bind(binding("reset"))
-            setOnAction { resetDefaults() }
-        }, 0, row, 2, 1)
-
-        return ScrollPane(grid).apply {
-            isFitToWidth = true
-            prefWidth = PANEL_WIDTH
-            maxWidth = PANEL_WIDTH
-            maxHeight = Double.MAX_VALUE
-            padding = Insets(4.0)
-            style = "-fx-background: rgba(10,16,26,0.82); -fx-background-color: rgba(10,16,26,0.82); -fx-background-radius: 12;"
-            grid.padding = Insets(8.0)
-            VBox.setVgrow(this, Priority.ALWAYS)
-        }
+    private fun fillPattern(form: MmxSettingsForm) {
+        form.choice(key("pattern"), pattern, Pattern.entries) { key("pattern.${it.key}") }
+            .integerSlider(key("bars"), bars, MIN_BARS, PitchEnergy.KEYS)
+            .slider(key("spread"), spread, 0.0, 1.0)
     }
 
-    private fun slider(property: DoubleProperty, min: Double, max: Double): Node =
-        sliderRow(Slider(min, max, property.get()).also { property.bindBidirectional(it.valueProperty()) }, "%.2f")
-
-    private fun slider(property: IntegerProperty, min: Double, max: Double): Node {
-        val slider = Slider(min, max, property.get().toDouble()).apply {
-            isSnapToTicks = true
-            majorTickUnit = 1.0
-            minorTickCount = 0
-            blockIncrement = 1.0
-        }
-        slider.valueProperty().addListener { _, _, v -> property.set(v.toInt()) }
-        property.addListener { _, _, v -> if (slider.value.toInt() != v.toInt()) slider.value = v.toDouble() }
-        return sliderRow(slider, "%.0f")
+    private fun fillColors(form: MmxSettingsForm) {
+        form.choice(key("palette"), palette, Palette.entries) { key("palette.${it.key}") }
+            .slider(key("glow"), glow, 0.0, 1.0)
     }
 
-    private fun sliderRow(slider: Slider, format: String): Node {
-        slider.prefWidth = SLIDER_WIDTH
-        val value = Label().apply {
-            textProperty().bind(slider.valueProperty().asString(format))
-            style = "-fx-text-fill: #cfe0f5; -fx-font-size: 11px;"
-            minWidth = 34.0
-        }
-        return HBox(4.0, slider, value).apply { alignment = Pos.CENTER_LEFT }
+    private fun fillMotion(form: MmxSettingsForm) {
+        form.slider(key("release"), release, 0.1, 3.0)
+            .slider(key("rotation"), rotation, 0.0, 3.0)
+            .toggle(key("idle"), shimmer)
     }
 
-    private fun <T : Enum<T>> enumCombo(
-        property: ObjectProperty<T>,
-        items: List<T>,
-        keyOf: (T) -> String
-    ): ComboBox<T> = ComboBox<T>().apply {
-        this.items.setAll(items)
-        valueProperty().bindBidirectional(property)
-        val cellFactory = {
-            object : ListCell<T>() {
-                override fun updateItem(item: T?, empty: Boolean) {
-                    super.updateItem(item, empty)
-                    textProperty().unbind()
-                    if (empty || item == null) text = null else textProperty().bind(binding(keyOf(item)))
-                }
-            }
-        }
-        setCellFactory { cellFactory() }
-        buttonCell = cellFactory()
-        prefWidth = COMBO_WIDTH
-        maxWidth = Double.MAX_VALUE
-    }
+    /** All settings in one panel, for the video recorder (`panel|patterns`). */
+    override fun demoSettingsPanel(name: String): Node? =
+        if (name == "patterns") MmxSettingsForm(bundle).also { fillPattern(it); fillColors(it); fillMotion(it) } else null
 
     private fun resetDefaults() {
         pattern.set(Pattern.PILLARS)
@@ -690,8 +601,6 @@ class ColorPatternsView(
         settings.bindBoolean(shimmer, "$SETTING_PREFIX.idle")
     }
 
-    private fun binding(key: String): StringBinding = I18n.binding(bundle, "$PREFIX.$key")
-
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/pattern"
         override val bundleKeyPrefix = "pattern."
@@ -701,9 +610,6 @@ class ColorPatternsView(
         private const val PREFIX = "pattern"
         private const val SETTING_PREFIX = "view.pattern"
         private const val BACKGROUND_CSS = "#05070b"
-        private const val PANEL_WIDTH = 330.0
-        private const val SLIDER_WIDTH = 110.0
-        private const val COMBO_WIDTH = 140.0
         private const val MAX_FRAME_SECONDS = 0.1
         private const val MIN_BARS = 8
         private const val DEFAULT_BARS = 44

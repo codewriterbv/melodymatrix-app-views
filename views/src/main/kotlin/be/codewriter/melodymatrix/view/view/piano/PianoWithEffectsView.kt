@@ -8,6 +8,7 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.*
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.BundleRef
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxNoteDispatcher
 import be.codewriter.melodymatrix.view.view.MmxView
@@ -190,9 +191,7 @@ class PianoWithEffectsView(
     }
 
     private fun createSettingsToolbar(): HBox {
-        return HBox(8.0).apply {
-            alignment = Pos.CENTER_LEFT
-            padding = Insets(0.0, 0.0, 8.0, 0.0)
+        return MmxToolbar.create().apply {
             children.addAll(
                 ColorPicker().apply {
                     valueProperty().bindBidirectional(config.backgroundColor)

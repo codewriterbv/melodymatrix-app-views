@@ -6,6 +6,8 @@ import be.codewriter.melodymatrix.view.definition.MidiEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
 import be.codewriter.melodymatrix.view.event.MmxEventType
+import be.codewriter.melodymatrix.view.component.MmxToolbar
+import be.codewriter.melodymatrix.view.component.toolbarHeight
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
@@ -117,8 +119,7 @@ class MidiView : MmxView() {
 
         val clearEventsButton = Button().apply {
             textProperty().bind(binding("activity.clear"))
-            style =
-                "-fx-background-color: #2f6fb1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 9; -fx-padding: 8 14 8 14;"
+            toolbarHeight()
             setOnAction {
                 midiDataEventList.clear()
                 clearDecodedValues()
@@ -137,17 +138,8 @@ class MidiView : MmxView() {
                 "-fx-background-color: rgba(118,195,255,0.18); -fx-text-fill: #dbeeff; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 999; -fx-padding: 5 10 5 10;"
         }
 
-        // Same header as the MIDI activity view: title on the left, actions on the right.
-        val header = HBox(
-            12.0,
-            Label().apply {
-                textProperty().bind(titleBinding())
-                style = "-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f2f7ff;"
-            },
-            Region().also { HBox.setHgrow(it, Priority.ALWAYS) },
-            eventCounterLabel,
-            clearEventsButton
-        ).apply { alignment = Pos.CENTER_LEFT }
+        // The standard top bar of every view; the tab already shows the title
+        val header = MmxToolbar.create(clearEventsButton, eventCounterLabel)
 
         val tablePanel = VBox(10.0).apply {
             padding = Insets(16.0)
@@ -238,7 +230,7 @@ class MidiView : MmxView() {
         VBox.setVgrow(body, Priority.ALWAYS)
 
         val root = VBox(16.0, header, body).apply {
-            padding = Insets(20.0)
+            padding = Insets(MmxToolbar.FRAME_PADDING)
             style = "-fx-background-color: linear-gradient(to bottom, #091019, #0f1a27);"
         }
 

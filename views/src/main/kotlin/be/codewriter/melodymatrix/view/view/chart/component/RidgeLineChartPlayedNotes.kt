@@ -34,6 +34,7 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
     private val chartBox: VBox = VBox().apply {
         prefHeight = Double.MAX_VALUE
         prefWidth = Double.MAX_VALUE
+        minHeight = 0.0
         //style = "-fx-border-color: black; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
     }
 
@@ -48,6 +49,9 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
 
     private var chords: MutableMap<Octave, List<XYChartItem>> =
         mutableMapOf()
+
+    /** The ridge of every octave; they share one vertical scale so the octaves stay comparable. */
+    private val ridgePanes = mutableListOf<XYPane<*>>()
 
     init {
         for (octave in Note.usedAndSortedOctaves()) {
@@ -72,15 +76,25 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                 .strokeWidth(1.0)
                 .build()
             val ridgeLineChart = XYPane(xySeries).apply {
-                upperBoundX = xySeries.items.size.toDouble()
+                // The last note sits at x = size - 1: with size as the bound the ridge stopped short of the right edge
+                upperBoundX = xySeries.items.size - 1.0
+                upperBoundY = MIN_RANGE
                 prefWidth = Double.MAX_VALUE
+                // Fill the height of the row, like the other charts fill the area they are expanded into
+                minHeight = 0.0
+                maxHeight = Double.MAX_VALUE
                 //style = "-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
                 HBox.setHgrow(this, Priority.ALWAYS)
             }
 
+            ridgePanes.add(ridgeLineChart)
             chartBox.children.add(HBox().apply {
                 alignment = Pos.CENTER_LEFT
                 prefWidth = Double.MAX_VALUE
+                // Every octave gets an equal share of the height when the chart is enlarged
+                minHeight = 0.0
+                maxHeight = Double.MAX_VALUE
+                VBox.setVgrow(this, Priority.ALWAYS)
                 //style =
                 //    "-fx-border-color: blue; -fx-border-width: 2px; -fx-border-style: solid; -fx-border-radius: 5px;"
                 children.addAll(
@@ -110,7 +124,15 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                     }
                 }
             }
+            rescale()
         }
+    }
+
+    /** Fits the vertical scale to the highest count, like the other charts do, so the ridges use the room they get. */
+    private fun rescale() {
+        val peak = chords.values.maxOfOrNull { items -> items.maxOfOrNull { it.y } ?: 0.0 } ?: 0.0
+        val range = maxOf(MIN_RANGE, peak * HEADROOM)
+        ridgePanes.forEach { it.upperBoundYProperty().set(range) }
     }
 
     /**
@@ -123,6 +145,15 @@ class RidgeLineChartPlayedNotes : ChartBase(), ChartVisualizer {
                     value.y = 0.0
                 }
             }
+            rescale()
         }
+    }
+
+    private companion object {
+        /** Smallest vertical range, so the first few notes do not fill the whole row. */
+        const val MIN_RANGE = 5.0
+
+        /** Room above the highest ridge. */
+        const val HEADROOM = 1.15
     }
 }

@@ -1,5 +1,7 @@
 package be.codewriter.melodymatrix.view.view.mood
 
+import be.codewriter.melodymatrix.view.component.MmxSettingsForm
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.event.ChordEvent
 import be.codewriter.melodymatrix.view.event.MidiDataEvent
 import be.codewriter.melodymatrix.view.event.MmxEvent
@@ -11,7 +13,6 @@ import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import javafx.animation.AnimationTimer
-import javafx.beans.binding.StringBinding
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.DoubleProperty
 import javafx.beans.property.IntegerProperty
@@ -20,23 +21,10 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.geometry.Insets
-import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.ComboBox
 import javafx.scene.Node
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ScrollPane
-import javafx.scene.control.Slider
-import javafx.scene.control.ToggleButton
-import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
@@ -173,24 +161,13 @@ class MoodColorView(
             }
         }
 
-        val panelToggle = ToggleButton().apply {
-            textProperty().bind(binding("settings"))
-            isSelected = true
-            style = "-fx-background-color: rgba(10,16,26,0.7); -fx-text-fill: white; -fx-background-radius: 9;"
-        }
-        val panel = settingsPanel()
-        panel.visibleProperty().bind(panelToggle.selectedProperty())
-        panel.managedProperty().bind(panel.visibleProperty())
-
-        val overlay = VBox(8.0, panelToggle, panel).apply {
-            alignment = Pos.TOP_RIGHT
-            padding = Insets(12.0)
-            isPickOnBounds = false
-            maxWidth = PANEL_WIDTH + 24.0
-        }
-        val root = StackPane(canvasPane, overlay).apply {
+        val toolbar = MmxToolbar.create(
+            MmxToolbar.settingsButton(key("section.mapping"), bundle, ::owner) { MmxSettingsForm(bundle).also(::fillMapping) },
+            MmxToolbar.settingsButton(key("section.look"), bundle, ::owner) { MmxSettingsForm(bundle).also(::fillLook) },
+            MmxToolbar.actionButton(key("reset"), bundle) { resetDefaults() }
+        )
+        val root = MmxToolbar.frame(toolbar, canvasPane).apply {
             style = "-fx-background-color: #05070b;"
-            StackPane.setAlignment(overlay, Pos.TOP_RIGHT)
         }
 
         rootNode = root
@@ -408,119 +385,33 @@ class MoodColorView(
         gc.globalBlendMode = BlendMode.SRC_OVER
     }
 
-    /** The same panel as in the view, for the video recorder (`panel|mood`). */
-    override fun demoSettingsPanel(name: String): Node? = if (name == "mood") settingsPanel() else null
+    private fun owner() = rootNode.scene?.window
 
-    private fun settingsPanel(): ScrollPane {
-        val grid = GridPane().apply {
-            hgap = 8.0
-            vgap = 6.0
-        }
-        var row = 0
-        fun section(key: String) {
-            grid.add(Label().apply {
-                textProperty().bind(binding(key))
-                style = "-fx-text-fill: #9fb1c8; -fx-font-weight: bold; -fx-padding: 8 0 0 0;"
-            }, 0, row++, 4, 1)
-        }
+    private fun key(name: String) = "$PREFIX.$name"
 
-        section("section.mapping")
-        grid.add(headerLabel("header.source"), 1, row)
-        grid.add(headerLabel("header.min"), 2, row)
-        grid.add(headerLabel("header.max"), 3, row++)
+    /** One section per visual channel: what it follows and between which values. */
+    private fun fillMapping(form: MmxSettingsForm) {
         channels.forEach { channel ->
-            grid.add(textLabel(binding("channel.${channel.name}")), 0, row)
-            grid.add(enumCombo(channel.source, Source.entries, { "source.${it.key}" }), 1, row)
-            grid.add(slider(channel.min, channel.range.start, channel.range.endInclusive), 2, row)
-            grid.add(slider(channel.max, channel.range.start, channel.range.endInclusive), 3, row++)
-        }
-
-        section("section.look")
-        fun setting(labelKey: String, control: javafx.scene.Node) {
-            grid.add(textLabel(binding(labelKey)), 0, row)
-            grid.add(control, 1, row++, 3, 1)
-        }
-        setting("pattern", enumCombo(pattern, Pattern.entries, { "pattern.${it.key}" }))
-        setting("layers", slider(layers, 1.0, 12.0, integer = true))
-        setting("variety", slider(variety, 0.0, 120.0))
-        setting("reaction", slider(reaction, MIN_REACTION, 3.0))
-        setting("trails", slider(trails, 0.0, 1.0))
-        setting("rate", slider(maxNotesPerSecond, 1.0, 20.0))
-        setting("idle", CheckBox().apply { selectedProperty().bindBidirectional(idleGlow) })
-
-        grid.add(Button().apply {
-            textProperty().bind(binding("reset"))
-            setOnAction { resetDefaults() }
-        }, 0, row, 4, 1)
-
-        return ScrollPane(grid).apply {
-            isFitToWidth = true
-            prefWidth = PANEL_WIDTH
-            maxWidth = PANEL_WIDTH
-            maxHeight = Double.MAX_VALUE
-            padding = Insets(4.0)
-            style = "-fx-background: rgba(10,16,26,0.82); -fx-background-color: rgba(10,16,26,0.82); -fx-background-radius: 12;"
-            grid.padding = Insets(8.0)
-            VBox.setVgrow(this, javafx.scene.layout.Priority.ALWAYS)
+            form.section(key("channel.${channel.name}"))
+                .choice(key("header.source"), channel.source, Source.entries) { key("source.${it.key}") }
+                .slider(key("header.min"), channel.min, channel.range.start, channel.range.endInclusive)
+                .slider(key("header.max"), channel.max, channel.range.start, channel.range.endInclusive)
         }
     }
 
-    private fun textLabel(text: StringBinding) = Label().apply {
-        textProperty().bind(text)
-        style = "-fx-text-fill: #f2f7ff;"
+    private fun fillLook(form: MmxSettingsForm) {
+        form.choice(key("pattern"), pattern, Pattern.entries) { key("pattern.${it.key}") }
+            .integerSlider(key("layers"), layers, 1, 12)
+            .slider(key("variety"), variety, 0.0, 120.0)
+            .slider(key("reaction"), reaction, MIN_REACTION, 3.0)
+            .slider(key("trails"), trails, 0.0, 1.0)
+            .slider(key("rate"), maxNotesPerSecond, 1.0, 20.0)
+            .toggle(key("idle"), idleGlow)
     }
 
-    private fun headerLabel(key: String) = Label().apply {
-        textProperty().bind(binding(key))
-        style = "-fx-text-fill: #9fb1c8; -fx-font-size: 11px;"
-    }
-
-    private fun slider(property: DoubleProperty, min: Double, max: Double): javafx.scene.Node =
-        sliderRow(Slider(min, max, property.get()).also { property.bindBidirectional(it.valueProperty()) }, "%.2f")
-
-    private fun slider(property: IntegerProperty, min: Double, max: Double, integer: Boolean): javafx.scene.Node {
-        val slider = Slider(min, max, property.get().toDouble()).apply {
-            isSnapToTicks = integer
-            majorTickUnit = 1.0
-            minorTickCount = 0
-            blockIncrement = 1.0
-        }
-        slider.valueProperty().addListener { _, _, v -> property.set(v.toInt()) }
-        property.addListener { _, _, v -> if (slider.value.toInt() != v.toInt()) slider.value = v.toDouble() }
-        return sliderRow(slider, "%.0f")
-    }
-
-    private fun sliderRow(slider: Slider, format: String): javafx.scene.Node {
-        slider.prefWidth = SLIDER_WIDTH
-        val value = Label().apply {
-            textProperty().bind(slider.valueProperty().asString(format))
-            style = "-fx-text-fill: #cfe0f5; -fx-font-size: 11px;"
-            minWidth = 34.0
-        }
-        return javafx.scene.layout.HBox(4.0, slider, value).apply { alignment = Pos.CENTER_LEFT }
-    }
-
-    private fun <T : Enum<T>> enumCombo(
-        property: ObjectProperty<T>,
-        items: List<T>,
-        keyOf: (T) -> String
-    ): ComboBox<T> = ComboBox<T>().apply {
-        this.items.setAll(items)
-        valueProperty().bindBidirectional(property)
-        val cellFactory = {
-            object : ListCell<T>() {
-                override fun updateItem(item: T?, empty: Boolean) {
-                    super.updateItem(item, empty)
-                    textProperty().unbind()
-                    if (empty || item == null) text = null else textProperty().bind(binding(keyOf(item)))
-                }
-            }
-        }
-        setCellFactory { cellFactory() }
-        buttonCell = cellFactory()
-        prefWidth = COMBO_WIDTH
-        maxWidth = Double.MAX_VALUE
-    }
+    /** All settings in one panel, for the video recorder (`panel|mood`). */
+    override fun demoSettingsPanel(name: String): Node? =
+        if (name == "mood") MmxSettingsForm(bundle).also { fillMapping(it); fillLook(it) } else null
 
     private fun resetDefaults() {
         val defaults = listOf(
@@ -556,8 +447,6 @@ class MoodColorView(
         settings.bindDouble(maxNotesPerSecond, "$SETTING_PREFIX.rate")
     }
 
-    private fun binding(key: String): StringBinding = I18n.binding(bundle, "$PREFIX.$key")
-
     companion object : MmxViewMetadata {
         override val bundleBaseName = "i18n/view/mood"
         override val bundleKeyPrefix = "mood."
@@ -566,9 +455,6 @@ class MoodColorView(
 
         private const val PREFIX = "mood"
         private const val SETTING_PREFIX = "view.mood"
-        private const val PANEL_WIDTH = 400.0
-        private const val SLIDER_WIDTH = 90.0
-        private const val COMBO_WIDTH = 120.0
         private const val MAX_FRAME_SECONDS = 0.1
         private const val MIN_REACTION = 0.05
         private const val ATTACK_FACTOR = 0.25

@@ -12,6 +12,7 @@ import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.MmxView
 import be.codewriter.melodymatrix.view.view.MmxViewMetadata
 import be.codewriter.melodymatrix.view.view.sheet.ScoreFollower
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.view.sheet.SheetSettingsPane
 import com.sheetmusic4j.core.model.MusicElement
 import com.sheetmusic4j.core.model.Score
@@ -111,11 +112,7 @@ class LearnStripView(settings: SettingHelper? = null) : MmxView() {
             minHeightValue = 80.0,
             fitMode = ZoomableNode.FitMode.CONTAIN
         )
-        val root = BorderPane().apply {
-            top = VBox(settingsPane, hintLabel)
-            center = zoomable
-            padding = Insets(0.0)
-        }
+        val root = MmxToolbar.frame(VBox(settingsPane, hintLabel), zoomable)
         // The strip paints its own page colour, also past the end of a short score.
         zoomable.backgroundProperty().bind(strip.pageColorProperty().map { Background.fill(it) })
         setupSurface(

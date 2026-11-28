@@ -1,7 +1,9 @@
 package be.codewriter.melodymatrix.view.view.sheet
 
+import be.codewriter.melodymatrix.view.component.MmxToolbar
 import be.codewriter.melodymatrix.view.component.PillSwitch
 import be.codewriter.melodymatrix.view.component.TickerSlider
+import be.codewriter.melodymatrix.view.component.toolbarHeight
 import be.codewriter.melodymatrix.view.helper.SettingHelper
 import be.codewriter.melodymatrix.view.i18n.I18n
 import be.codewriter.melodymatrix.view.view.piano.configurator.BaseConfigurator
@@ -13,9 +15,10 @@ import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.ColorPicker
-import javafx.scene.control.ToolBar
+import javafx.scene.control.ComboBox
+import javafx.scene.control.Spinner
 import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
 import javafx.scene.paint.Color
 
@@ -36,18 +39,21 @@ class SheetSettingsPane(
     private val settings: SettingHelper?,
     private val viewKey: String,
     private val viewTitle: () -> String
-) : ToolBar() {
+) : HBox(8.0) {
 
     private val bundle = I18n.registerBundle(BUNDLE_BASE_NAME)
     private val toolbarItems = HBox(8.0).apply { alignment = Pos.CENTER_LEFT }
-    private val dialogButtons = HBox(8.0).apply { alignment = Pos.CENTER_RIGHT }
+    private val dialogButtons = HBox(8.0).apply { alignment = Pos.CENTER_LEFT }
 
     /** The dialog that new sections and controls are added to; created on first use. */
     private var currentDialog: DialogEntries? = null
 
     init {
-        val spacer = Region().apply { HBox.setHgrow(this, Priority.ALWAYS) }
-        items.addAll(toolbarItems, spacer, dialogButtons)
+        // The standard top bar of every view (see MmxToolbar): left aligned, the settings buttons after the view's own controls
+        alignment = Pos.CENTER_LEFT
+        padding = MmxToolbar.BAR_PADDING
+        styleClass.add(MmxToolbar.STYLE_CLASS)
+        children.addAll(toolbarItems, dialogButtons)
     }
 
     /**
@@ -67,7 +73,6 @@ class SheetSettingsPane(
                 options = SheetDisplayMode.entries,
                 property = property,
                 labelOf = { I18n.binding(bundle, "sheet.mode.${it.name.lowercase()}") },
-                controlHeight = Region.USE_COMPUTED_SIZE // this bar is a fixed 44 px ToolBar: keep the natural button height
             )
         )
         return this
@@ -75,6 +80,7 @@ class SheetSettingsPane(
 
     /** Adds [nodes] (controls of the view itself) to the toolbar. */
     fun toolbar(vararg nodes: Node): SheetSettingsPane {
+        nodes.forEach(::standardHeight)
         toolbarItems.children.addAll(*nodes)
         return this
     }
@@ -137,6 +143,7 @@ class SheetSettingsPane(
         val dialog = DialogEntries()
         dialogsByKey[buttonKey] = dialog
         dialogButtons.children.add(Button().apply {
+            toolbarHeight()
             textProperty().bind(I18n.binding(bundle, buttonKey))
             setOnAction {
                 val configurator = SheetConfigurator(bundle)
@@ -153,6 +160,12 @@ class SheetSettingsPane(
     }
 
     private fun key(name: String): String = "view.$viewKey.$name"
+
+    /** Gives the buttons, drop-downs and spinners in [node] the height of the other toolbar controls. */
+    private fun standardHeight(node: Node) {
+        if (node is Button || node is ComboBox<*> || node is Spinner<*>) (node as Region).toolbarHeight()
+        if (node is Pane) node.children.forEach(::standardHeight)
+    }
 
     /** Dialog content: section titles and labelled controls, laid out like the piano configurators. */
     private class SheetConfigurator(bundle: be.codewriter.melodymatrix.view.i18n.BundleRef) :
@@ -178,7 +191,7 @@ class SheetSettingsPane(
     companion object {
         const val BUNDLE_BASE_NAME: String = "i18n/view/sheet"
 
-        /** Natural height of the toolbar. */
-        const val TOOLBAR_HEIGHT: Double = 44.0
+        /** Natural height of the toolbar with the padding of the view frame around it (see [MmxToolbar.frame]). */
+        const val TOOLBAR_HEIGHT: Double = 68.0
     }
 }
